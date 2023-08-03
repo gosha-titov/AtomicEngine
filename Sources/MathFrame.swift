@@ -4,7 +4,70 @@ internal final class MathFrame {
     internal typealias OptionalSequence = [Int?]
     internal typealias Subsequence = [Int]
     
-    internal typealias Pair = (sequence: OptionalSequence, subsequence: Subsequence)
+    
+    // MARK: Basis
+    
+    /// A math basis created from two texts.
+    ///
+    /// This is the final result of the work of `MathFrame`.
+    ///
+    ///     let accurateText = "Hello"
+    ///     let comparedText = "hola"
+    ///
+    ///     let basis = MathFrame.calculateBasis(
+    ///         for: comparedText,
+    ///         relyingOn: accurateText
+    ///     )
+    ///
+    ///     basis.accurateSequence // [0, 1, 2, 3, 4]
+    ///     basis.sequence         // [0, 4, 2, nil ]
+    ///     basis.subsequence      // [0,    2      ]
+    ///     basis.missingElements  // [   1,    3, 4]
+    ///
+    /// - Note: The value of each element of the sequence is the index of the associated letter in the source text.
+    internal struct Basis: Equatable {
+        
+        /// The sequence generated from `accurateText`.
+        internal let sourceSequence: Sequence
+        
+        /// The sequence generated from `comparedText` relying on `accurateText`.
+        internal let sequence: OptionalSequence
+        
+        /// The longest increasing subsequence found in `sequence`.
+        internal let subsequence: Subsequence
+        
+        /// Elements that are present in the `sourceSequence` but missing in the `subsequence`.
+        internal let missingElements: Sequence
+        
+        /// Creates a math basis instance.
+        internal init(_ sourceSequence: Sequence, _ sequence: OptionalSequence, _ subsequence: Subsequence) {
+            self.sourceSequence = sourceSequence
+            self.sequence = sequence
+            self.subsequence = subsequence
+            missingElements = sourceSequence.filter { !subsequence.contains($0) }
+        }
+        
+    }
+    
+    // MARK: Pair
+    
+    /// A math pair of sequence and its subsequence.
+    internal struct Pair: Equatable {
+        
+        /// The sequence consisting of associated indexes.
+        let sequence: OptionalSequence
+        
+        /// The longest increasing subsequence found in `sequence`.
+        let subsequence: Subsequence
+        
+        /// Creates a math pair instance
+        init(_ sequence: OptionalSequence, _ subsequence: Subsequence) {
+            self.sequence = sequence
+            self.subsequence = subsequence
+        }
+        
+    }
+    
     
     
     // MARK: - Pick Best Pair
@@ -24,13 +87,13 @@ internal final class MathFrame {
     /// - Returns: The pair with the smallest sum of the subsequense.
     internal static func pickBestPair(among rawPairs: [Pair]) -> Pair {
         
-        guard rawPairs.isEmpty == false else { return (OptionalSequence(), Subsequence()) }
+        guard rawPairs.isEmpty == false else { return Pair() }
         guard rawPairs.count > 1 else { return rawPairs[0] }
         
         var bestPair = rawPairs[0]
         
         for rawPair in rawPairs[1...] {
-            let rawLis = rawPair.1, bestLis = bestPair.1
+            let rawLis = rawPair.subsequence, bestLis = bestPair.subsequence
             if rawLis.sum < bestLis.sum {
                 bestPair = rawPair
             }
@@ -65,7 +128,8 @@ internal final class MathFrame {
             let sequence = rawSequence.compactMap { $0 }
             let subsequence = findLis(of: sequence)
             if subsequence.count >= maxCount {
-                pairs.append( (rawSequence, subsequence) )
+                let pair = Pair(rawSequence, subsequence)
+                pairs.append(pair)
                 maxCount = subsequence.count
             }
         }
@@ -218,4 +282,56 @@ internal final class MathFrame {
     /// Creates a math frame instance.
     private init() {}
     
+}
+
+
+
+internal extension MathFrame.Basis {
+    
+    /// Creates a math basis instance with visible arguments.
+    /// - Note: It's mainly used for testing.
+    init(sourceSequence: MathFrame.Sequence, sequence: MathFrame.OptionalSequence, subsequence: MathFrame.Subsequence) {
+        self.init(sourceSequence, sequence, subsequence)
+    }
+    
+    /// Creates an empty math basis instance.
+    /// - Note: It's mainly used for testing.
+    init() {
+        self.init(MathFrame.Sequence(), MathFrame.OptionalSequence(), MathFrame.Subsequence())
+    }
+    
+    static func == (lhs: MathFrame.Basis, rhs: MathFrame.Basis) -> Bool {
+        if lhs.sourceSequence == rhs.sourceSequence,
+           lhs.subsequence == rhs.subsequence,
+           lhs.sequence == rhs.sequence {
+            return true
+        }
+        return false
+    }
+    
+}
+
+
+
+internal extension MathFrame.Pair {
+    
+    /// Creates a math pair instance with visible arguments.
+    /// - Note: It's mainly used for testing.
+    init(sequence: MathFrame.OptionalSequence, subsequence: MathFrame.Subsequence) {
+        self.init(sequence, subsequence)
+    }
+    
+    /// Creates an empty math pair instance.
+    init() {
+        self.init(MathFrame.OptionalSequence(), MathFrame.Subsequence())
+    }
+    
+    static func == (lhs: MathFrame.Pair, rhs: MathFrame.Pair) -> Bool {
+        if lhs.subsequence == rhs.subsequence,
+           lhs.sequence == rhs.sequence {
+            return true
+        }
+        return false
+    }
+
 }

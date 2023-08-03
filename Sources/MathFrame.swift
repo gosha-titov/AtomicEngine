@@ -4,7 +4,63 @@ internal final class MathFrame {
     internal typealias OptionalSequence = [Int?]
     internal typealias Subsequence = [Int]
     
-    // MARK: Char Positions
+    
+    // MARK: - Generate Raw Sequences
+
+    /// Generates all possible char placements for `comparedText` relying on `accurateText`.
+    ///
+    /// This method searches for the placements of the same char of `accurateText` for each char in `comparedText`.
+    ///
+    ///     let accurateText = "robot"
+    ///     let comparedText = "gotob"
+    ///
+    ///     let rawSequences = generateRawSequences(
+    ///         for: comparedText,
+    ///         relyingOn: accurateText
+    ///     )
+    ///     /* [[nil, 1, 4, 1, 2],
+    ///         [nil, 1, 4, 3, 2],
+    ///         [nil, 3, 4, 3, 2]] */
+    ///
+    /// - Note: The raw sequences are arranged in increasing order. The indexes of the same chars are arranged in a non-decreasing order.
+    /// - Returns: The sequences where elemens are indexes of chars in `accurateText`.
+    static func generateRawSequences(for comparedText: String, relyingOn accurateText: String) -> [OptionalSequence] {
+        
+        var rawSequences = [OptionalSequence]()
+        
+        let dict = charPositions(of: accurateText)
+        let comparedText = comparedText.lowercased()
+        var cache = [Character: [Int]]()
+        
+        func recursion(_ sequence: OptionalSequence, _ index: Int) -> Void {
+            guard index < comparedText.count else {
+                rawSequences.append(sequence)
+                return
+            }
+            let char = comparedText[index]
+            if let elements = dict[char] {
+                for element in elements {
+                    if let array = cache[char], let last = array.last {
+                        guard element >= last else { continue }
+                        cache[char]!.append(element)
+                    } else {
+                        cache[char] = [element]
+                    }
+                    recursion(sequence + [element], index + 1)
+                    cache[char]!.removeLast()
+                }
+            } else {
+                recursion(sequence + [nil], index + 1)
+            }
+        }
+        
+        recursion([], 0)
+        
+        return rawSequences
+    }
+    
+    
+    // MARK: - Char Positions
         
     /// Finds for each char all its indexes where it's placed in the given text.
     ///
@@ -28,7 +84,7 @@ internal final class MathFrame {
     }
     
     
-    // MARK: Find Lis
+    // MARK: - Find Lis
     
     /// Finds the longest-increasing-subsequence of the given sequence.
     ///

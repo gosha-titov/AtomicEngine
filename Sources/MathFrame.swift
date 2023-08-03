@@ -7,6 +7,39 @@ internal final class MathFrame {
     internal typealias Pair = (sequence: OptionalSequence, subsequence: Subsequence)
     
     
+    // MARK: - Pick Best Pair
+    
+    /// Picks the best pair among the given pairs.
+    ///
+    /// The picking is made by the smallest sum of the subsequence.
+    ///
+    ///     let rawPairs = [
+    ///         ([nil, 1, 2, 4, 1], [1, 2, 4]),
+    ///         ([nil, 1, 2, 4, 3], [1, 2, 3])
+    ///     ]
+    ///     let bestPair = pickBestPair(among: rawPairs)
+    ///     // ([nil, 1, 2, 4, 3], [1, 2, 3])
+    ///
+    /// - Important: The subsequences should be only of the same length; otherwise, this method does not work correctly.
+    /// - Returns: The pair with the smallest sum of the subsequense.
+    internal static func pickBestPair(among rawPairs: [Pair]) -> Pair {
+        
+        guard rawPairs.isEmpty == false else { return (OptionalSequence(), Subsequence()) }
+        guard rawPairs.count > 1 else { return rawPairs[0] }
+        
+        var bestPair = rawPairs[0]
+        
+        for rawPair in rawPairs[1...] {
+            let rawLis = rawPair.1, bestLis = bestPair.1
+            if rawLis.sum < bestLis.sum {
+                bestPair = rawPair
+            }
+        }
+        
+        return bestPair
+    }
+
+    
     // MARK: - Make Raw Pairs
         
     /// Makes raw pairs by finding lises of the given sequences.

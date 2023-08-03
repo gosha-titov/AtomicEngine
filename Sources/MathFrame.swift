@@ -4,6 +4,29 @@ internal final class MathFrame {
     internal typealias OptionalSequence = [Int?]
     internal typealias Subsequence = [Int]
     
+    // MARK: Char Positions
+        
+    /// Finds for each char all its indexes where it's placed in the given text.
+    ///
+    ///     let text = "Robot"
+    ///     let dict = charPositions(of: text)
+    ///     // ["r": [0], "o": [1, 3], "b": [2], "t": [4]]
+    ///
+    /// - Note: Letter case does not affect anything, because the text is changed to a lowercase version.
+    /// - Complexity: O(*n*), where *n* is the length of the text.
+    /// - Returns: A dictionary where each char contains its own indexes.
+    internal static func charPositions(of text: String) -> [Character: [Int]] {
+        var dict = [Character: [Int]]()
+        for (index, char) in text.lowercased().enumerated() {
+            if dict.hasKey(char) {
+                dict[char]!.append(index)
+            } else {
+                dict[char] = [index]
+            }
+        }
+        return dict
+    }
+    
     
     // MARK: Find Lis
     

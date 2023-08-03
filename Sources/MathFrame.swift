@@ -4,6 +4,42 @@ internal final class MathFrame {
     internal typealias OptionalSequence = [Int?]
     internal typealias Subsequence = [Int]
     
+    internal typealias Pair = (sequence: OptionalSequence, subsequence: Subsequence)
+    
+    
+    // MARK: - Make Raw Pairs
+        
+    /// Makes raw pairs by finding lises of the given sequences.
+    ///
+    ///     let rawSequences = [
+    ///         [nil, 1, 2, 4, 1], // lis: [1, 2, 4]
+    ///         [nil, 1, 2, 4, 3], // lis: [1, 2, 3]
+    ///         [nil, 3, 2, 4, 3]  // lis: [2, 3]
+    ///     ]
+    ///
+    ///     let rawPairs = makeRawPairs(from: rawSequences)
+    ///     /* [([nil, 1, 2, 4, 1], [1, 2, 4]),
+    ///         ([nil, 1, 2, 4, 3], [1, 2, 3])] */
+    ///
+    /// - Note: The result will contain pairs with the max lis length.
+    /// - Returns: Pairs of sequence and its subsequence.
+    internal static func makeRawPairs(from rawSequences: [OptionalSequence]) -> [Pair] {
+        
+        var pairs = [Pair]()
+        var maxCount = Int()
+        
+        for rawSequence in rawSequences {
+            let sequence = rawSequence.compactMap { $0 }
+            let subsequence = findLis(of: sequence)
+            if subsequence.count >= maxCount {
+                pairs.append( (rawSequence, subsequence) )
+                maxCount = subsequence.count
+            }
+        }
+        
+        return pairs.filter { $0.subsequence.count == maxCount }
+    }
+    
     
     // MARK: - Generate Raw Sequences
 
@@ -24,7 +60,7 @@ internal final class MathFrame {
     ///
     /// - Note: The raw sequences are arranged in increasing order. The indexes of the same chars are arranged in a non-decreasing order.
     /// - Returns: The sequences where elemens are indexes of chars in `accurateText`.
-    static func generateRawSequences(for comparedText: String, relyingOn accurateText: String) -> [OptionalSequence] {
+    internal static func generateRawSequences(for comparedText: String, relyingOn accurateText: String) -> [OptionalSequence] {
         
         var rawSequences = [OptionalSequence]()
         
@@ -72,7 +108,9 @@ internal final class MathFrame {
     /// - Complexity: O(*n*), where *n* is the length of the text.
     /// - Returns: A dictionary where each char contains its own indexes.
     internal static func charPositions(of text: String) -> [Character: [Int]] {
+        
         var dict = [Character: [Int]]()
+        
         for (index, char) in text.lowercased().enumerated() {
             if dict.hasKey(char) {
                 dict[char]!.append(index)
@@ -80,6 +118,7 @@ internal final class MathFrame {
                 dict[char] = [index]
             }
         }
+        
         return dict
     }
     

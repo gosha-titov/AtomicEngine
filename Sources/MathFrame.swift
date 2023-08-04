@@ -1,3 +1,47 @@
+import Foundation
+
+// Implementation notes
+// ====================
+//
+// Below are examples of tables with non-decreasing sequences of the specific length:
+//
+// +-----+ +-------+ +---------+ +-----------+ +-------------+
+// | 0 0 | | 0 0 0 | | 0 0 0 0 | | 0 0 0 0 1 | | 0 0 0 0 0 1 |
+// | 0 1 | | 0 0 1 | | 0 0 0 1 | | 0 0 0 0 2 | | 0 0 0 0 0 2 |
+// | 1 1 | | 0 0 2 | |         | |           | |             |
+// +-----+ | 0 1 1 | |   ...   | |    ...    | |     ...     |
+//    3    | 0 1 2 | |         | |           | |             |
+//         | 0 2 2 | | 1 2 2 2 | | 3 4 4 4 4 | | 4 5 5 5 5 5 |
+//         | 1 1 1 | | 3 3 3 3 | | 4 4 4 4 4 | | 5 5 5 5 5 5 |
+//         | 1 1 2 | +---------+ +-----------+ +-------------+
+//         | 1 2 2 |      35          126            462
+//         | 2 2 2 |
+//         +-------+
+//             10
+//
+// This numbers show how much the complexity of calculations increases
+// with an increase in the number of identical chars.
+//
+// The dependency table of the count of operations for the specific length:
+// +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+–––––––+–––––––+
+// | length | 1 | 2 | 3  | 4  |  5  |  6  |  7   |  8   |   9   |  10   |
+// +--------+---+---+----+----+-----+-----+------+------+-------+-------+
+// | count  | 1 | 3 | 10 | 35 | 126 | 462 | 1716 | 6435 | 24310 | 92378 |
+// +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+–––––––+–––––––+
+//
+// That is, three operations will be performed for "aa",
+// ten operations for "aaa" and thiry-five for "aaaa" and so on.
+//
+// For the final result, all these numbers are multiplied. For example:
+// the count of operations for "aaaaabbb" is 126*10 = 1260.
+//
+//
+// In theory, this algorithm works for text of any length,
+// but in practice we have to divide the text into sentences and sentences into words.
+// Otherwise the execution time tends to infinity, since the count of operations inevitably increases.
+//
+
+/// A math frame that consists of static methods for working with numbers, sequences, subsequences and so on.
 internal final class MathFrame {
     
     internal typealias Sequence = [Int]
@@ -24,7 +68,7 @@ internal final class MathFrame {
     ///     basis.subsequence      // [0,    2      ]
     ///     basis.missingElements  // [   1,    3, 4]
     ///
-    /// - Note: The value of each element of the sequence is the index of the associated letter in the source text.
+    /// - Note: The value of each element of the sequence is the index of the associated char in the source text.
     internal struct Basis: Equatable {
         
         /// The sequence generated from `accurateText`.
@@ -49,25 +93,103 @@ internal final class MathFrame {
         
     }
     
+    
     // MARK: Pair
     
     /// A math pair of sequence and its subsequence.
     internal struct Pair: Equatable {
         
         /// The sequence consisting of associated indexes.
-        let sequence: OptionalSequence
+        internal let sequence: OptionalSequence
         
         /// The longest increasing subsequence found in `sequence`.
-        let subsequence: Subsequence
+        internal let subsequence: Subsequence
         
-        /// Creates a math pair instance
-        init(_ sequence: OptionalSequence, _ subsequence: Subsequence) {
+        /// Creates a math pair instance.
+        internal init(_ sequence: OptionalSequence, _ subsequence: Subsequence) {
             self.sequence = sequence
             self.subsequence = subsequence
         }
         
     }
     
+    
+    // MARK: - Calculate Basis
+    
+    /// Calculates the math basis from the two given texts.
+    ///
+    ///     let accurateText = "Hello"
+    ///     let comparedText = "hola"
+    ///
+    ///     let basis = MathBox.calculateBasis(
+    ///         for: comparedText,
+    ///         relyingOn: accurateText
+    ///     )
+    ///
+    ///     basis.accurateSequence // [0, 1, 2, 3, 4]
+    ///     basis.sequence         // [0, 4, 2, nil ]
+    ///     basis.subsequence      // [0,    2      ]
+    ///     basis.missingElements  // [   1,    3, 4]
+    ///
+    /// **The complexity of the calculation depends on the count of identical chars.**
+    ///
+    /// For example, all chars are unique, that is, the number of operations equals to `1`.
+    ///
+    ///     let accurateText = "abcde"
+    ///     let comparedText = "edcba"
+    ///
+    /// Another example, we have 4 "a" and 3 "b" chars, that is, the number of operations equals to `35 * 10 = 350`.
+    ///
+    ///     let accurateText = "aaaabbb"
+    ///     let comparedText = "bbbaaaa"
+    ///
+    /// One more example, we have 5 "a" and 5 "b" chars, that is, the number of operations equals to `126 * 126 = 15_876`.
+    /// This takes about 0.5 seconds.
+    ///
+    ///     let accurateText = "aaaaabbbbb"
+    ///     let comparedText = "bbbbbaaaaa"
+    ///
+    /// - Note: Letter case does not affect anything, becase these texts are changed to thier lowercase versions.
+    /// - Parameter comparedText: A text to be compared with `accurateText` in order to find the best set of matching chars.
+    /// - Parameter accurateText: A text based on which the calculation of the `basis` for `comparedText` permorms.
+    /// - Returns: The math basis that has properties consisting of elements that are indexes of associated chars in `accurateText`.
+    internal static func calculateBasis(for comparedText: String, relyingOn accurateText: String) -> Basis {
+        
+        let comparedText = comparedText.lowercased(), accurateText = accurateText.lowercased()
+        let accurateSequence: Sequence = Array(0..<accurateText.count)
+        let sequence: OptionalSequence, subsequence: Sequence
+        
+        if accurateText == comparedText {
+            subsequence = accurateSequence
+            sequence = accurateSequence
+        } else {
+            // Find a common beginning(prefix) and ending(suffix) of the texts:
+            let prefix = comparedText.commonPrefix(with: accurateText).count
+            var partialAccurateText = accurateText.dropFirst(prefix).toString
+            var partialComparedText = comparedText.dropFirst(prefix).toString
+            
+            let suffix = partialComparedText.commonSuffix(with: partialAccurateText).count
+            partialAccurateText = partialAccurateText.dropLast(suffix).toString
+            partialComparedText = partialComparedText.dropLast(suffix).toString
+            
+            // Perform the work of the algorithm:
+            let rawSequences = generateRawSequences(for: partialComparedText, relyingOn: partialAccurateText)
+            let rawPairs = makeRawPairs(from: rawSequences)
+            let (partialSequence, partialSubsequence) = pickBestPair(among: rawPairs).toTuple
+            
+            // Restore the missing common parts:
+            let accuratePrefix = accurateSequence.first(prefix)
+            let accurateSuffix = accurateSequence.last(suffix)
+            
+            // Put everything together:
+            let shiftedPartialSequence = partialSequence.map { $0.hasValue ? $0! + prefix : nil }
+            let shiftedPartialSubsequence = partialSubsequence.map { $0  + prefix }
+            sequence    = accuratePrefix + shiftedPartialSequence    + accurateSuffix
+            subsequence = accuratePrefix + shiftedPartialSubsequence + accurateSuffix
+        }
+        
+        return Basis(accurateSequence, sequence, subsequence)
+    }
     
     
     // MARK: - Pick Best Pair
@@ -314,6 +436,11 @@ internal extension MathFrame.Basis {
 
 
 internal extension MathFrame.Pair {
+    
+    /// A tuple value converted from this pair.
+    var toTuple: (sequence: MathFrame.OptionalSequence, subsequence: MathFrame.Subsequence) {
+        return (sequence, subsequence)
+    }
     
     /// Creates a math pair instance with visible arguments.
     /// - Note: It's mainly used for testing.

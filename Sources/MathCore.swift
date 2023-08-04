@@ -3,46 +3,102 @@ import Foundation
 // Implementation notes
 // ====================
 //
-// Below are examples of tables with non-decreasing sequences of the specific length:
+// The complexity of the calculation depends on the count of identical chars.
+// This means that the more identical chars there are – the more operations are performed.
 //
-// +-----+ +-------+ +---------+ +-----------+ +-------------+
-// | 0 0 | | 0 0 0 | | 0 0 0 0 | | 0 0 0 0 1 | | 0 0 0 0 0 1 |
-// | 0 1 | | 0 0 1 | | 0 0 0 1 | | 0 0 0 0 2 | | 0 0 0 0 0 2 |
-// | 1 1 | | 0 0 2 | |         | |           | |             |
-// +-----+ | 0 1 1 | |   ...   | |    ...    | |     ...     |
-//    3    | 0 1 2 | |         | |           | |             |
-//         | 0 2 2 | | 1 2 2 2 | | 3 4 4 4 4 | | 4 5 5 5 5 5 |
-//         | 1 1 1 | | 3 3 3 3 | | 4 4 4 4 4 | | 5 5 5 5 5 5 |
-//         | 1 1 2 | +---------+ +-----------+ +-------------+
-//         | 1 2 2 |      35          126            462
-//         | 2 2 2 |
-//         +-------+
-//             10
 //
-// This numbers show how much the complexity of calculations increases
-// with an increase in the number of identical chars.
+// First Examle
+// ------------
 //
-// The dependency table of the count of operations for the specific length:
-// +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+–––––––+–––––––+
-// | length | 1 | 2 | 3  | 4  |  5  |  6  |  7   |  8   |   9   |  10   |
-// +--------+---+---+----+----+-----+-----+------+------+-------+-------+
-// | count  | 1 | 3 | 10 | 35 | 126 | 462 | 1716 | 6435 | 24310 | 92378 |
-// +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+–––––––+–––––––+
+//  Let's take the accurate and compared texts that equal to "aaa":
+//  To figure out the correct orders of chars, we need to make the following table for the length = `3`,
+//  where each element of the sequences is an index associated with the char in the accurate text:
 //
-// That is, three operations will be performed for "aa",
-// ten operations for "aaa" and thiry-five for "aaaa" and so on.
+//      Examples of tables with non-decreasing sequences of the specific length:
 //
-// For the final result, all these numbers are multiplied. For example:
-// the count of operations for "aaaaabbb" is 126*10 = 1260.
+//      +-----+ +-------+ +---------+ +-----------+ +-------------+
+//      | 0 0 | | 0 0 0 | | 0 0 0 0 | | 0 0 0 0 1 | | 0 0 0 0 0 1 |
+//      | 0 1 | | 0 0 1 | | 0 0 0 1 | | 0 0 0 0 2 | | 0 0 0 0 0 2 |
+//      | 1 1 | | 0 0 2 | |         | |           | |             |
+//      +-----+ | 0 1 1 | |   ...   | |    ...    | |     ...     |
+//         3    | 0 1 2 | |         | |           | |             |
+//              | 0 2 2 | | 1 2 2 2 | | 3 4 4 4 4 | | 4 5 5 5 5 5 |
+//              | 1 1 1 | | 3 3 3 3 | | 4 4 4 4 4 | | 5 5 5 5 5 5 |
+//              | 1 1 2 | +---------+ +-----------+ +-------------+
+//              | 1 2 2 |      35          126            462
+//              | 2 2 2 |
+//              +-------+
+//                  10
 //
+//      The dependency table of the count of operations for the specific length:
+//      +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+–––––––+–––––––+
+//      | length | 1 | 2 | 3  | 4  |  5  |  6  |  7   |  8   |   9   |  10   |
+//      +--------+---+---+----+----+-----+-----+------+------+-------+-------+
+//      | count  | 1 | 3 | 10 | 35 | 126 | 462 | 1716 | 6435 | 24310 | 92378 |
+//      +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+–––––––+–––––––+
+//
+//      This numbers show how much the complexity of calculations increases
+//      with an increase in the number of identical chars.
+//
+//  That is, for the "aaa" text there are performed 10 operations.
+//
+//
+// Second example
+// --------------
+//
+//  Let's take the accurate text = "abab" and the compared text = "baba":
+//
+//  Firstly, we create the correct sequence for the accurate text, it's [0, 1, 2, 3]
+//  Then we make a following table based on this sequence and the accurate text:
+//
+//   Sequences  Subsequences
+//  +–––––––––+ +–––––––––+
+//  | 1 0 1 0 | |   0 1   |
+//  [ 1 0 1 2 ] [   0 1 2 ] <- Best pair
+//  | 1 0 3 0 | |   0 3   |
+//  | 1 0 3 2 | |   0   2 |
+//  | 1 2 1 2 | | 1 2     |
+//  | 1 2 3 2 | | 1 2 3   |
+//  | 3 0 3 0 | |   0 3   |
+//  | 3 0 3 2 | |   0   2 |
+//  | 3 2 3 2 | |   2 3   |
+//  +–––––––––+ +–––––––––+
+//
+//  Now we have to choose the best pair among these: it's [1, 0, 1, 2] and [0, 1, 2].
+//  This means that by comparing the sequence and its subsequence with each other
+//  we will be able to understand which characters are wrong:
+//
+//  +––––––––––––––––––+––––––––––––+
+//  | Source sequence  |    0 1 2 3 |
+//  +------------------+------------+
+//  | Sequence         |  1 0 1 2   |
+//  +------------------+------------+
+//  | Subsequence      |    0 1 2   |
+//  +------------------+------------+
+//  | Missing Elements |          3 |
+//  +––––––––––––––––––+------------+
+//
+//  Based on this math model (basis), we can make the following conclusion:
+//  The first char is extra, then the next three are correct and the last one is missing.
+//
+//  Note, that count of operations equals to multiplying the count of operations for each length of identical characters.
+//  That is, 3*3=9 operations are performed for this example.
+//  For "aaaaabbb" and "bbbaaaaa", 126*10=1260 operations are performed.
+//
+//  But at the same time for a text consisting of 300 chars where there are only 3 identical chars (100 different chars),
+//  100*10=1000 operations are performed.
+//
+//
+// Other notes
+// -----------
 //
 // In theory, this algorithm works for text of any length,
 // but in practice we have to divide the text into sentences and sentences into words.
 // Otherwise the execution time tends to infinity, since the count of operations inevitably increases.
 //
 
-/// A math frame that consists of static methods for working with numbers, sequences, subsequences and so on.
-internal final class MathFrame {
+/// A math core that consists of static methods for working with numbers, sequences, subsequences and so on.
+internal final class MathCore {
     
     internal typealias Sequence = [Int]
     internal typealias OptionalSequence = [Int?]
@@ -53,12 +109,12 @@ internal final class MathFrame {
     
     /// A math basis created from two texts.
     ///
-    /// This is the final result of the work of `MathFrame`.
+    /// This is the final result of the work of `MathCore`.
     ///
     ///     let accurateText = "Hello"
     ///     let comparedText = "hola"
     ///
-    ///     let basis = MathFrame.calculateBasis(
+    ///     let basis = MathCore.calculateBasis(
     ///         for: comparedText,
     ///         relyingOn: accurateText
     ///     )
@@ -130,24 +186,6 @@ internal final class MathFrame {
     ///     basis.sequence         // [0, 4, 2, nil ]
     ///     basis.subsequence      // [0,    2      ]
     ///     basis.missingElements  // [   1,    3, 4]
-    ///
-    /// **The complexity of the calculation depends on the count of identical chars.**
-    ///
-    /// For example, all chars are unique, that is, the number of operations equals to `1`.
-    ///
-    ///     let accurateText = "abcde"
-    ///     let comparedText = "edcba"
-    ///
-    /// Another example, we have 4 "a" and 3 "b" chars, that is, the number of operations equals to `35 * 10 = 350`.
-    ///
-    ///     let accurateText = "aaaabbb"
-    ///     let comparedText = "bbbaaaa"
-    ///
-    /// One more example, we have 5 "a" and 5 "b" chars, that is, the number of operations equals to `126 * 126 = 15_876`.
-    /// This takes about 0.5 seconds.
-    ///
-    ///     let accurateText = "aaaaabbbbb"
-    ///     let comparedText = "bbbbbaaaaa"
     ///
     /// - Note: Letter case does not affect anything, becase these texts are changed to thier lowercase versions.
     /// - Parameter comparedText: A text to be compared with `accurateText` in order to find the best set of matching chars.
@@ -281,6 +319,9 @@ internal final class MathFrame {
     /// - Returns: The sequences where elemens are indexes of chars in `accurateText`.
     internal static func generateRawSequences(for comparedText: String, relyingOn accurateText: String) -> [OptionalSequence] {
         
+        // TODO: For a sequence of identical chars - only increasing sequences should be generated:
+        // TODO: That is, "012" generated for "aaa"
+        
         var rawSequences = [OptionalSequence]()
         
         let dict = charPositions(of: accurateText)
@@ -408,21 +449,21 @@ internal final class MathFrame {
 
 
 
-internal extension MathFrame.Basis {
+internal extension MathCore.Basis {
     
     /// Creates a math basis instance with visible arguments.
     /// - Note: It's mainly used for testing.
-    init(sourceSequence: MathFrame.Sequence, sequence: MathFrame.OptionalSequence, subsequence: MathFrame.Subsequence) {
+    init(sourceSequence: MathCore.Sequence, sequence: MathCore.OptionalSequence, subsequence: MathCore.Subsequence) {
         self.init(sourceSequence, sequence, subsequence)
     }
     
     /// Creates an empty math basis instance.
     /// - Note: It's mainly used for testing.
     init() {
-        self.init(MathFrame.Sequence(), MathFrame.OptionalSequence(), MathFrame.Subsequence())
+        self.init(MathCore.Sequence(), MathCore.OptionalSequence(), MathCore.Subsequence())
     }
     
-    static func == (lhs: MathFrame.Basis, rhs: MathFrame.Basis) -> Bool {
+    static func == (lhs: MathCore.Basis, rhs: MathCore.Basis) -> Bool {
         if lhs.sourceSequence == rhs.sourceSequence,
            lhs.subsequence == rhs.subsequence,
            lhs.sequence == rhs.sequence {
@@ -435,25 +476,25 @@ internal extension MathFrame.Basis {
 
 
 
-internal extension MathFrame.Pair {
+internal extension MathCore.Pair {
     
     /// A tuple value converted from this pair.
-    var toTuple: (sequence: MathFrame.OptionalSequence, subsequence: MathFrame.Subsequence) {
+    var toTuple: (sequence: MathCore.OptionalSequence, subsequence: MathCore.Subsequence) {
         return (sequence, subsequence)
     }
     
     /// Creates a math pair instance with visible arguments.
     /// - Note: It's mainly used for testing.
-    init(sequence: MathFrame.OptionalSequence, subsequence: MathFrame.Subsequence) {
+    init(sequence: MathCore.OptionalSequence, subsequence: MathCore.Subsequence) {
         self.init(sequence, subsequence)
     }
     
     /// Creates an empty math pair instance.
     init() {
-        self.init(MathFrame.OptionalSequence(), MathFrame.Subsequence())
+        self.init(MathCore.OptionalSequence(), MathCore.Subsequence())
     }
     
-    static func == (lhs: MathFrame.Pair, rhs: MathFrame.Pair) -> Bool {
+    static func == (lhs: MathCore.Pair, rhs: MathCore.Pair) -> Bool {
         if lhs.subsequence == rhs.subsequence,
            lhs.sequence == rhs.sequence {
             return true

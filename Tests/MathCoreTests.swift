@@ -8,6 +8,45 @@ final class MathCoreTests: XCTestCase {
     typealias Sequence = MathCore.Sequence
     typealias Basis = MathCore.Basis
     typealias Pair = MathCore.Pair
+    
+    
+    // MARK: - MathCore.generateRawSequences(for:relyingOn:)
+        
+    func testGenerateRawSequences() -> Void {
+            
+        var comparedText = String()
+        var accurateText = String()
+        var rawSequences: [OptionalSequence] {
+            return MathCore.generateRawSequences(for: comparedText, relyingOn: accurateText)
+        }
+        
+        comparedText = ""; accurateText = ""
+        XCTAssertEqual(rawSequences, [[]])
+        
+        comparedText = ""; accurateText = "abc"
+        XCTAssertEqual(rawSequences, [[]])
+        
+        comparedText = "abc"; accurateText = ""
+        XCTAssertEqual(rawSequences, [ [nil, nil, nil] ])
+        
+        comparedText = "abc"; accurateText = "def"
+        XCTAssertEqual(rawSequences, [ [nil, nil, nil] ])
+        
+        comparedText = "abc"; accurateText = "abc"
+        XCTAssertEqual(rawSequences, [ [0, 1, 2] ])
+        
+        comparedText = "Abc"; accurateText = "aBc"
+        XCTAssertEqual(rawSequences, [ [0, 1, 2] ])
+        
+        comparedText = "aa"; accurateText = "aa"
+        XCTAssertEqual(rawSequences, [ [0, 0], [0, 1], [1, 1] ])
+        
+        comparedText = "abcd"; accurateText = "dcba"
+        XCTAssertEqual(rawSequences, [ [3, 2, 1, 0] ])
+        
+        comparedText = "abac"; accurateText = "caba"
+        XCTAssertEqual(rawSequences, [ [1, 2, 1, 0], [1, 2, 3, 0], [3, 2, 3, 0] ])
+    }
 
     
     // MARK: - MathCore.charPositions(of:)
@@ -16,7 +55,7 @@ final class MathCoreTests: XCTestCase {
         
         var text = String()
         var dict: [Character: [Int]] {
-            MathCore.charPositions(of: text)
+            return MathCore.charPositions(of: text)
         }
         
         text = ""

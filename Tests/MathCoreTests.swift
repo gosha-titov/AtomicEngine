@@ -10,7 +10,39 @@ final class MathCoreTests: XCTestCase {
     typealias Pair = MathCore.Pair
 
     
-    // MARK: - Find Lis
+    // MARK: - MathCore.charPositions(of:)
+    
+    func testCharPositions() -> Void {
+        
+        var text = String()
+        var dict: [Character: [Int]] {
+            MathCore.charPositions(of: text)
+        }
+        
+        text = ""
+        XCTAssertEqual(dict, [:])
+        
+        text = "7"
+        XCTAssertEqual(dict, ["7": [0]])
+        
+        text = ":::::"
+        XCTAssertEqual(dict, [":": [0, 1, 2, 3, 4]])
+        
+        text = " 1 3"
+        XCTAssertEqual(dict, [" ": [0, 2], "1": [1], "3": [3]])
+        
+        text = "abc"
+        XCTAssertEqual(dict, ["a": [0], "b": [1], "c": [2]])
+        
+        text = "AbcaBC"
+        XCTAssertEqual(dict, ["a": [0, 3], "b": [1, 4], "c": [2, 5]])
+        
+        text = "1!,@1"
+        XCTAssertEqual(dict, ["1": [0, 4], "!": [1], ",": [2], "@": [3]])
+    }
+    
+    
+    // MARK: - MathCore.findLis(of:)
     
     func testFindLis() {
         

@@ -10,6 +10,73 @@ final class MathCoreTests: XCTestCase {
     typealias Pair = MathCore.Pair
     
     
+    // MARK: - MathCore.calculateBasis(for:relyingOn:)
+    
+    func testCalculateBasis() -> Void {
+            
+        typealias Basis = MathCore.Basis
+        
+        var comparedText = String()
+        var accurateText = String()
+        var basis: Basis {
+            return MathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+        }
+        
+        XCTAssertEqual(basis, Basis([], [], []))
+        
+        comparedText = ""; accurateText = "ab"
+        XCTAssertEqual(basis, Basis(sourceSequence: [0, 1], sequence: [], subsequence: []))
+        
+        comparedText = "ab"; accurateText = ""
+        XCTAssertEqual(basis, Basis(sourceSequence: [], sequence: [nil, nil], subsequence: []))
+        
+        comparedText = "ab"; accurateText = "ab"
+        XCTAssertEqual(basis, Basis(sourceSequence: [0, 1], sequence: [0, 1], subsequence: [0, 1]))
+        
+        comparedText = "ab"; accurateText = "cd"
+        XCTAssertEqual(basis, Basis(sourceSequence: [0, 1], sequence: [nil, nil], subsequence: []))
+        
+        comparedText = "Ab"; accurateText = "aB"
+        XCTAssertEqual(basis, Basis(sourceSequence: [0, 1], sequence: [0, 1], subsequence: [0, 1]))
+            
+        comparedText = "bac"; accurateText = "abc"
+        XCTAssertEqual(basis, Basis(
+            sourceSequence: [0, 1, 2],
+            sequence:       [1, 0, 2],
+            subsequence:    [   0, 2]
+        ))
+        
+        comparedText = "3a1cb2"; accurateText = "abc123"
+        XCTAssertEqual(basis, Basis(
+            sourceSequence: [0, 1, 2, 3, 4, 5],
+            sequence:       [5, 0, 3, 2, 1, 4],
+            subsequence:    [   0,       1, 4]
+        ))
+        
+        comparedText = "abc"; accurateText = "AaBb"
+        XCTAssertEqual(basis, Basis(
+            sourceSequence: [0, 1, 2, 3],
+            sequence:       [0, 2, nil ],
+            subsequence:    [0, 2      ]
+        ))
+        
+        comparedText = "aaaa1bbbb"; accurateText = "aaaa2bbbb"
+        XCTAssertEqual(basis, Basis(
+            sourceSequence: [0, 1, 2, 3,  4,  5, 6, 7, 8],
+            sequence:       [0, 1, 2, 3, nil, 5, 6, 7, 8],
+            subsequence:    [0, 1, 2, 3,      5, 6, 7, 8]
+        ))
+        
+        comparedText = "abbc"; accurateText = "abbbc"
+        XCTAssertEqual(basis, Basis(
+            sourceSequence: [0, 1, 2, 3, 4],
+            sequence:       [0, 1, 2,    4],
+            subsequence:    [0, 1, 2,    4]
+        ))
+        
+    }
+    
+    
     // MARK: - MathCore.pickBestPair(among:)
     
     func testPickBestPair() -> Void {
@@ -56,7 +123,7 @@ final class MathCoreTests: XCTestCase {
         
         var rawSequences = [OptionalSequence]()
         var rawPairs: [Pair] {
-            MathCore.makeRawPairs(from: rawSequences)
+            return MathCore.makeRawPairs(from: rawSequences)
         }
         
         rawSequences = []

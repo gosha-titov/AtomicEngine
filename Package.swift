@@ -19,7 +19,9 @@ let package = Package(
         ),
         .testTarget(
             name: "AtomicEngineTests",
-            dependencies: ["AtomicEngine"]),
+            dependencies: ["AtomicEngine"],
+            path: "Tests"
+        ),
     ],
     swiftLanguageVersions: [.v5]
 )

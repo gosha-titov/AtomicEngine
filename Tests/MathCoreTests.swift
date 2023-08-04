@@ -10,6 +10,47 @@ final class MathCoreTests: XCTestCase {
     typealias Pair = MathCore.Pair
     
     
+    // MARK: - MathCore.makeRawPairs(from:)
+    
+    func testMakeRawPairs() -> Void {
+        
+        var rawSequences = [OptionalSequence]()
+        var rawPairs: [Pair] {
+            MathCore.makeRawPairs(from: rawSequences)
+        }
+        
+        rawSequences = []
+        XCTAssertEqual(rawPairs, [])
+        
+        rawSequences = [ [nil] ]
+        XCTAssertEqual(rawPairs, [
+            Pair(sequence: [nil], subsequence: [])
+        ])
+        
+        rawSequences = [ [0, 1, 2] ]
+        XCTAssertEqual(rawPairs, [
+            Pair(sequence: [0, 1, 2], subsequence: [0, 1, 2])
+        ])
+        
+        rawSequences = [ [0, 2, 1], [0, 2, 3] ]
+        XCTAssertEqual(rawPairs, [
+            Pair(sequence: [0, 2, 3], subsequence: [0, 2, 3])
+        ])
+        
+        rawSequences = [ [1, nil, 2], [1, nil, 3] ]
+        XCTAssertEqual(rawPairs, [
+            Pair(sequence: [1, nil, 2], subsequence: [1, 2]),
+            Pair(sequence: [1, nil, 3], subsequence: [1, 3])
+        ])
+        
+        rawSequences = [ [nil, 2, 0, 4, nil], [nil, 2, 3, 4, nil] ]
+        XCTAssertEqual(rawPairs, [
+            Pair(sequence: [nil, 2, 3, 4, nil], subsequence: [2, 3, 4])
+        ])
+        
+    }
+    
+    
     // MARK: - MathCore.generateRawSequences(for:relyingOn:)
         
     func testGenerateRawSequences() -> Void {

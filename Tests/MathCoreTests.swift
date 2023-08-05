@@ -9,6 +9,23 @@ final class MathCoreTests: XCTestCase {
     typealias Basis = MathCore.Basis
     typealias Pair = MathCore.Pair
     
+    func testTime() -> Void {
+        
+        // Used to measure execition time
+        // Just to see the difference between any updates more clearly
+        
+        var comparedText = String()
+        var accurateText = String()
+        
+        accurateText = "abababababab"
+        comparedText = "babababababa"
+        
+        ExecutionTime.measure {
+            let _ = MathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+        }
+        
+    }
+    
     
     // MARK: - MathCore.calculateBasis(for:relyingOn:)
     

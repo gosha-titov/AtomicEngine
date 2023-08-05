@@ -94,7 +94,7 @@ import Foundation
 //
 // In theory, this algorithm works for text of any length,
 // but in practice we have to divide the text into sentences and sentences into words.
-// Otherwise the execution time tends to infinity, since the count of operations inevitably increases.
+// Otherwise, the execution time tends to infinity, since the count of operations inevitably increases.
 //
 
 /// A math core that consists of static methods for working with numbers, sequences, subsequences and so on.
@@ -210,6 +210,11 @@ internal final class MathCore {
             partialAccurateText = partialAccurateText.dropLast(suffix).toString
             partialComparedText = partialComparedText.dropLast(suffix).toString
             
+            // TODO: find commonPart where accuratePrefix == comparedSuffix or comparedPrefix == accurateSuffix, then choose the longest one
+            // TODO: if commonPart.count > accurateSequence.count / 2 { sequence = prefix + commonPart + suffix; subsequence = prefix + commonPart + suffix }
+            // TODO: Could this condition have an inaccuracy? Is it always correct?
+            // TODO: "baaaa" and "aaaba" ???
+            
             // Perform the work of the algorithm:
             let rawSequences = generateRawSequences(for: partialComparedText, relyingOn: partialAccurateText)
             let rawPairs = makeRawPairs(from: rawSequences)
@@ -245,6 +250,7 @@ internal final class MathCore {
     ///
     /// - Important: The subsequences should be only of the same length; otherwise, this method does not work correctly.
     /// - Returns: The pair with the smallest sum of the subsequense.
+    @inlinable
     internal static func pickBestPair(among rawPairs: [Pair]) -> Pair {
         
         guard rawPairs.isEmpty == false else { return Pair() }
@@ -279,6 +285,7 @@ internal final class MathCore {
     ///
     /// - Note: The result will contain pairs with the max lis length.
     /// - Returns: Pairs of sequence and its subsequence.
+    @inlinable
     internal static func makeRawPairs(from rawSequences: [OptionalSequence]) -> [Pair] {
         
         var pairs = [Pair]()
@@ -317,6 +324,7 @@ internal final class MathCore {
     ///
     /// - Note: The raw sequences are arranged in increasing order. The indexes of the same chars are arranged in a non-decreasing order.
     /// - Returns: The sequences where elemens are indexes of chars in `accurateText`.
+    @inlinable
     internal static func generateRawSequences(for comparedText: String, relyingOn accurateText: String) -> [OptionalSequence] {
         
         // TODO: For a sequence of identical chars - only increasing sequences should be generated:
@@ -367,6 +375,7 @@ internal final class MathCore {
     /// - Note: Letter case does not affect anything, because the text is changed to a lowercase version.
     /// - Complexity: O(*n*), where *n* is the length of the text.
     /// - Returns: A dictionary where each char contains its own indexes.
+    @inlinable
     internal static func charPositions(of text: String) -> [Character: [Int]] {
         
         var dict = [Character: [Int]]()
@@ -396,6 +405,7 @@ internal final class MathCore {
     /// This method returns always the smallest one, that is `[0, 1, 3]`.
     /// - Complexity: In the worst case, O(*n* log *n*), where *n* is the length of the sequence.
     /// - Returns: The longest increasing subsequence of the sequence.
+    @inlinable
     internal static func findLis(of sequence: Sequence) -> Subsequence {
         
         guard sequence.count > 1 else { return sequence }

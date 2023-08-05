@@ -54,7 +54,7 @@ import Foundation
 //   Sequences  Subsequences
 //  +–––––––––+ +–––––––––+
 //  | 1 0 1 0 | |   0 1   |
-//  [ 1 0 1 2 ] [   0 1 2 ] <- Best pair
+//  |[1 0 1 2]| |[  0 1 2]| <- Best pair
 //  | 1 0 3 0 | |   0 3   |
 //  | 1 0 3 2 | |   0   2 |
 //  | 1 2 1 2 | | 1 2     |
@@ -66,7 +66,7 @@ import Foundation
 //
 //  Now we have to choose the best pair among these: it's [1, 0, 1, 2] and [0, 1, 2].
 //  This means that by comparing the sequence and its subsequence with each other
-//  we will be able to understand which characters are wrong:
+//  we're able to understand which characters are wrong or missing:
 //
 //  +––––––––––––––––––+––––––––––––+
 //  | Source sequence  |    0 1 2 3 |
@@ -81,11 +81,11 @@ import Foundation
 //  Based on this math model (basis), we can make the following conclusion:
 //  The first char is extra, then the next three are correct and the last one is missing.
 //
-//  Note, that count of operations equals to multiplying the count of operations for each length of identical characters.
+//  Note, that final count of operations equals to multiplying the count for each length of identical characters.
 //  That is, 3*3=9 operations are performed for this example.
 //  For "aaaaabbb" and "bbbaaaaa", 126*10=1260 operations are performed.
 //
-//  But at the same time for a text consisting of 300 chars where there are only 3 identical chars (100 different chars),
+//  But at the same time for a text consisting of 300 chars where there are only 3 identical chars (100 kinds of a char),
 //  100*10=1000 operations are performed.
 //
 //
@@ -119,10 +119,10 @@ internal final class MathCore {
     ///         relyingOn: accurateText
     ///     )
     ///
-    ///     basis.accurateSequence // [0, 1, 2, 3, 4]
-    ///     basis.sequence         // [0, 4, 2, nil ]
-    ///     basis.subsequence      // [0,    2      ]
-    ///     basis.missingElements  // [   1,    3, 4]
+    ///     basis.sourceSequence  // [0, 1, 2, 3, 4]
+    ///     basis.sequence        // [0, 4, 2, nil ]
+    ///     basis.subsequence     // [0,    2      ]
+    ///     basis.missingElements // [   1,    3, 4]
     ///
     /// - Note: The value of each element of the sequence is the index of the associated char in the source text.
     internal struct Basis: Equatable {
@@ -182,14 +182,14 @@ internal final class MathCore {
     ///         relyingOn: accurateText
     ///     )
     ///
-    ///     basis.accurateSequence // [0, 1, 2, 3, 4]
-    ///     basis.sequence         // [0, 4, 2, nil ]
-    ///     basis.subsequence      // [0,    2      ]
-    ///     basis.missingElements  // [   1,    3, 4]
+    ///     basis.sourceSequence  // [0, 1, 2, 3, 4]
+    ///     basis.sequence        // [0, 4, 2, nil ]
+    ///     basis.subsequence     // [0,    2      ]
+    ///     basis.missingElements // [   1,    3, 4]
     ///
     /// - Note: Letter case does not affect anything, becase these texts are changed to thier lowercase versions.
     /// - Parameter comparedText: A text to be compared with `accurateText` in order to find the best set of matching chars.
-    /// - Parameter accurateText: A text based on which the calculation of the `basis` for `comparedText` permorms.
+    /// - Parameter accurateText: A text based on which the calculation of the `basis` for `comparedText` performs.
     /// - Returns: The math basis that has properties consisting of elements that are indexes of associated chars in `accurateText`.
     internal static func calculateBasis(for comparedText: String, relyingOn accurateText: String) -> Basis {
         
@@ -198,8 +198,8 @@ internal final class MathCore {
         let sequence: OptionalSequence, subsequence: Sequence
         
         if accurateText == comparedText {
+            sequence    = accurateSequence
             subsequence = accurateSequence
-            sequence = accurateSequence
         } else {
             // Find a common beginning(prefix) and ending(suffix) of the texts:
             let prefix = comparedText.commonPrefix(with: accurateText).count
@@ -216,14 +216,14 @@ internal final class MathCore {
             let (partialSequence, partialSubsequence) = pickBestPair(among: rawPairs).toTuple
             
             // Restore the missing common parts:
-            let accuratePrefix = accurateSequence.first(prefix)
-            let accurateSuffix = accurateSequence.last(suffix)
+            let accurateSequencePrefix = accurateSequence.first(prefix)
+            let accurateSequenceSuffix = accurateSequence.last(suffix)
             
             // Put everything together:
             let shiftedPartialSequence = partialSequence.map { $0.hasValue ? $0! + prefix : nil }
             let shiftedPartialSubsequence = partialSubsequence.map { $0  + prefix }
-            sequence    = accuratePrefix + shiftedPartialSequence    + accurateSuffix
-            subsequence = accuratePrefix + shiftedPartialSubsequence + accurateSuffix
+            sequence    = accurateSequencePrefix + shiftedPartialSequence    + accurateSequenceSuffix
+            subsequence = accurateSequencePrefix + shiftedPartialSubsequence + accurateSequenceSuffix
         }
         
         return Basis(accurateSequence, sequence, subsequence)

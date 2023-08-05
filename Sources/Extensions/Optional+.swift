@@ -17,3 +17,23 @@ internal extension Optional {
     var hasValue: Bool { self != nil }
     
 }
+
+
+internal extension Optional where Wrapped: Collection {
+    
+    /// A Boolean value that indicates whether the optional object is empty or `nil`.
+    ///
+    ///     var str: String? = nil
+    ///     str.isNilOrEmpty // true
+    ///
+    ///     var array: [Int]? = []
+    ///     array.isNilOrEmpty // true
+    ///
+    ///     var dict: [Int: String]? = [12: "34"]
+    ///     dict.isNilOrEmpty // false
+    ///
+    var isNilOrEmpty: Bool {
+        return self?.isEmpty ?? true
+    }
+    
+}

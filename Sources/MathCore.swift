@@ -210,11 +210,6 @@ internal final class MathCore {
             partialAccurateText = partialAccurateText.dropLast(suffix).toString
             partialComparedText = partialComparedText.dropLast(suffix).toString
             
-            // TODO: find commonPart where accuratePrefix == comparedSuffix or comparedPrefix == accurateSuffix, then choose the longest one
-            // TODO: if commonPart.count > accurateSequence.count / 2 { sequence = prefix + commonPart + suffix; subsequence = prefix + commonPart + suffix }
-            // TODO: Could this condition have an inaccuracy? Is it always correct?
-            // TODO: "baaaa" and "aaaba" ???
-            
             // Perform the work of the algorithm:
             let rawSequences = generateRawSequences(for: partialComparedText, relyingOn: partialAccurateText)
             let rawPairs = makeRawPairs(from: rawSequences)
@@ -293,7 +288,7 @@ internal final class MathCore {
         
         for rawSequence in rawSequences {
             let sequence = rawSequence.compactMap { $0 }
-            let subsequence = findLis(of: sequence)
+            let subsequence = findLIS(of: sequence)
             if subsequence.count >= maxCount {
                 let pair = Pair(rawSequence, subsequence)
                 pairs.append(pair)
@@ -364,6 +359,33 @@ internal final class MathCore {
     }
     
     
+    // MARK: - Count Common Chars
+    
+    /// Counts common chars between the given texts.
+    ///
+    ///     let text1 = "Abcde"
+    ///     let text2 = "aDftb"
+    ///     let count = countCommonChars(between: text1, and: text2) // 3
+    ///
+    /// - Note: Letter case does not affect the result.
+    /// - Returns: An integer value that indicates how many common chars between the given texts.
+    @inlinable
+    internal static func countCommonChars(between text1: String, and text2: String) -> Int {
+        
+        let dict1 = charPositions(of: text1)
+        let dict2 = charPositions(of: text2)
+        var count = Int()
+        
+        for (char1, positions1) in dict1 {
+            if let positions2 = dict2[char1] {
+                count += min(positions1.count, positions2.count)
+            }
+        }
+        
+        return count
+    }
+    
+    
     // MARK: - Char Positions
         
     /// Finds for each char all its indexes where it's placed in the given text.
@@ -392,21 +414,21 @@ internal final class MathCore {
     }
     
     
-    // MARK: - Find Lis
+    // MARK: - Find LIS
     
     /// Finds the longest-increasing-subsequence of the given sequence.
     ///
     /// It's the main method on which all other operations are based.
     ///
     ///     let sequence = [2, 6, 0, 8, 1, 3, 1]
-    ///     let subsequence = findLis(of: sequence) // [0, 1, 3]
+    ///     let subsequence = findLIS(of: sequence) // [0, 1, 3]
     ///
     /// The example sequence has two *lises*: `[2, 6, 8]` and `[0, 1, 3]`.
     /// This method returns always the smallest one, that is `[0, 1, 3]`.
     /// - Complexity: In the worst case, O(*n* log *n*), where *n* is the length of the sequence.
     /// - Returns: The longest increasing subsequence of the sequence.
     @inlinable
-    internal static func findLis(of sequence: Sequence) -> Subsequence {
+    internal static func findLIS(of sequence: Sequence) -> Subsequence {
         
         guard sequence.count > 1 else { return sequence }
         

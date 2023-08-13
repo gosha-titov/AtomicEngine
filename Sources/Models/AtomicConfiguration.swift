@@ -1,6 +1,18 @@
 public struct AtomicConfiguration {
     
+    /// The quantity that indicates the required number of correct chars.
+    ///
+    /// The atomic text is considered incorrect if its count of matching chars is less than this quantity.
+    /// If this quantity is `nil` then the check will not be performed.
+    /// - Note: The required count of correct chars is counted relative to the accurate text.
+    var requiredQuantityOfCorrectChars: CharQuantity?
     
+    /// The quantity that indicates the acceptable number of wrong chars.
+    ///
+    /// The atomic text is considered incorrect if its count of wrong chars is more than this quantity.
+    /// If this quantity is `nil` then the check will not be performed.
+    /// - Note: The acceptable count of wrong chars is counted relative to the compared text.
+    var acceptableQuantityOfWrongChars: CharQuantity?
     
 }
 

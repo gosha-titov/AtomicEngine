@@ -83,30 +83,35 @@ extension AtomicConfiguration {
         case compare
         
         /// Letter cases will be leaded to the given version. That is, there is no mistake if letter cases do not match.
-        case leadTo(Version)
+        case leadTo(LetterCaseVersion)
         
-        /// The versoin of writing of a word.
-        public enum Version: Equatable {
-            
-            /// The writing of a word with its first letter in uppercase and the remaining letters in lowercase.
-            ///
-            ///     let word = "Capitalized"
-            ///
-            case capitalized
-            
-            /// The writing of a word in capital letters.
-            ///
-            ///     let word = "UPPERCASE"
-            ///
-            case uppercase
-            
-            /// The writing of a word in small letters.
-            ///
-            ///     let word = "lowercase"
-            ///
-            case lowercase
-            
-        }
+    }
+    
+}
+
+
+extension AtomicConfiguration {
+    
+    /// A letter case version that indicates how a text is written.
+    public enum LetterCaseVersion: Equatable {
+        
+        /// The writing of a text with its first letter in uppercase and the remaining letters in lowercase.
+        ///
+        ///     let text = "Capitalized"
+        ///
+        case capitalized
+        
+        /// The writing of a text in capital letters.
+        ///
+        ///     let text = "UPPERCASE"
+        ///
+        case uppercase
+        
+        /// The writing of a text in small letters.
+        ///
+        ///     let text = "lowercase"
+        ///
+        case lowercase
         
     }
     

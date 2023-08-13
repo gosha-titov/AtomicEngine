@@ -14,6 +14,20 @@ public struct AtomicConfiguration {
     /// - Note: The acceptable count of wrong chars is counted relative to the compared text.
     public var acceptableQuantityOfWrongChars: CharQuantity?
     
+    /// The action to be applied to the letter cases of the atomic text.
+    ///
+    /// All kinds of action:
+    ///
+    /// - **compare**: Letter cases will be compared. That is, there is a mistake if letter cases do not match.
+    ///
+    /// + **leadTo(Version)**: Letter cases will be leaded to the given version. That is, there is no mistake if letter cases do not match.
+    ///     - **capitalized**: The writing of a word with its first letter in uppercase and the remaining letters in lowercase.
+    ///     - **uppercase**: The writing of a word in capital letters.
+    ///     - **lowercase**: The writing of a word in small letters.
+    ///
+    /// If the value is `nil` then letter cases will not be changed. There is no mistake if letter cases do not match.
+    public var letterCaseAction: LetterCaseAction?
+    
 }
 
 

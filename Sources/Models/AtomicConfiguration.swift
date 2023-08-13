@@ -5,21 +5,21 @@ public struct AtomicConfiguration {
     /// The atomic text is considered incorrect if its count of matching chars is less than this quantity.
     /// If this quantity is `nil` then the check will not be performed.
     /// - Note: The required count of correct chars is counted relative to the accurate text.
-    var requiredQuantityOfCorrectChars: CharQuantity?
+    public var requiredQuantityOfCorrectChars: CharQuantity?
     
     /// The quantity that indicates the acceptable number of wrong chars.
     ///
     /// The atomic text is considered incorrect if its count of wrong chars is more than this quantity.
     /// If this quantity is `nil` then the check will not be performed.
     /// - Note: The acceptable count of wrong chars is counted relative to the compared text.
-    var acceptableQuantityOfWrongChars: CharQuantity?
+    public var acceptableQuantityOfWrongChars: CharQuantity?
     
 }
 
 
 extension AtomicConfiguration {
     
-    public enum CharQuantity {
+    public enum CharQuantity: Equatable {
         
         /// A default quantity associated with 100% of chars, that is, the coefficient is `1.0`.
         case all
@@ -54,6 +54,44 @@ extension AtomicConfiguration {
         /// Calculates `Int` value for the given length.
         internal func calculate(for length: Int) -> Int {
             return (length.toDouble * coefficient).rounded().toInt
+        }
+        
+    }
+    
+}
+
+
+extension AtomicConfiguration {
+    
+    public enum LetterCaseAction: Equatable {
+        
+        /// Letter cases will be compared. That is, there is a mistake if letter cases do not match.
+        case compare
+        
+        /// Letter cases will be leaded to the given version. That is, there is no mistake if letter cases do not match.
+        case leadTo(Version)
+        
+        /// The versoin of writing of a word.
+        public enum Version: Equatable {
+            
+            /// The writing of a word with its first letter in uppercase and the remaining letters in lowercase.
+            ///
+            ///     let word = "Capitalized"
+            ///
+            case capitalized
+            
+            /// The writing of a word in capital letters.
+            ///
+            ///     let word = "UPPERCASE"
+            ///
+            case uppercase
+            
+            /// The writing of a word in small letters.
+            ///
+            ///     let word = "lowercase"
+            ///
+            case lowercase
+            
         }
         
     }

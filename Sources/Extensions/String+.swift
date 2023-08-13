@@ -47,6 +47,33 @@ internal extension String {
         return last
     }
     
+    /// Leads the string to capitalized.
+    ///
+    ///     var str = "woRd"
+    ///     str.capitalize() // "Word"
+    ///
+    mutating func capitalize() -> Void {
+        self = capitalized
+    }
+    
+    /// Leads the string to uppercase.
+    ///
+    ///     var str = "WorD"
+    ///     str.uppercase() // "WORD"
+    ///
+    mutating func uppercase() -> Void {
+        self = uppercased()
+    }
+    
+    /// Leads the string to lowercase.
+    ///
+    ///     var str = "WorD"
+    ///     str.lowercase() // "word"
+    ///
+    mutating func lowercase() -> Void {
+        self = lowercased()
+    }
+    
     
     // MARK: Operators
     

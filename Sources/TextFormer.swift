@@ -1,4 +1,4 @@
-internal final class BasicConverter {
+internal final class TextFormer {
     
     // MARK: - Check Exact Compliance
     

@@ -1,5 +1,12 @@
 internal extension String {
     
+    /// An optional character converted from this string.
+    ///
+    ///     let str = "A"
+    ///     str.toCharacter! // Character("A")
+    ///
+    var toCharacter: Character? { Character(self) }
+    
     /// Returns a string containing characters this string and the given string have in common,
     /// starting from the ending of each up to the first characters that aren’t equivalent.
     ///

@@ -31,11 +31,11 @@ import Foundation
 //                  10
 //
 //      The dependency table of the count of operations for the specific length:
-//      +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+–––––––+–––––––+
-//      | length | 1 | 2 | 3  | 4  |  5  |  6  |  7   |  8   |   9   |  10   |
-//      +--------+---+---+----+----+-----+-----+------+------+-------+-------+
-//      | count  | 1 | 3 | 10 | 35 | 126 | 462 | 1716 | 6435 | 24310 | 92378 |
-//      +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+–––––––+–––––––+
+//      +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+––––––––+––––––––+
+//      | length | 1 | 2 | 3  | 4  |  5  |  6  |  7   |  8   |   9    |   10   |
+//      +--------+---+---+----+----+-----+-----+------+------+--------+--------+
+//      | count  | 1 | 3 | 10 | 35 | 126 | 462 | 1716 | 6435 | 24_310 | 92_378 |
+//      +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+––––––––+––––––––+
 //
 //      This numbers show how much the complexity of calculations increases
 //      with an increase in the number of identical chars.
@@ -76,7 +76,7 @@ import Foundation
 //  | Subsequence      |    0 1 2   |
 //  +------------------+------------+
 //  | Missing Elements |          3 |
-//  +––––––––––––––––––+------------+
+//  +––––––––––––––––––+––––––––––––+
 //
 //  Based on this math model (basis), we can make the following conclusion:
 //  The first char is extra, then the next three are correct and the last one is missing.
@@ -191,6 +191,7 @@ internal final class MathCore {
     /// - Parameter comparedText: A text to be compared with `accurateText` in order to find the best set of matching chars.
     /// - Parameter accurateText: A text based on which the calculation of the `basis` for `comparedText` performs.
     /// - Returns: The math basis that has properties consisting of elements that are indexes of associated chars in `accurateText`.
+    @inlinable
     internal static func calculateBasis(for comparedText: String, relyingOn accurateText: String) -> Basis {
         
         let comparedText = comparedText.lowercased(), accurateText = accurateText.lowercased()
@@ -246,6 +247,7 @@ internal final class MathCore {
     /// - Important: The subsequences should be only of the same length; otherwise, this method does not work correctly.
     /// - Returns: The pair with the smallest sum of the subsequense.
     @inlinable
+    @inline(__always)
     internal static func pickBestPair(among rawPairs: [Pair]) -> Pair {
         
         guard rawPairs.isEmpty == false else { return Pair() }
@@ -281,6 +283,7 @@ internal final class MathCore {
     /// - Note: The result will contain pairs with the max lis length.
     /// - Returns: Pairs of sequence and its subsequence.
     @inlinable
+    @inline(__always)
     internal static func makeRawPairs(from rawSequences: [OptionalSequence]) -> [Pair] {
         
         var pairs = [Pair]()
@@ -320,6 +323,7 @@ internal final class MathCore {
     /// - Note: The raw sequences are arranged in increasing order. The indexes of the same chars are arranged in a non-decreasing order.
     /// - Returns: The sequences where elemens are indexes of chars in `accurateText`.
     @inlinable
+    @inline(__always)
     internal static func generateRawSequences(for comparedText: String, relyingOn accurateText: String) -> [OptionalSequence] {
         
         // TODO: For a sequence of identical chars - only increasing sequences should be generated:
@@ -428,6 +432,7 @@ internal final class MathCore {
     /// - Complexity: In the worst case, O(*n* log *n*), where *n* is the length of the sequence.
     /// - Returns: The longest increasing subsequence of the sequence.
     @inlinable
+    @inline(__always)
     internal static func findLIS(of sequence: Sequence) -> Subsequence {
         
         guard sequence.count > 1 else { return sequence }

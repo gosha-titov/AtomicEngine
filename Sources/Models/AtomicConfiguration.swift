@@ -35,6 +35,8 @@ extension AtomicConfiguration {
     
     public enum CharQuantity: Equatable {
         
+        // MARK: Coefficients
+        
         /// A default quantity associated with 100% of chars, that is, the coefficient is `1.0`.
         case all
         
@@ -47,26 +49,58 @@ extension AtomicConfiguration {
         /// A default quantity associated with 25% of chars, that is, the coefficient is `0.25`.
         case low
         
-        /// A default quantity associated with 0% of chars, that is, the coefficient is `0.0`.
-        case zero
-        
         /// A quantity associated with a certain percentage of chars.
-        case other(Double)
+        case coefficient(Double)
         
         /// A double value associated with this quantity.
-        internal var coefficient: Double {
+        internal var coefficient: Double? {
             switch self {
-            case .other(let value): return value.clamped(to: 0...1.0)
+            case .coefficient(let value): return value.clamped(to: 0...1.0)
             case .all:  return 1.0
             case .high: return 0.75
             case .half: return 0.5
             case .low:  return 0.25
-            case .zero: return 0.0
+            default: return nil
             }
         }
         
+        
+        // MARK: Numbers
+        
+        /// A quantity associated with a zero number of chars.
+        case zero
+        
+        /// A quantity associated with a 1 char.
+        case one
+        
+        /// A quantity associated with 2 chars.
+        case two
+        
+        /// A quantity associated with 3 chars.
+        case three
+        
+        /// A quantity associated with a certain number of chars.
+        case number(Int)
+        
+        /// An integer value associated with this quantity.
+        internal var number: Int? {
+            switch self {
+            case .number(let value): return value.clamped(to: 0...)
+            case .zero:  return 0
+            case .one:   return 1
+            case .two:   return 2
+            case .three: return 3
+            default: return nil
+            }
+        }
+        
+        
+        // MARK: Calculate
+        
         /// Calculates `Int` value for the given length.
         internal func calculate(for length: Int) -> Int {
+            guard let coefficient else { return number! }
+            if self == .all { return length }
             return (length.toDouble * coefficient).rounded().toInt
         }
         

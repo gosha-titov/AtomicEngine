@@ -1,5 +1,37 @@
 internal final class TextFormer {
     
+    // MARK: - Adding Correct Chars
+    
+    /// Returns an atomic text with added correct chars.
+    ///
+    /// This method looks for the elements of `basis.subsequence` in `basis.sequence`, when this happens this char becomes correct.
+    ///
+    /// Аfter executing this method, the values and the count of typified chars and are not changed, there are be no rearrangements of atomic chars.
+    /// Only some their types are changed from `.extra` to `.correct`.
+    ///
+    /// - Note: The order of typified chars should not be changed before this method is called.
+    /// - Returns: An atomic text with correct chars.
+    @inlinable @inline(__always)
+    internal static func addingCorrectChars(into atomicText: AtomicText, relyingOn accurateText: String, basedOn basis: MathCore.Basis, with configuration: AtomicConfiguration) -> AtomicText {
+        
+        var atomicText = atomicText, subindex = Int()
+        var subelement: Int { basis.subsequence[subindex] }
+        
+        for (index, element) in basis.sequence.enumerated() where element == subelement {
+            if let action = configuration.letterCaseAction, action == .compare {
+                let accurateChar = accurateText[subelement]
+                let comparedChar = atomicText[index].rawValue // because initially, all atomic chars match chars of the compared text
+                atomicText[index].hasCorrectLetterCase = accurateChar == comparedChar
+            }
+            atomicText[index].type = .correct
+            subindex += 1
+            guard subindex < basis.subsequence.count else { break }
+        }
+        
+        return atomicText
+    }
+    
+    
     // MARK: - Check Exact Compliance
     
     /// Checks for exact compliance to the given configuration.
@@ -43,7 +75,7 @@ internal final class TextFormer {
     ///
     /// - Note: This method only checks for the presence or absence of chars, but not for their order.
     /// - Returns: `True` if the compared text possibly satisfies all the conditions; otherwise, `false`.
-    @inlinable
+    @inlinable @inline(__always)
     internal static func checkQuickCompliance(for comparedText: String, relyingOn accurateText: String, to configuration: AtomicConfiguration) -> Bool {
         
         let countOfCommonChars = MathCore.countCommonChars(between: comparedText, and: accurateText)
@@ -98,7 +130,7 @@ internal final class TextFormer {
     
     // MARK: - Init
     
-    /// Creates a basic converter instance.
+    /// Creates a text former instance.
     private init() {}
     
 }

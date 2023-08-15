@@ -100,76 +100,6 @@ import Foundation
 /// A math core that consists of static methods for working with numbers, sequences, subsequences and so on.
 internal final class MathCore {
     
-    internal typealias Sequence = [Int]
-    internal typealias OptionalSequence = [Int?]
-    internal typealias Subsequence = [Int]
-    
-    
-    // MARK: Basis
-    
-    /// A math basis created from two texts.
-    ///
-    /// This is the final result of the work of `MathCore`.
-    ///
-    ///     let accurateText = "Hello"
-    ///     let comparedText = "hola"
-    ///
-    ///     let basis = MathCore.calculateBasis(
-    ///         for: comparedText,
-    ///         relyingOn: accurateText
-    ///     )
-    ///
-    ///     basis.sourceSequence  // [0, 1, 2, 3, 4]
-    ///     basis.sequence        // [0, 4, 2, nil ]
-    ///     basis.subsequence     // [0,    2      ]
-    ///     basis.missingElements // [   1,    3, 4]
-    ///
-    /// - Note: The value of each element of the sequence is the index of the associated char in the source text.
-    internal struct Basis: Equatable {
-        
-        /// The sequence generated from `accurateText`.
-        internal let sourceSequence: Sequence
-        
-        /// The sequence generated from `comparedText` relying on `accurateText`.
-        internal let sequence: OptionalSequence
-        
-        /// The longest increasing subsequence found in `sequence`.
-        internal let subsequence: Subsequence
-        
-        /// Elements that are present in the `sourceSequence` but missing in the `subsequence`.
-        internal let missingElements: Sequence
-        
-        /// Creates a math basis instance.
-        internal init(_ sourceSequence: Sequence, _ sequence: OptionalSequence, _ subsequence: Subsequence) {
-            self.sourceSequence = sourceSequence
-            self.sequence = sequence
-            self.subsequence = subsequence
-            missingElements = sourceSequence.filter { !subsequence.contains($0) }
-        }
-        
-    }
-    
-    
-    // MARK: Pair
-    
-    /// A math pair of sequence and its subsequence.
-    internal struct Pair: Equatable {
-        
-        /// The sequence consisting of associated indexes.
-        internal let sequence: OptionalSequence
-        
-        /// The longest increasing subsequence found in `sequence`.
-        internal let subsequence: Subsequence
-        
-        /// Creates a math pair instance.
-        internal init(_ sequence: OptionalSequence, _ subsequence: Subsequence) {
-            self.sequence = sequence
-            self.subsequence = subsequence
-        }
-        
-    }
-    
-    
     // MARK: - Calculate Basis
     
     /// Calculates the math basis from the two given texts.
@@ -246,8 +176,7 @@ internal final class MathCore {
     ///
     /// - Important: The subsequences should be only of the same length; otherwise, this method does not work correctly.
     /// - Returns: The pair with the smallest sum of the subsequense.
-    @inlinable
-    @inline(__always)
+    @inlinable @inline(__always)
     internal static func pickBestPair(among rawPairs: [Pair]) -> Pair {
         
         guard rawPairs.isEmpty == false else { return Pair() }
@@ -282,8 +211,7 @@ internal final class MathCore {
     ///
     /// - Note: The result will contain pairs with the max lis length.
     /// - Returns: Pairs of sequence and its subsequence.
-    @inlinable
-    @inline(__always)
+    @inlinable @inline(__always)
     internal static func makeRawPairs(from rawSequences: [OptionalSequence]) -> [Pair] {
         
         var pairs = [Pair]()
@@ -322,8 +250,7 @@ internal final class MathCore {
     ///
     /// - Note: The raw sequences are arranged in increasing order. The indexes of the same chars are arranged in a non-decreasing order.
     /// - Returns: The sequences where elemens are indexes of chars in `accurateText`.
-    @inlinable
-    @inline(__always)
+    @inlinable @inline(__always)
     internal static func generateRawSequences(for comparedText: String, relyingOn accurateText: String) -> [OptionalSequence] {
         
         // TODO: For a sequence of identical chars - only increasing sequences should be generated:
@@ -431,8 +358,7 @@ internal final class MathCore {
     /// This method returns always the smallest one, that is `[0, 1, 3]`.
     /// - Complexity: In the worst case, O(*n* log *n*), where *n* is the length of the sequence.
     /// - Returns: The longest increasing subsequence of the sequence.
-    @inlinable
-    @inline(__always)
+    @inlinable @inline(__always)
     internal static func findLIS(of sequence: Sequence) -> Subsequence {
         
         guard sequence.count > 1 else { return sequence }
@@ -481,6 +407,88 @@ internal final class MathCore {
     
     /// Creates a math frame instance.
     private init() {}
+    
+}
+
+
+
+extension MathCore {
+    
+    // MARK: - Math Types
+    
+    /// A sequence that consists of char indexes.
+    internal typealias Sequence = [Int]
+    
+    /// An optional sequence that consists of char indexes or `nil` values.
+    internal typealias OptionalSequence = [Int?]
+    
+    /// A subsequence that consists of char indexes.
+    internal typealias Subsequence = [Int]
+    
+    
+    // MARK: Basis
+    
+    /// A math basis created from two texts.
+    ///
+    /// This is the final result of the work of `MathCore`.
+    ///
+    ///     let accurateText = "Hello"
+    ///     let comparedText = "hola"
+    ///
+    ///     let basis = MathCore.calculateBasis(
+    ///         for: comparedText,
+    ///         relyingOn: accurateText
+    ///     )
+    ///
+    ///     basis.sourceSequence  // [0, 1, 2, 3, 4]
+    ///     basis.sequence        // [0, 4, 2, nil ]
+    ///     basis.subsequence     // [0,    2      ]
+    ///     basis.missingElements // [   1,    3, 4]
+    ///
+    /// - Note: The value of each element of the sequence is the index of the associated char in the source text.
+    internal struct Basis: Equatable {
+        
+        /// The sequence generated from `accurateText`.
+        internal let sourceSequence: Sequence
+        
+        /// The sequence generated from `comparedText` relying on `accurateText`.
+        internal let sequence: OptionalSequence
+        
+        /// The longest increasing subsequence found in `sequence`.
+        internal let subsequence: Subsequence
+        
+        /// Elements that are present in the `sourceSequence` but missing in the `subsequence`.
+        internal let missingElements: Sequence
+        
+        /// Creates a math basis instance.
+        internal init(_ sourceSequence: Sequence, _ sequence: OptionalSequence, _ subsequence: Subsequence) {
+            self.sourceSequence = sourceSequence
+            self.sequence = sequence
+            self.subsequence = subsequence
+            missingElements = sourceSequence.filter { !subsequence.contains($0) }
+        }
+        
+    }
+    
+    
+    // MARK: Pair
+    
+    /// A math pair of sequence and its subsequence.
+    internal struct Pair: Equatable {
+        
+        /// The sequence consisting of associated indexes.
+        internal let sequence: OptionalSequence
+        
+        /// The longest increasing subsequence found in `sequence`.
+        internal let subsequence: Subsequence
+        
+        /// Creates a math pair instance.
+        internal init(_ sequence: OptionalSequence, _ subsequence: Subsequence) {
+            self.sequence = sequence
+            self.subsequence = subsequence
+        }
+        
+    }
     
 }
 

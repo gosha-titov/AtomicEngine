@@ -9,6 +9,7 @@ internal final class TextFormer {
     ///
     /// - Note: This method checks for the presence or absence of chars and for their order.
     /// - Returns: `True` if the basis satisfies all the conditions; otherwise, `false`.
+    @inlinable @inline(__always)
     internal static func checkExactCompliance(for basis: MathCore.Basis, to configuration: AtomicConfiguration) -> Bool {
         
         guard !basis.subsequence.isEmpty else { return false }
@@ -59,6 +60,39 @@ internal final class TextFormer {
         }
         
         return true
+    }
+    
+    
+    // MARK: - Plain Atomic Text
+    
+    /// Makes an atomic text from the given string where all atomic are one-type, and this text satisfies a specific configuration.
+    ///
+    ///     var configuration = AtomicConfiguration()
+    ///     configuration.letterCaseAction = .leadTo(.capitalized)
+    ///
+    ///     let atomicText = plainAtomicText(
+    ///         from: "hello",
+    ///         ofType: .correct,
+    ///         with: configuration
+    ///     )
+    ///
+    ///     /*[AtomicCharacter("H", type: .correct),
+    ///        AtomicCharacter("e", type: .correct),
+    ///        AtomicCharacter("l", type: .correct),
+    ///        AtomicCharacter("l", type: .correct),
+    ///        AtomicCharacter("o", type: .correct)]*/
+    ///
+    /// - Returns: A created atomic text instance.
+    @inlinable
+    internal static func plainAtomicText(from text: String, ofType type: AtomicCharacter.AtomicType, with configuration: AtomicConfiguration) -> AtomicText {
+        var atomicText = AtomicText(from: text, type: type)
+        if let letterCaseAction = configuration.letterCaseAction {
+            switch letterCaseAction {
+            case .leadTo(let version): atomicText.lead(to: version)
+            case .compare: break
+            }
+        }
+        return atomicText
     }
     
     

@@ -1,3 +1,36 @@
+// Implementation notes
+// ====================
+//
+// Example of forming an atomic text
+// –––––––––––––––––––––––––––––––––
+//
+//  accurateText = "hello"
+//  comparedText = "hola"
+//
+//  (texts) –> [math basis] –> {atomic text}
+//  +–––––––––––––––––+–––––––––––––––+  +––––––––––––––––+
+//  | accurateText    | h e   l l o   |  | Types denoting |
+//  | comparedText    | h   o l     a |  +----------------+
+//  +-----------------+---------------+  | "$" – correct  |
+//  | sourceSequence  | 0 1   2 3 4   |  | "?" - missing  |
+//  | sequence        | 0   4 2    nil|  | "!" – extra    |
+//  | subsequence     | 0     2       |  +––––––––––––––––+
+//  | missingElements |   1     3 4   |
+//  +-----------------+---------------+
+//  | atomicText      | h e o l l o a |
+//  +-----------------+---------------+
+//  | atomicTypes     | $ ? ! $ ? ? ! |
+//  +–––––––––––––––––+–––––––––––––––+
+//
+//
+// Other notes
+// –––––––––––
+//
+//  Only three types of chars are used for forming: `.correct`, `.missing` and `.extra`.
+//  That is, the atomic text needs to be edited by adding `.misspell` and `.swapped` chars.
+//
+
+/// A text former that consists of methods to form the basic atomic text.
 internal final class TextFormer {
     
     // MARK: - Form Atomic Text
@@ -24,9 +57,6 @@ internal final class TextFormer {
     ///        AtomicCharacter("o", type: .missing),
     ///        AtomicCharacter("a", type: .extra  )]*/
     ///
-    /// Only three types of chars are used for forming: `.extra`, `.correct` and `.missing`.
-    /// That is, the atomic text needs to be edited by adding `.misspell` and `.swapped` chars.
-    ///
     /// The formation is performed if there is at least one correct char; otherwise, it returns extra or missing atomic text.
     ///
     ///     let accurateText = "bye"
@@ -42,7 +72,6 @@ internal final class TextFormer {
     ///        AtomicCharacter("i", type: .extra),
     ///        AtomicCharacter("!", type: .extra)]*/
     ///
-    /// - Note: If you take the correct and missing chars from the typified text in the order in which they are located, then you get the accurate text.
     /// - Returns: An atomic text by merging compared and accurate texts.
     @inlinable
     internal static func formAtomicText(from comparedText: String, relyingOn accurateText: String, with configuration: AtomicConfiguration) -> AtomicText {

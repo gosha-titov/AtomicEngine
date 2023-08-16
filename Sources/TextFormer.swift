@@ -1,6 +1,78 @@
 internal final class TextFormer {
     
-    // - MARK: Adding Missing Chars
+    // MARK: - Form Atomic Text
+    
+    /// Forms an atomic text from the given compared and accurate texts with a specific configuration.
+    ///
+    ///     let accurateText = "Hello"
+    ///     let comparedText = "hola"
+    ///
+    ///     let configuration = AtomicConfiguration()
+    ///     configuration.letterCaseAction = .leadTo(.capitalized)
+    ///
+    ///     let atomicText = TextFormer.formAtomicText(
+    ///         from: comparedText,
+    ///         relyingOn: accurateText,
+    ///         with: configuration
+    ///     )
+    ///
+    ///     /*[AtomicCharacter("H", type: .correct),
+    ///        AtomicCharacter("e", type: .missing),
+    ///        AtomicCharacter("o", type: .extra  ),
+    ///        AtomicCharacter("l", type: .correct),
+    ///        AtomicCharacter("l", type: .missing),
+    ///        AtomicCharacter("o", type: .missing),
+    ///        AtomicCharacter("a", type: .extra  )]*/
+    ///
+    /// Only three types of chars are used for forming: `.extra`, `.correct` and `.missing`.
+    /// That is, the atomic text needs to be edited by adding `.misspell` and `.swapped` chars.
+    ///
+    /// The formation is performed if there is at least one correct char; otherwise, it returns extra or missing atomic text.
+    ///
+    ///     let accurateText = "bye"
+    ///     let comparedText = "hi!"
+    ///
+    ///     let atomicText = TextFormer.formAtomicText(
+    ///         from: comparedText,
+    ///         relyingOn: accurateText,
+    ///         with: AtomicConfiguration()
+    ///     )
+    ///
+    ///     /*[AtomicCharacter("h", type: .extra),
+    ///        AtomicCharacter("i", type: .extra),
+    ///        AtomicCharacter("!", type: .extra)]*/
+    ///
+    /// - Note: If you take the correct and missing chars from the typified text in the order in which they are located, then you get the accurate text.
+    /// - Returns: An atomic text by merging compared and accurate texts.
+    @inlinable
+    internal static func formAtomicText(from comparedText: String, relyingOn accurateText: String, with configuration: AtomicConfiguration) -> AtomicText {
+        
+        var missingAccurateAtomicText: AtomicText { plainAtomicText(from: accurateText, ofType: .missing, with: configuration) }
+        var wrongComparedAtomicText:   AtomicText { plainAtomicText(from: comparedText, ofType: .extra,   with: configuration) }
+        
+        guard !comparedText.isEmpty else { return missingAccurateAtomicText }
+        guard !accurateText.isEmpty else { return wrongComparedAtomicText   }
+        
+        let quickComplianceIsPassed = checkQuickCompliance(for: comparedText, relyingOn: accurateText, to: configuration)
+        guard quickComplianceIsPassed else { return wrongComparedAtomicText }
+        
+        let basis = MathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+        
+        let exactComplianceIsPassed = checkExactCompliance(for: basis, to: configuration)
+        guard exactComplianceIsPassed else { return wrongComparedAtomicText }
+        
+        var atomicText = wrongComparedAtomicText
+        
+        atomicText = addingCorrectChars(to: atomicText, relyingOn: accurateText, basedOn: basis, with: configuration)
+        atomicText = addingMissingChars(to: atomicText, relyingOn: accurateText, basedOn: basis)
+        
+        atomicText = applying(configuration, to: atomicText)
+        
+        return atomicText
+    }
+    
+    
+    // MARK: - Adding Missing Chars
     
     /// Returns an atomic text with added missing chars.
     ///
@@ -57,7 +129,7 @@ internal final class TextFormer {
     /// - Note: The order of typified chars should not be changed before this method is called.
     /// - Returns: An atomic text that has correct chars.
     @inlinable
-    internal static func addingCorrectChars(into atomicText: AtomicText, relyingOn accurateText: String, basedOn basis: MathCore.Basis, with configuration: AtomicConfiguration) -> AtomicText {
+    internal static func addingCorrectChars(to atomicText: AtomicText, relyingOn accurateText: String, basedOn basis: MathCore.Basis, with configuration: AtomicConfiguration) -> AtomicText {
         
         var atomicText = atomicText, subindex = Int()
         var subelement: Int { basis.subsequence[subindex] }
@@ -170,6 +242,20 @@ internal final class TextFormer {
     @inlinable
     internal static func plainAtomicText(from text: String, ofType type: AtomicCharacter.AtomicType, with configuration: AtomicConfiguration) -> AtomicText {
         var atomicText = AtomicText(from: text, type: type)
+        atomicText = applying(configuration, to: atomicText)
+        return atomicText
+    }
+    
+    
+    // MARK: - Applying Configuration
+    
+    /// Returns an atomic text with applied configuration.
+    ///
+    /// Аfter executing this method, the values, the types, the order and the count of typified chars are not changed.
+    /// Only parameters such as `hasCorrectLetterCase` can be changed.
+    @inlinable @inline(__always)
+    internal static func applying(_ configuration: AtomicConfiguration, to atomicText: AtomicText) -> AtomicText {
+        var atomicText = atomicText
         if case .leadTo(let version) = configuration.letterCaseAction {
             atomicText.lead(to: version)
         }

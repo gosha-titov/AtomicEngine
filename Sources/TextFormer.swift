@@ -1,24 +1,76 @@
 internal final class TextFormer {
     
+    // - MARK: Adding Missing Chars
+    
+    /// Returns an atomic text with added missing chars.
+    ///
+    /// This method inserts missing chars after correct ones are set.
+    /// The existing atomic chars are not changed, but missing are added.
+    /// That is, the count of typified chars is changed, **which makes the basis no longer usable**.
+    ///
+    /// - Note: The order of typified chars should not changed before this method is called.
+    /// - Returns: An atomic text that has missing chars.
+    @inlinable
+    internal static func addingMissingChars(to atomicText: AtomicText, relyingOn accurateText: String, basedOn basis: MathCore.Basis) -> AtomicText {
+        
+        var atomicText = atomicText, subindex = Int()
+        var subelement: Int { basis.subsequence[subindex] }
+        var missingElements = basis.missingElements
+        var indexToInsert = Int(), offset = Int()
+        
+        for (index, element) in basis.sequence.enumerated() where element == subelement {
+            
+            func insert(_ indexes: [Int]) -> Void {
+                for index in indexes.reversed() {
+                    let char = accurateText[index]
+                    let atomicChar = AtomicCharacter(char, type: .missing)
+                    atomicText.insert(atomicChar, at: indexToInsert)
+                }
+            }
+            
+            let insertions = missingElements.filter { $0 < subelement }
+            missingElements.removeFirst(insertions.count)
+            insert(insertions)
+            
+            offset += insertions.count
+            indexToInsert = (index + 1) + offset
+            subindex += 1
+            
+            guard subindex < basis.subsequence.count else {
+                insert(missingElements); break
+            }
+        }
+        
+        return atomicText
+    }
+    
+    
     // MARK: - Adding Correct Chars
     
     /// Returns an atomic text with added correct chars.
     ///
     /// This method looks for the elements of `basis.subsequence` in `basis.sequence`, when this happens this char becomes correct.
     ///
-    /// Аfter executing this method, the values and the count of typified chars and are not changed, there are be no rearrangements of atomic chars.
-    /// Only some their types are changed from `.extra` to `.correct`.
+    /// Аfter executing this method, the values and the count of typified chars and are not changed, there are no rearrangements of atomic chars.
+    /// Only some types of existing chars are changed from `.extra` to `.correct`.
     ///
     /// - Note: The order of typified chars should not be changed before this method is called.
-    /// - Returns: An atomic text with correct chars.
-    @inlinable @inline(__always)
+    /// - Returns: An atomic text that has correct chars.
+    @inlinable
     internal static func addingCorrectChars(into atomicText: AtomicText, relyingOn accurateText: String, basedOn basis: MathCore.Basis, with configuration: AtomicConfiguration) -> AtomicText {
         
         var atomicText = atomicText, subindex = Int()
         var subelement: Int { basis.subsequence[subindex] }
         
+        let shouldCompareLetterCases: Bool
+        if case .compare = configuration.letterCaseAction {
+            shouldCompareLetterCases = true
+        } else {
+            shouldCompareLetterCases = false
+        }
+        
         for (index, element) in basis.sequence.enumerated() where element == subelement {
-            if let action = configuration.letterCaseAction, action == .compare {
+            if shouldCompareLetterCases {
                 let accurateChar = accurateText[subelement]
                 let comparedChar = atomicText[index].rawValue // because initially, all atomic chars match chars of the compared text
                 atomicText[index].hasCorrectLetterCase = accurateChar == comparedChar
@@ -41,7 +93,7 @@ internal final class TextFormer {
     ///
     /// - Note: This method checks for the presence or absence of chars and for their order.
     /// - Returns: `True` if the basis satisfies all the conditions; otherwise, `false`.
-    @inlinable @inline(__always)
+    @inlinable
     internal static func checkExactCompliance(for basis: MathCore.Basis, to configuration: AtomicConfiguration) -> Bool {
         
         guard !basis.subsequence.isEmpty else { return false }
@@ -75,7 +127,7 @@ internal final class TextFormer {
     ///
     /// - Note: This method only checks for the presence or absence of chars, but not for their order.
     /// - Returns: `True` if the compared text possibly satisfies all the conditions; otherwise, `false`.
-    @inlinable @inline(__always)
+    @inlinable
     internal static func checkQuickCompliance(for comparedText: String, relyingOn accurateText: String, to configuration: AtomicConfiguration) -> Bool {
         
         let countOfCommonChars = MathCore.countCommonChars(between: comparedText, and: accurateText)
@@ -118,11 +170,8 @@ internal final class TextFormer {
     @inlinable
     internal static func plainAtomicText(from text: String, ofType type: AtomicCharacter.AtomicType, with configuration: AtomicConfiguration) -> AtomicText {
         var atomicText = AtomicText(from: text, type: type)
-        if let letterCaseAction = configuration.letterCaseAction {
-            switch letterCaseAction {
-            case .leadTo(let version): atomicText.lead(to: version)
-            case .compare: break
-            }
+        if case .leadTo(let version) = configuration.letterCaseAction {
+            atomicText.lead(to: version)
         }
         return atomicText
     }

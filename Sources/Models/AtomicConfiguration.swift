@@ -1,4 +1,17 @@
+import Foundation
+
 public struct AtomicConfiguration {
+    
+    /// The queue that is used to perform main operations which go strickly after each other.
+    ///
+    /// The default queue is created by the following way:
+    ///
+    ///     var mainQueue = DispatchQueue(
+    ///         label: "com.atomic-engine.main",
+    ///         qos: .userInteractive
+    ///     )
+    ///
+    public static var mainQueue = DispatchQueue(label: "com.atomic-engine.main", qos: .userInteractive)
     
     /// The quantity that indicates the required number of correct chars.
     ///
@@ -95,10 +108,10 @@ extension AtomicConfiguration {
         }
         
         
-        // MARK: Calculate
+        // MARK: Methods
         
-        /// Calculates `Int` value for the given length.
-        internal func calculate(for length: Int) -> Int {
+        /// Returns calculated `Int` value for the given length.
+        internal func count(for length: Int) -> Int {
             guard let coefficient else { return number! }
             if self == .all { return length }
             return (length.toDouble * coefficient).rounded().toInt

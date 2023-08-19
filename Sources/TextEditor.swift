@@ -5,7 +5,7 @@ internal final class TextEditor {
     
     /// Returns an atomic text with added misspell chars.
     ///
-    /// This method finds `.missing` and `.extra` chars near to each other and replaces them to a misspell char.
+    /// This method finds `.missing` and `.extra` chars near to each other and replaces them to a misspell one.
     ///
     ///     let accurateText = "day"
     ///     let comparedText = "dey"
@@ -65,6 +65,52 @@ internal final class TextEditor {
                  indexesOfMissingChars = []
                  indexesOfExtraChars = []
              }
+        }
+        
+        return atomicText
+    }
+    
+    
+    // MARK: - Adding Swapped Chars
+    
+    /// Returns an atomic text with added swapped chars.
+    ///
+    /// This method finds `.extra` and `.missing` equal chars through the `.correct` char and replaces them to swapped ones.
+    ///
+    ///     let accurateText = "day"
+    ///     let comparedText = "dya"
+    ///
+    ///     let formedAtomicText = TextFormer.formAtomicText(
+    ///         from: comparedText,
+    ///         relyingOn: accurateText,
+    ///         with: AtomicConfiguration()
+    ///     )
+    ///     /*[AtomicCharacter("d", type: .correct),
+    ///        AtomicCharacter("y", type: .extra  ),
+    ///        AtomicCharacter("a", type: .correct),
+    ///        AtomicCharacter("y", type: .missing)]*/
+    ///
+    ///     let atomicText = addindSwappedChars(to: atomicText)
+    ///     /*[AtomicCharacter("d", type: .correct),
+    ///        AtomicCharacter("y", type: .swapped),
+    ///        AtomicCharacter("a", type: .swapped)]*/
+    ///
+    /// - Returns: An atomic text that has swapped chars.
+    internal static func addingSwappedChars(to atomicText: AtomicText) -> AtomicText {
+        
+        var atomicText = atomicText
+        
+        for index in (1..<atomicText.count - 1).reversed() {
+            
+            let prevChar = atomicText[index - 1], nextChar = atomicText[index + 1]
+            let prevAndNextCharsAreEqual = prevChar.rawValue.lowercased() == nextChar.rawValue.lowercased()
+            let currentCharIsCorrect = atomicText[index].isCorrect
+            
+            if prevAndNextCharsAreEqual, prevChar.isExtra, currentCharIsCorrect, nextChar.isMissing {
+                atomicText[index - 1].type = .swapped
+                atomicText[index]    .type = .swapped
+                atomicText.remove(at: index + 1)
+            }
         }
         
         return atomicText

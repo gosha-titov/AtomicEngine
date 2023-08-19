@@ -1,8 +1,16 @@
 public struct AtomicCharacter: Equatable {
     
+    /// The value associated with this atomic character.
     public let rawValue: Character
-    public let type: AtomicType
-    public let hasCorrectLetterCase: Bool?
+    
+    /// The type of this atomic character.
+    public var type: AtomicType
+    
+    /// A boolean value that indicates whether the letter case of the character is correct.
+    ///
+    /// - Note: `Nil` value means that the letter case doesn't matter.
+    /// This is when the text is leaded to a certain version, for example, to its lowercase version.
+    public var hasCorrectLetterCase: Bool?
     
     /// An uppercase version of this atomic character.
     ///

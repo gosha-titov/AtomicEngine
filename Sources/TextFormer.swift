@@ -200,13 +200,13 @@ internal final class TextFormer {
         guard !basis.subsequence.isEmpty else { return false }
         
         let accurateLength = basis.sourceSequence.count
-        if let requiredCount = configuration.requiredQuantityOfCorrectChars?.calculate(for: accurateLength) {
+        if let requiredCount = configuration.requiredQuantityOfCorrectChars?.count(for: accurateLength) {
             let countOfMatchingChars = basis.subsequence.count
             guard requiredCount <= countOfMatchingChars else { return false }
         }
         
         let comparedLength = basis.sequence.count
-        if let acceptableCount = configuration.acceptableQuantityOfWrongChars?.calculate(for: comparedLength) {
+        if let acceptableCount = configuration.acceptableQuantityOfWrongChars?.count(for: comparedLength) {
             let countOfWrongChars = basis.sequence.count - basis.subsequence.count + basis.missingElements.count
             guard countOfWrongChars <= acceptableCount else { return false }
         }
@@ -235,11 +235,11 @@ internal final class TextFormer {
         
         guard countOfCommonChars > 0 else { return false }
         
-        if let requiredCount = configuration.requiredQuantityOfCorrectChars?.calculate(for: accurateText.count) {
+        if let requiredCount = configuration.requiredQuantityOfCorrectChars?.count(for: accurateText.count) {
             guard requiredCount <= countOfCommonChars else { return false }
         }
         
-        if let acceptableCount = configuration.acceptableQuantityOfWrongChars?.calculate(for: comparedText.count) {
+        if let acceptableCount = configuration.acceptableQuantityOfWrongChars?.count(for: comparedText.count) {
             let countOfWrongChars = comparedText.count - countOfCommonChars
             guard countOfWrongChars <= acceptableCount else { return false }
         }
@@ -268,7 +268,7 @@ internal final class TextFormer {
     ///        AtomicCharacter("o", type: .correct)]*/
     ///
     /// - Returns: A created atomic text instance.
-    @inlinable
+    @inlinable @inline(__always)
     internal static func plainAtomicText(from text: String, ofType type: AtomicCharacter.AtomicType, with configuration: AtomicConfiguration) -> AtomicText {
         var atomicText = AtomicText(from: text, type: type)
         atomicText = applying(configuration, to: atomicText)

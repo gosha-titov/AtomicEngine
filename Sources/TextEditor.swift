@@ -1,3 +1,57 @@
+// Implementation notes
+// ====================
+//
+// +––––––––––––––––+
+// | Types denoting |
+// +----------------+
+// | "+" – correct  |
+// | "?" - missing  |
+// | "^" – swapped  |
+// | "m" – misspell |
+// | "!" – extra    |
+// +––––––––––––––––+
+//
+//
+// Step 0: adjusting source atomic text
+//
+//     Initial values                 After forming                         After adjusting                        After editing
+// +––––––––––––––+–––––+       +–––––––––––––+–––––––––+              +–––––––––––––+–––––––––+              +–––––––––––––+–––––––+
+// | accurateText | day |       | atomicText  | d a y y |              | atomicText  | d a y y |              | atomicText  | d y y |
+// +--------------+-----+ ––––> +-------------+---------+ –––––––––––> +-------------+---------+ –––––––––––> +-------------+-------+
+// | comparedText | dyy |       | atomicTypes | + ? + ! |              | atomicTypes | + ? ! + |              | atomicTypes | + a + |
+// +––––––––––––––+–––––+       +–––––––––––––+–––––––––+              +–––––––––––––+–––––––––+              +–––––––––––––+–––––––+
+// +––––––––––––––+––––––––+    +–––––––––––––+–––––––––––––––––––+    +–––––––––––––+–––––––––––––––––––+    +–––––––––––––+–––––––––––––+
+// | accurateText | abyyyc |    | atomicText  | a b y y y y y y c |    | atomicText  | a b y y y y y y c |    | atomicText  | y y y y y y |
+// +--------------+--------+ –> +-------------+-------------------+ –> +-------------+-------------------+ -> +-------------+-------------+
+// | comparedText | yyyyyy |    | atomicTypes | ? ? + + + ! ! ! ? |    | atomicTypes | ? ? ! ! + + + ! ? |    | atomicTypes | a b + + + c |
+// +––––––––––––––+––––––––+    +–––––––––––––+–––––––––––––––––––+    +–––––––––––––+–––––––––––––––––––+    +–––––––––––––+–––––––––––––+
+//
+//
+// Step 1: adding misspell chars
+//
+//     Initial values              After forming                 After editing
+// +––––––––––––––+–––––+    +–––––––––––––+–––––––––+      +–––––––––––––+–––––––+
+// | accurateText | day |    | atomicText  | d a e y |      | atomicText  | d e y |
+// +--------------+-----+ –> +-------------+---------+ –––> +-------------+-------+
+// | comparedText | dey |    | atomicTypes | + ? ! + |      | atomicTypes | + a + |
+// +––––––––––––––+–––––+    +–––––––––––––+–––––––––+      +–––––––––––––+–––––––+
+// +––––––––––––––+–––––+    +–––––––––––––+–––––––––––+    +–––––––––––––+–––––––+
+// | accurateText | aa  |    | atomicText  | a a b b b |    | atomicText  | b b b |
+// +--------------+-----+ –> +-------------+-----------+ –> +-------------+-------+
+// | comparedText | bbb |    | atomicTypes | ? ? ! ! ! |    | atomicTypes | a a ! |
+// +––––––––––––––+–––––+    +–––––––––––––+–––––––––––+    +–––––––––––––+–––––––+
+//
+//
+// Step 2: adding swapped chars
+//
+//     Initial values              After forming               After editing
+// +––––––––––––––+–––––+    +–––––––––––––+–––––––––+    +–––––––––––––+–––––––+
+// | accurateText | day |    | atomicText  | d y a y |    | atomicText  | d y a |
+// +--------------+-----+ –> +-------------+---------+ –> +-------------+-------+
+// | comparedText | dya |    | atomicTypes | + ! + ? |    | atomicTypes | + ^ ^ |
+// +––––––––––––––+–––––+    +–––––––––––––+–––––––––+    +–––––––––––––+–––––––+
+//
+
 /// A text editor that consists of methods to make a formed atomic text user-friendly.
 internal final class TextEditor {
     
@@ -96,10 +150,12 @@ internal final class TextEditor {
     ///        AtomicCharacter("a", type: .swapped)]*/
     ///
     /// - Returns: An atomic text that has swapped chars.
+    @inlinable
     internal static func addingSwappedChars(to atomicText: AtomicText) -> AtomicText {
         
         var atomicText = atomicText
         
+        // range should be reversed or we should have offset index
         for index in (1..<atomicText.count - 1).reversed() {
             
             let prevChar = atomicText[index - 1], nextChar = atomicText[index + 1]
@@ -110,6 +166,101 @@ internal final class TextEditor {
                 atomicText[index - 1].type = .swapped
                 atomicText[index]    .type = .swapped
                 atomicText.remove(at: index + 1)
+            }
+        }
+        
+        return atomicText
+    }
+    
+    
+    // MARK: - Adjusting Atomic Text
+    
+    /// Returns an adjusted atomic text in which certain atomic characters can be "rearranged".
+    /// This method prepares the given atomic text so that the next methods can find all mistakes.
+    ///
+    ///     let accurateText = "day"
+    ///     let comparedText = "dyy"
+    ///
+    ///     let formedAtomicText = TextFormer.formAtomicText(
+    ///         from: comparedText,
+    ///         relyingOn: accurateText,
+    ///         with: AtomicConfiguration()
+    ///     )
+    ///     /*[AtomicCharacter("d", type: .correct),
+    ///        AtomicCharacter("a", type: .missing),
+    ///        AtomicCharacter("y", type: .correct),
+    ///        AtomicCharacter("y", type: .extra  )]*/
+    ///
+    ///     let adjustedAtomicText = adjusting(formedAtomicText)
+    ///     /*[AtomicCharacter("d", type: .correct),
+    ///        AtomicCharacter("a", type: .missing),
+    ///        AtomicCharacter("y", type: .extra  ),
+    ///        AtomicCharacter("y", type: .correct)]*/
+    ///
+    @inlinable
+    internal static func adjusting(_ atomicText: AtomicText) -> AtomicText {
+        
+        var countOfEqualCorrectChars = Int()
+        var countOfMissingChars = Int()
+        var indexOfFirstCorrectChar: Int? = nil
+        var atomicText = atomicText
+        
+        func resetValues() -> Void {
+            indexOfFirstCorrectChar = nil
+            countOfEqualCorrectChars = 0
+            countOfMissingChars = 0
+        }
+        
+        for (currentIndex, currentChar) in atomicText.enumerated() {
+            switch currentChar.type {
+            case .missing:
+                countOfMissingChars += 1
+                indexOfFirstCorrectChar = nil
+                countOfEqualCorrectChars = 0
+            case .correct:
+                guard countOfMissingChars > 0 else {
+                    indexOfFirstCorrectChar = nil
+                    countOfEqualCorrectChars = 0
+                    continue
+                }
+                if let indexOfFirstCorrectChar {
+                    let firstCorrectChar = atomicText[indexOfFirstCorrectChar]
+                    guard firstCorrectChar.rawValue.lowercased() == currentChar.rawValue.lowercased() else {
+                        resetValues()
+                        continue
+                    }
+                } else {
+                    indexOfFirstCorrectChar = currentIndex
+                }
+                countOfEqualCorrectChars += 1
+            case .extra:
+                guard countOfMissingChars > 0, let indexOfFirstChar = indexOfFirstCorrectChar,
+                      atomicText[indexOfFirstChar].rawValue.lowercased() == currentChar.rawValue.lowercased()
+                else {
+                    resetValues()
+                    continue
+                }
+                let indexOfLastChar = indexOfFirstChar + countOfEqualCorrectChars - 1
+                print("\(currentIndex): \(countOfMissingChars) \(indexOfFirstChar) \(indexOfLastChar)")
+                for index in ((indexOfFirstChar + 1)...(indexOfLastChar + 1)).reversed() {
+                    let previousChar = atomicText[index - 1]
+                    if let previousLetterCase = previousChar.hasCorrectLetterCase {
+                        let currentChar = atomicText[index]
+                        if currentChar.rawValue == previousChar.rawValue {
+                            atomicText[index].hasCorrectLetterCase = previousLetterCase
+                        } else {
+                            atomicText[index].hasCorrectLetterCase = !previousLetterCase
+                        }
+                    } else {
+                        atomicText[index].hasCorrectLetterCase = nil
+                    }
+                    atomicText[index].type = .correct
+                }
+                atomicText[indexOfFirstChar].hasCorrectLetterCase = nil
+                atomicText[indexOfFirstChar].type = .extra
+                indexOfFirstCorrectChar! += 1
+                countOfMissingChars -= 1
+            default: resetValues()
             }
         }
         

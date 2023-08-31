@@ -12,6 +12,26 @@ public struct AtomicCharacter: Equatable {
     /// This is when the text is leaded to a certain version, for example, to its lowercase version.
     public var hasCorrectLetterCase: Bool?
     
+    
+    /// A boolean value that indicates whether the type of this atomic char is correct.
+    public var isCorrect: Bool { type == .correct }
+    
+    /// A boolean value that indicates whether the type of this atomic char is missing.
+    public var isMissing: Bool { type == .missing }
+    
+    /// A boolean value that indicates whether the type of this atomic char is swapped.
+    public var isSwapped: Bool { type == .swapped }
+    
+    /// A boolean value that indicates whether the type of this atomic char is extra.
+    public var isExtra: Bool { type == .extra }
+    
+    /// A boolean value that indicates whether the type of this atomic char is misspell.
+    public var isMisspell: Bool {
+        if case .misspell = type { return true }
+        return false
+    }
+    
+    
     /// An uppercase version of this atomic character.
     ///
     ///     let atomicCharacter = AtomicCharacter("a", type: .misspell("b"))
@@ -50,6 +70,9 @@ public struct AtomicCharacter: Equatable {
         return AtomicCharacter(newRawValue, type: newType)
     }
     
+    
+    // MARK: - Init
+    
     /// Creates an atomic character instance.
     public init(_ rawValue: Character, type: AtomicType, hasCorrectLetterCase: Bool? = nil) {
         self.rawValue = rawValue
@@ -66,6 +89,7 @@ extension AtomicCharacter {
         case correct, swapped, missing, extra
         case misspell(_ correctChar: Character)
         
+        /// Creates an atomic type instance with the `.extra` value.
         public init() { self = .extra }
     }
     

@@ -131,4 +131,9 @@ internal extension String {
         return self[index]
     }
     
+    subscript(safe offset: Int) -> Character? {
+        guard offset < count else { return nil }
+        return self[offset]
+    }
+    
 }

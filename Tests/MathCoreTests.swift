@@ -14,15 +14,15 @@ final class MathCoreTests: XCTestCase {
         // Used to measure execition time
         // Just to see the difference between any updates more clearly
         
-        var comparedText = String()
-        var accurateText = String()
-        
-        accurateText = "abababababab"
-        comparedText = "babababababa"
-        
-        ExecutionTime.measure {
-            let _ = MathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
-        }
+//        var comparedText = String()
+//        var accurateText = String()
+//
+//        accurateText = "abababababab"
+//        comparedText = "babababababa"
+//
+//        ExecutionTime.measure {
+//            let _ = MathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+//        }
         
     }
     
@@ -203,14 +203,27 @@ final class MathCoreTests: XCTestCase {
         comparedText = "Abc"; accurateText = "aBc"
         XCTAssertEqual(rawSequences, [ [0, 1, 2] ])
         
-        comparedText = "aa"; accurateText = "aa"
-        XCTAssertEqual(rawSequences, [ [0, 0], [0, 1], [1, 1] ])
+        comparedText = "yy"; accurateText = "ay"
+        XCTAssertEqual(rawSequences, [ [1, 1] ])
         
         comparedText = "abcd"; accurateText = "dcba"
         XCTAssertEqual(rawSequences, [ [3, 2, 1, 0] ])
         
         comparedText = "abac"; accurateText = "caba"
         XCTAssertEqual(rawSequences, [ [1, 2, 1, 0], [1, 2, 3, 0], [3, 2, 3, 0] ])
+        
+        comparedText = "aa"; accurateText = "aa"
+        XCTAssertEqual(rawSequences, [ [0, 1] ])
+        
+        comparedText = "aaaaa"; accurateText = "aaaaa"
+        XCTAssertEqual(rawSequences, [ [0, 1, 2, 3, 4] ])
+        
+        comparedText = "3aaa12"; accurateText = "12aaa3"
+        XCTAssertEqual(rawSequences, [ [5, 2, 3, 4, 0, 1] ])
+        
+        comparedText = "2aaa1a"; accurateText = "1aaaa2"
+        XCTAssertEqual(rawSequences, [ [5, 1, 2, 3, 0, 3], [5, 1, 2, 3, 0, 4] ])
+        
     }
     
     

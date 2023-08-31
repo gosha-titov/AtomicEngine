@@ -253,39 +253,87 @@ internal final class MathCore {
     @inlinable @inline(__always)
     internal static func generateRawSequences(for comparedText: String, relyingOn accurateText: String) -> [OptionalSequence] {
         
-        // TODO: For a sequence of identical chars - only increasing sequences should be generated:
-        // TODO: That is, "012" generated for "aaa"
+        // First Example
+        // –––––––––––––
+        //
+        // comparedText is "caba", accurateText is "acab"
+        //
+        // dict is ["a": [0, 2], "c": [1], b: [3]]
+        //
+        // (c)   (a)   (b)   (a)
+        //  1 ––> 0 ––> 3 ––> 0
+        //   |           |
+        //   |           +––> 2
+        //   |
+        //   +––> 2 -–> 3 -–> 2
+        //
+        // rawSequences are [ [1, 0, 3, 0], [1, 0, 3, 2], [1, 2, 3, 2] ]
+        //
+        //
+        // Second Example
+        // ––––––––––––––
+        //
+        // comparedText is "caaaba", accurateText is "baaaac"
+        //
+        // dict is ["b": [0], "a": [1, 2, 3, 4], "c": [5]]
+        //
+        // (c)   (a)   (a)   (a)   (b)   (a)
+        //  5 ––> 1 ––> 2 ––> 3 ––> 0 ––> 3
+        //                           |
+        //                           +––> 4
+        //
+        // rawSequences are [ [5, 1, 2, 3, 0, 3], [5, 1, 2, 3, 0, 4] ]
+        //
         
         var rawSequences = [OptionalSequence]()
         
         let dict = charPositions(of: accurateText)
         let comparedText = comparedText.lowercased()
-        var cache = [Character: [Int]]()
         
-        func recursion(_ sequence: OptionalSequence, _ index: Int) -> Void {
-            guard index < comparedText.count else {
+        // The buffer that stores all positions of chars added into the current sequence
+        var buffer = [Character: [Int]]()
+        
+        func recursion(_ sequence: OptionalSequence) -> Void {
+            let currentIndex = sequence.count
+            // Complete this recursion by adding this sequence to raw sequences
+            guard currentIndex < comparedText.count else {
                 rawSequences.append(sequence)
                 return
             }
-            let char = comparedText[index]
-            if let elements = dict[char] {
-                for element in elements {
-                    if let array = cache[char], let last = array.last {
-                        guard element >= last else { continue }
-                        cache[char]!.append(element)
+            let currentChar = comparedText[currentIndex]
+            // Take all possible positions for the current char
+            if let sourcePositions = dict[currentChar] {
+                for currentPosition in sourcePositions {
+                    // If the current char already exists in this sequence
+                    if let positionsOfCurrentChar = buffer[currentChar], let lastPosition = positionsOfCurrentChar.last {
+                        guard currentPosition >= lastPosition else { continue }
+                        let previousChar = comparedText[currentIndex - 1]
+                        // If same chars are in a row then their positions should be in ascending order
+                        if previousChar == currentChar {
+                            let biggestPosition = sourcePositions.last!
+                            guard (currentPosition == lastPosition + 1) || (lastPosition == biggestPosition) else {
+                                continue
+                            }
+                        }
+                        buffer[currentChar]!.append(currentPosition)
                     } else {
-                        cache[char] = [element]
+                        buffer[currentChar] = [currentPosition]
                     }
-                    recursion(sequence + [element], index + 1)
-                    cache[char]!.removeLast()
+                    // Continue to create this sequence
+                    recursion(sequence + [currentPosition])
+                    buffer[currentChar]!.removeLast()
+                    // If same chars are in a row then the first suitable position in sourceSequence is always correct
+                    // So we don't need to go through the other ones
+                    if let nextChar = comparedText[safe: currentIndex + 1] {
+                        guard currentChar != nextChar else { break }
+                    }
                 }
             } else {
-                recursion(sequence + [nil], index + 1)
+                recursion(sequence + [nil])
             }
         }
         
-        recursion([], 0)
-        
+        recursion([])
         return rawSequences
     }
     
@@ -299,7 +347,7 @@ internal final class MathCore {
     ///     let count = countCommonChars(between: text1, and: text2) // 3
     ///
     /// - Note: Letter case does not affect the result.
-    /// - Returns: An integer value that indicates how many common chars between the given texts.
+    /// - Returns: An integer value that indicates how many common chars between given texts.
     @inlinable
     internal static func countCommonChars(between text1: String, and text2: String) -> Int {
         

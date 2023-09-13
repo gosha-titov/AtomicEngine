@@ -1,5 +1,5 @@
 
-![AtomicEngine_logo](https://github.com/gosha-titov/AtomicEngine/assets/108375163/b0e28de9-5627-4b42-9d03-51f6b08ae5ee)
+![TypoHunt_logo](https://github.com/gosha-titov/TypoHunt/assets/108375163/384dc30c-1d01-4c6b-8557-dbb9327f14c4)
 
 # Description
 

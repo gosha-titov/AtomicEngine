@@ -132,7 +132,7 @@ internal extension String {
     }
     
     subscript(safe offset: Int) -> Character? {
-        guard offset < count else { return nil }
+        guard (0..<count).contains(offset) else { return nil }
         return self[offset]
     }
     

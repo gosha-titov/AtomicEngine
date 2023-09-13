@@ -241,7 +241,6 @@ internal final class TextEditor {
                     continue
                 }
                 let indexOfLastChar = indexOfFirstChar + countOfEqualCorrectChars - 1
-                print("\(currentIndex): \(countOfMissingChars) \(indexOfFirstChar) \(indexOfLastChar)")
                 for index in ((indexOfFirstChar + 1)...(indexOfLastChar + 1)).reversed() {
                     let previousChar = atomicText[index - 1]
                     if let previousLetterCase = previousChar.hasCorrectLetterCase {

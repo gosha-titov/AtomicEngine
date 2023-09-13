@@ -4,22 +4,22 @@
 import PackageDescription
 
 let package = Package(
-    name: "AtomicEngine",
+    name: "TypoHunt",
     products: [
         .library(
-            name: "AtomicEngine",
-            targets: ["AtomicEngine"]),
+            name: "TypoHunt",
+            targets: ["TypoHunt"]),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "AtomicEngine",
+            name: "TypoHunt",
             dependencies: [],
             path: "Sources"
         ),
         .testTarget(
-            name: "AtomicEngineTests",
-            dependencies: ["AtomicEngine"],
+            name: "TypoHuntTests",
+            dependencies: ["TypoHunt"],
             path: "Tests"
         ),
     ],

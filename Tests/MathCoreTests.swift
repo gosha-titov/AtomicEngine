@@ -1,5 +1,5 @@
 import XCTest
-@testable import AtomicEngine
+@testable import TypoHunt
 
 final class MathCoreTests: XCTestCase {
     

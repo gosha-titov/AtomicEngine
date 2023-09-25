@@ -26,16 +26,17 @@ internal extension THText {
     ///        THCharacter("o", type: .correct)]*/
     ///
     func leading(to version: THConfiguration.LetterCaseVersion) -> THText {
-        var atomicText = self
-        var str = atomicText.map { $0.rawValue }.toString()
-        let types = atomicText.map { $0.type }
+        guard self.count > 0 else { return [] }
+        var result = THText()
         switch version {
-        case .capitalized: str.capitalize()
-        case .uppercase:   str.uppercase()
-        case .lowercase:   str.lowercase()
+        case .uppercase: result = map { $0.uppercased }
+        case .lowercase: result = map { $0.lowercased }
+        case .capitalized:
+            result.append(first!.uppercased)
+            guard count > 1 else { return result}
+            for char in self[1...] { result.append(char.lowercased) }
         }
-        atomicText = zip(str, types).map { THCharacter($0.0, type: $0.1) }
-        return atomicText
+        return result
     }
     
     /// Leads this text to the given letter case version.

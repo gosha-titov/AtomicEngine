@@ -69,8 +69,8 @@ public struct THCharacter: Equatable {
     ///     let character = THCharacter("A", type: .misspell("B"))
     ///     character.lowercased // THCharacter("a", type: .misspell("b"))
     ///
-    /// - Note: The lowecase character has no boolean indicator of its letter case correctness.
-    internal var lowecased: THCharacter {
+    /// - Note: The lowercase character has no boolean indicator of its letter case correctness.
+    internal var lowercased: THCharacter {
         let newRawValue = rawValue.lowercased().toCharacter!
         let newType: CharacterType
         switch self.type {

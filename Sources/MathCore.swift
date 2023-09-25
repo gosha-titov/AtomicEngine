@@ -98,7 +98,7 @@ import Foundation
 //
 
 /// A math core that consists of static methods for working with numbers, sequences, subsequences and so on.
-internal final class MathCore {
+internal final class THMathCore {
     
     // MARK: - Calculate Basis
     
@@ -290,7 +290,7 @@ internal final class MathCore {
         let dict = charPositions(of: accurateText)
         let comparedText = comparedText.lowercased()
         
-        // The buffer that stores all positions of chars added into the current sequence
+        /// The buffer that stores all positions of chars added into the current sequence
         var buffer = [Character: [Int]]()
         
         func recursion(_ sequence: OptionalSequence) -> Void {
@@ -460,7 +460,7 @@ internal final class MathCore {
 
 
 
-extension MathCore {
+extension THMathCore {
     
     // MARK: - Math Types
     
@@ -478,12 +478,12 @@ extension MathCore {
     
     /// A math basis created from two texts.
     ///
-    /// This is the final result of the work of `MathCore`.
+    /// This is the final result of the work of `THMathCore`.
     ///
     ///     let accurateText = "Hello"
     ///     let comparedText = "hola"
     ///
-    ///     let basis = MathCore.calculateBasis(
+    ///     let basis = THMathCore.calculateBasis(
     ///         for: comparedText,
     ///         relyingOn: accurateText
     ///     )
@@ -542,21 +542,21 @@ extension MathCore {
 
 
 
-internal extension MathCore.Basis {
+internal extension THMathCore.Basis {
     
     /// Creates a math basis instance with visible arguments.
     /// - Note: It's mainly used for testing.
-    init(sourceSequence: MathCore.Sequence, sequence: MathCore.OptionalSequence, subsequence: MathCore.Subsequence) {
+    init(sourceSequence: THMathCore.Sequence, sequence: THMathCore.OptionalSequence, subsequence: THMathCore.Subsequence) {
         self.init(sourceSequence, sequence, subsequence)
     }
     
     /// Creates an empty math basis instance.
     /// - Note: It's mainly used for testing.
     init() {
-        self.init(MathCore.Sequence(), MathCore.OptionalSequence(), MathCore.Subsequence())
+        self.init(THMathCore.Sequence(), THMathCore.OptionalSequence(), THMathCore.Subsequence())
     }
     
-    static func == (lhs: MathCore.Basis, rhs: MathCore.Basis) -> Bool {
+    static func == (lhs: THMathCore.Basis, rhs: THMathCore.Basis) -> Bool {
         if lhs.sourceSequence == rhs.sourceSequence,
            lhs.subsequence == rhs.subsequence,
            lhs.sequence == rhs.sequence {
@@ -569,25 +569,25 @@ internal extension MathCore.Basis {
 
 
 
-internal extension MathCore.Pair {
+internal extension THMathCore.Pair {
     
     /// A tuple value converted from this pair.
-    var toTuple: (sequence: MathCore.OptionalSequence, subsequence: MathCore.Subsequence) {
+    var toTuple: (sequence: THMathCore.OptionalSequence, subsequence: THMathCore.Subsequence) {
         return (sequence, subsequence)
     }
     
     /// Creates a math pair instance with visible arguments.
     /// - Note: It's mainly used for testing.
-    init(sequence: MathCore.OptionalSequence, subsequence: MathCore.Subsequence) {
+    init(sequence: THMathCore.OptionalSequence, subsequence: THMathCore.Subsequence) {
         self.init(sequence, subsequence)
     }
     
     /// Creates an empty math pair instance.
     init() {
-        self.init(MathCore.OptionalSequence(), MathCore.Subsequence())
+        self.init(THMathCore.OptionalSequence(), THMathCore.Subsequence())
     }
     
-    static func == (lhs: MathCore.Pair, rhs: MathCore.Pair) -> Bool {
+    static func == (lhs: THMathCore.Pair, rhs: THMathCore.Pair) -> Bool {
         if lhs.subsequence == rhs.subsequence,
            lhs.sequence == rhs.sequence {
             return true

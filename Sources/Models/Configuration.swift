@@ -1,33 +1,34 @@
 import Foundation
 
-public struct AtomicConfiguration {
+/// A configuration that is applied the creation of the text.
+public struct THConfiguration {
     
     /// The queue that is used to perform main operations which go strickly after each other.
     ///
     /// The default queue is created by the following way:
     ///
     ///     var mainQueue = DispatchQueue(
-    ///         label: "com.atomic-engine.main",
+    ///         label: "com.typo-hunt.main",
     ///         qos: .userInteractive
     ///     )
     ///
-    public static var mainQueue = DispatchQueue(label: "com.atomic-engine.main", qos: .userInteractive)
+    public static var mainQueue = DispatchQueue(label: "com.typo-hunt.main", qos: .userInteractive)
     
     /// The quantity that indicates the required number of correct chars.
     ///
-    /// The atomic text is considered incorrect if its count of matching chars is less than this quantity.
+    /// The text is considered incorrect if its count of matching chars is less than this quantity.
     /// If this quantity is `nil` then the check will not be performed.
     /// - Note: The required count of correct chars is counted relative to the accurate text.
     public var requiredQuantityOfCorrectChars: CharQuantity?
     
     /// The quantity that indicates the acceptable number of wrong chars.
     ///
-    /// The atomic text is considered incorrect if its count of wrong chars is more than this quantity.
+    /// The text is considered incorrect if its count of wrong chars is more than this quantity.
     /// If this quantity is `nil` then the check will not be performed.
     /// - Note: The acceptable count of wrong chars is counted relative to the compared text.
     public var acceptableQuantityOfWrongChars: CharQuantity?
     
-    /// The action to be applied to the letter cases of the atomic text.
+    /// The action to be applied to the letter cases of the text.
     ///
     /// All kinds of action:
     ///
@@ -44,7 +45,7 @@ public struct AtomicConfiguration {
 }
 
 
-extension AtomicConfiguration {
+extension THConfiguration {
     
     public enum CharQuantity: Equatable {
         
@@ -122,7 +123,7 @@ extension AtomicConfiguration {
 }
 
 
-extension AtomicConfiguration {
+extension THConfiguration {
     
     public enum LetterCaseAction: Equatable {
         
@@ -137,9 +138,9 @@ extension AtomicConfiguration {
 }
 
 
-extension AtomicConfiguration {
+extension THConfiguration {
     
-    /// A letter case version that indicates how a text is written.
+    /// A letter case version that indicates how a text should be written.
     public enum LetterCaseVersion: Equatable {
         
         /// The writing of a text with its first letter in uppercase and the remaining letters in lowercase.

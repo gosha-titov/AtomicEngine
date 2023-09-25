@@ -1,13 +1,13 @@
 import XCTest
 @testable import TypoHunt
 
-final class MathCoreTests: XCTestCase {
+final class THMathCoreTests: XCTestCase {
     
-    typealias OptionalSequence = MathCore.OptionalSequence
-    typealias Subsequence = MathCore.Subsequence
-    typealias Sequence = MathCore.Sequence
-    typealias Basis = MathCore.Basis
-    typealias Pair = MathCore.Pair
+    typealias OptionalSequence = THMathCore.OptionalSequence
+    typealias Subsequence = THMathCore.Subsequence
+    typealias Sequence = THMathCore.Sequence
+    typealias Basis = THMathCore.Basis
+    typealias Pair = THMathCore.Pair
     
     func testTime() -> Void {
         
@@ -21,7 +21,7 @@ final class MathCoreTests: XCTestCase {
 //        comparedText = "babababababa"
 //
 //        ExecutionTime.measure {
-//            let _ = MathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+//            let _ = THMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
 //        }
         
     }
@@ -31,12 +31,12 @@ final class MathCoreTests: XCTestCase {
     
     func testCalculateBasis() -> Void {
             
-        typealias Basis = MathCore.Basis
+        typealias Basis = THMathCore.Basis
         
         var comparedText = String()
         var accurateText = String()
         var basis: Basis {
-            return MathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+            return THMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
         }
         
         XCTAssertEqual(basis, Basis([], [], []))
@@ -94,13 +94,13 @@ final class MathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - MathCore.pickBestPair(among:)
+    // MARK: - THMathCore.pickBestPair(among:)
     
     func testPickBestPair() -> Void {
             
         var rawPairs = [Pair]()
         var bestPair: Pair {
-            return MathCore.pickBestPair(among: rawPairs)
+            return THMathCore.pickBestPair(among: rawPairs)
         }
         
         rawPairs = []
@@ -134,13 +134,13 @@ final class MathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - MathCore.makeRawPairs(from:)
+    // MARK: - THMathCore.makeRawPairs(from:)
     
     func testMakeRawPairs() -> Void {
         
         var rawSequences = [OptionalSequence]()
         var rawPairs: [Pair] {
-            return MathCore.makeRawPairs(from: rawSequences)
+            return THMathCore.makeRawPairs(from: rawSequences)
         }
         
         rawSequences = []
@@ -175,14 +175,14 @@ final class MathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - MathCore.generateRawSequences(for:relyingOn:)
+    // MARK: - THMathCore.generateRawSequences(for:relyingOn:)
         
     func testGenerateRawSequences() -> Void {
             
         var comparedText = String()
         var accurateText = String()
         var rawSequences: [OptionalSequence] {
-            return MathCore.generateRawSequences(for: comparedText, relyingOn: accurateText)
+            return THMathCore.generateRawSequences(for: comparedText, relyingOn: accurateText)
         }
         
         comparedText = ""; accurateText = ""
@@ -227,14 +227,14 @@ final class MathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - MathCore.countCommonChars(between:and:)
+    // MARK: - THMathCore.countCommonChars(between:and:)
     
     func testCountCommonChars() -> Void {
         
         var text1 = String()
         var text2 = String()
         var count: Int {
-            return MathCore.countCommonChars(between: text1, and: text2)
+            return THMathCore.countCommonChars(between: text1, and: text2)
         }
         
         text1 = ""; text2 = ""
@@ -269,13 +269,13 @@ final class MathCoreTests: XCTestCase {
     }
 
     
-    // MARK: - MathCore.charPositions(of:)
+    // MARK: - THMathCore.charPositions(of:)
     
     func testCharPositions() -> Void {
         
         var text = String()
         var dict: [Character: [Int]] {
-            return MathCore.charPositions(of: text)
+            return THMathCore.charPositions(of: text)
         }
         
         text = ""
@@ -301,13 +301,13 @@ final class MathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - MathCore.findLis(of:)
+    // MARK: - THMathCore.findLis(of:)
     
     func testFindLis() {
         
         var sequence = Sequence()
         var subsequence: Subsequence {
-            return MathCore.findLIS(of: sequence)
+            return THMathCore.findLIS(of: sequence)
         }
         
         sequence = []

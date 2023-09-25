@@ -12,76 +12,76 @@
 // +––––––––––––––––+
 //
 //
-// Step 0: adjusting source atomic text
+// Step 0: adjusting source text
 //
-//     Initial values                 After forming                         After adjusting                        After editing
-// +––––––––––––––+–––––+       +–––––––––––––+–––––––––+              +–––––––––––––+–––––––––+              +–––––––––––––+–––––––+
-// | accurateText | day |       | atomicText  | d a y y |              | atomicText  | d a y y |              | atomicText  | d y y |
-// +--------------+-----+ ––––> +-------------+---------+ –––––––––––> +-------------+---------+ –––––––––––> +-------------+-------+
-// | comparedText | dyy |       | atomicTypes | + ? + ! |              | atomicTypes | + ? ! + |              | atomicTypes | + a + |
-// +––––––––––––––+–––––+       +–––––––––––––+–––––––––+              +–––––––––––––+–––––––––+              +–––––––––––––+–––––––+
-// +––––––––––––––+––––––––+    +–––––––––––––+–––––––––––––––––––+    +–––––––––––––+–––––––––––––––––––+    +–––––––––––––+–––––––––––––+
-// | accurateText | abyyyc |    | atomicText  | a b y y y y y y c |    | atomicText  | a b y y y y y y c |    | atomicText  | y y y y y y |
-// +--------------+--------+ –> +-------------+-------------------+ –> +-------------+-------------------+ -> +-------------+-------------+
-// | comparedText | yyyyyy |    | atomicTypes | ? ? + + + ! ! ! ? |    | atomicTypes | ? ? ! ! + + + ! ? |    | atomicTypes | a b + + + c |
-// +––––––––––––––+––––––––+    +–––––––––––––+–––––––––––––––––––+    +–––––––––––––+–––––––––––––––––––+    +–––––––––––––+–––––––––––––+
+//     Initial values              After forming                   After adjusting                  After editing
+// +––––––––––––––+–––––+       +–––––––+–––––––––+              +–––––––+–––––––––+              +–––––––+–––––––+
+// | accurateText | day |       | text  | d a y y |              | text  | d a y y |              | text  | d y y |
+// +--------------+-----+ ––––> +-------+---------+ –––––––––––> +-------+---------+ –––––––––––> +-------+-------+
+// | comparedText | dyy |       | types | + ? + ! |              | types | + ? ! + |              | types | + a + |
+// +––––––––––––––+–––––+       +–––––––+–––––––––+              +–––––––+–––––––––+              +–––––––+–––––––+
+// +––––––––––––––+––––––––+    +–––––––+–––––––––––––––––––+    +–––––––+–––––––––––––––––––+    +–––––––+–––––––––––––+
+// | accurateText | abyyyc |    | text  | a b y y y y y y c |    | text  | a b y y y y y y c |    | text  | y y y y y y |
+// +--------------+--------+ –> +-------+-------------------+ –> +-------+-------------------+ -> +-------+-------------+
+// | comparedText | yyyyyy |    | types | ? ? + + + ! ! ! ? |    | types | ? ? ! ! + + + ! ? |    | types | a b + + + c |
+// +––––––––––––––+––––––––+    +–––––––+–––––––––––––––––––+    +–––––––+–––––––––––––––––––+    +–––––––+–––––––––––––+
 //
 //
 // Step 1: adding misspell chars
 //
-//     Initial values              After forming                 After editing
-// +––––––––––––––+–––––+    +–––––––––––––+–––––––––+      +–––––––––––––+–––––––+
-// | accurateText | day |    | atomicText  | d a e y |      | atomicText  | d e y |
-// +--------------+-----+ –> +-------------+---------+ –––> +-------------+-------+
-// | comparedText | dey |    | atomicTypes | + ? ! + |      | atomicTypes | + a + |
-// +––––––––––––––+–––––+    +–––––––––––––+–––––––––+      +–––––––––––––+–––––––+
-// +––––––––––––––+–––––+    +–––––––––––––+–––––––––––+    +–––––––––––––+–––––––+
-// | accurateText | aa  |    | atomicText  | a a b b b |    | atomicText  | b b b |
-// +--------------+-----+ –> +-------------+-----------+ –> +-------------+-------+
-// | comparedText | bbb |    | atomicTypes | ? ? ! ! ! |    | atomicTypes | a a ! |
-// +––––––––––––––+–––––+    +–––––––––––––+–––––––––––+    +–––––––––––––+–––––––+
+//     Initial values           After forming           After editing
+// +––––––––––––––+–––––+    +–––––––+–––––––––+      +–––––––+–––––––+
+// | accurateText | day |    | text  | d a e y |      | text  | d e y |
+// +--------------+-----+ –> +-------+---------+ –––> +-------+-------+
+// | comparedText | dey |    | types | + ? ! + |      | types | + a + |
+// +––––––––––––––+–––––+    +–––––––+–––––––––+      +–––––––+–––––––+
+// +––––––––––––––+–––––+    +–––––––+–––––––––––+    +–––––––+–––––––+
+// | accurateText | aa  |    | text  | a a b b b |    | text  | b b b |
+// +--------------+-----+ –> +-------+-----------+ –> +-------+-------+
+// | comparedText | bbb |    | types | ? ? ! ! ! |    | types | a a ! |
+// +––––––––––––––+–––––+    +–––––––+–––––––––––+    +–––––––+–––––––+
 //
 //
 // Step 2: adding swapped chars
 //
-//     Initial values              After forming               After editing
-// +––––––––––––––+–––––+    +–––––––––––––+–––––––––+    +–––––––––––––+–––––––+
-// | accurateText | day |    | atomicText  | d y a y |    | atomicText  | d y a |
-// +--------------+-----+ –> +-------------+---------+ –> +-------------+-------+
-// | comparedText | dya |    | atomicTypes | + ! + ? |    | atomicTypes | + ^ ^ |
-// +––––––––––––––+–––––+    +–––––––––––––+–––––––––+    +–––––––––––––+–––––––+
+//     Initial values           After forming         After editing
+// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––+
+// | accurateText | day |    | text  | d y a y |    | text  | d y a |
+// +--------------+-----+ –> +-------+---------+ –> +-------+-------+
+// | comparedText | dya |    | types | + ! + ? |    | types | + ^ ^ |
+// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––+
 //
 
-/// A text editor that consists of methods to make a formed atomic text user-friendly.
+/// A text editor that consists of methods to make a formed text user-friendly.
 internal final class TextEditor {
     
     // MARK: - Adding Misspell Chars
     
-    /// Returns an atomic text with added misspell chars.
+    /// Returns a text with added misspell chars.
     ///
     /// This method finds `.missing` and `.extra` chars near to each other and replaces them to a misspell one.
     ///
     ///     let accurateText = "day"
     ///     let comparedText = "dey"
     ///
-    ///     let formedAtomicText = TextFormer.formAtomicText(
+    ///     let formedText = THTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
-    ///         with: AtomicConfiguration()
+    ///         with: THConfiguration()
     ///     )
-    ///     /*[AtomicCharacter("d", type: .correct),
-    ///        AtomicCharacter("a", type: .missing),
-    ///        AtomicCharacter("e", type: .extra  ),
-    ///        AtomicCharacter("y", type: .correct)]*/
+    ///     /*[THCharacter("d", type: .correct),
+    ///        THCharacter("a", type: .missing),
+    ///        THCharacter("e", type: .extra  ),
+    ///        THCharacter("y", type: .correct)]*/
     ///
-    ///     let atomicText = addindMisspellChars(to: atomicText)
-    ///     /*[AtomicCharacter("d", type: .correct       ),
-    ///        AtomicCharacter("e", type: .misspell("a") ),
-    ///        AtomicCharacter("y", type: .correct       )]*/
+    ///     let editedText = addindMisspellChars(to: formedText)
+    ///     /*[THCharacter("d", type: .correct       ),
+    ///        THCharacter("e", type: .misspell("a") ),
+    ///        THCharacter("y", type: .correct       )]*/
     ///
-    /// - Returns: An atomic text that has misspell chars.
+    /// - Returns: A text that has misspell chars.
     @inlinable
-    internal static func addindMisspellChars(to atomicText: AtomicText) -> AtomicText {
+    internal static func addindMisspellChars(to atomicText: THText) -> THText {
         
         var indexesOfMissingChars = [Int]()
         var indexesOfExtraChars   = [Int]()
@@ -96,7 +96,7 @@ internal final class TextEditor {
                      let indexOfExtraChar = indexesOfExtraChars.removeFirst()
                      let extraChar = atomicText[indexOfExtraChar].rawValue
                      let missingChar = atomicText[index].rawValue
-                     let misspellChar = AtomicCharacter(extraChar, type: .misspell(missingChar))
+                     let misspellChar = THCharacter(extraChar, type: .misspell(missingChar))
                      atomicText[indexOfExtraChar] = misspellChar
                      atomicText.remove(at: index)
                      offset -= 1
@@ -108,7 +108,7 @@ internal final class TextEditor {
                      let indexOfMissingChar = indexesOfMissingChars.removeFirst()
                      let missingChar = atomicText[indexOfMissingChar].rawValue
                      let extraChar = atomicText[index].rawValue
-                     let misspellChar = AtomicCharacter(extraChar, type: .misspell(missingChar))
+                     let misspellChar = THCharacter(extraChar, type: .misspell(missingChar))
                      atomicText[indexOfMissingChar] = misspellChar
                      atomicText.remove(at: index)
                      offset -= 1
@@ -134,24 +134,24 @@ internal final class TextEditor {
     ///     let accurateText = "day"
     ///     let comparedText = "dya"
     ///
-    ///     let formedAtomicText = TextFormer.formAtomicText(
+    ///     let formedAtomicText = THTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
-    ///         with: AtomicConfiguration()
+    ///         with: THConfiguration()
     ///     )
-    ///     /*[AtomicCharacter("d", type: .correct),
-    ///        AtomicCharacter("y", type: .extra  ),
-    ///        AtomicCharacter("a", type: .correct),
-    ///        AtomicCharacter("y", type: .missing)]*/
+    ///     /*[THCharacter("d", type: .correct),
+    ///        THCharacter("y", type: .extra  ),
+    ///        THCharacter("a", type: .correct),
+    ///        THCharacter("y", type: .missing)]*/
     ///
     ///     let atomicText = addindSwappedChars(to: atomicText)
-    ///     /*[AtomicCharacter("d", type: .correct),
-    ///        AtomicCharacter("y", type: .swapped),
-    ///        AtomicCharacter("a", type: .swapped)]*/
+    ///     /*[THCharacter("d", type: .correct),
+    ///        THCharacter("y", type: .swapped),
+    ///        THCharacter("a", type: .swapped)]*/
     ///
     /// - Returns: An atomic text that has swapped chars.
     @inlinable
-    internal static func addingSwappedChars(to atomicText: AtomicText) -> AtomicText {
+    internal static func addingSwappedChars(to atomicText: THText) -> THText {
         
         var atomicText = atomicText
         
@@ -181,24 +181,24 @@ internal final class TextEditor {
     ///     let accurateText = "day"
     ///     let comparedText = "dyy"
     ///
-    ///     let formedAtomicText = TextFormer.formAtomicText(
+    ///     let formedAtomicText = THTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
-    ///         with: AtomicConfiguration()
+    ///         with: THConfiguration()
     ///     )
-    ///     /*[AtomicCharacter("d", type: .correct),
-    ///        AtomicCharacter("a", type: .missing),
-    ///        AtomicCharacter("y", type: .correct),
-    ///        AtomicCharacter("y", type: .extra  )]*/
+    ///     /*[THCharacter("d", type: .correct),
+    ///        THCharacter("a", type: .missing),
+    ///        THCharacter("y", type: .correct),
+    ///        THCharacter("y", type: .extra  )]*/
     ///
     ///     let adjustedAtomicText = adjusting(formedAtomicText)
-    ///     /*[AtomicCharacter("d", type: .correct),
-    ///        AtomicCharacter("a", type: .missing),
-    ///        AtomicCharacter("y", type: .extra  ),
-    ///        AtomicCharacter("y", type: .correct)]*/
+    ///     /*[THCharacter("d", type: .correct),
+    ///        THCharacter("a", type: .missing),
+    ///        THCharacter("y", type: .extra  ),
+    ///        THCharacter("y", type: .correct)]*/
     ///
     @inlinable
-    internal static func adjusting(_ atomicText: AtomicText) -> AtomicText {
+    internal static func adjusting(_ atomicText: THText) -> THText {
         
         var countOfEqualCorrectChars = Int()
         var countOfMissingChars = Int()

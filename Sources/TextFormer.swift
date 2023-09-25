@@ -1,25 +1,25 @@
 // Implementation notes
 // ====================
 //
-// Example of forming an atomic text
+// Example of forming a text
 // –––––––––––––––––––––––––––––––––
 //
 //  accurateText = "hello"
 //  comparedText = "hola"
 //
-//  (texts) –> [math basis] –> {atomic text}
+//  (texts) –> [math basis] –> {formed text}
 //  +–––––––––––––––––+–––––––––––––––+  +––––––––––––––––+
 //  | accurateText    | h e   l l o   |  | Types denoting |
 //  | comparedText    | h   o l     a |  +----------------+
-//  +-----------------+---------------+  | "$" – correct  |
+//  +-----------------+---------------+  | "+" – correct  |
 //  | sourceSequence  | 0 1   2 3 4   |  | "?" - missing  |
 //  | sequence        | 0   4 2    nil|  | "!" – extra    |
 //  | subsequence     | 0     2       |  +––––––––––––––––+
 //  | missingElements |   1     3 4   |
 //  +-----------------+---------------+
-//  | atomicText      | h e o l l o a |
+//  | formedText      | h e o l l o a |
 //  +-----------------+---------------+
-//  | atomicTypes     | $ ? ! $ ? ? ! |
+//  | formedTypes     | + ? ! + ? ? ! |
 //  +–––––––––––––––––+–––––––––––––––+
 //
 //
@@ -27,57 +27,57 @@
 // –––––––––––
 //
 //  Only three types of chars are used for forming: `.correct`, `.missing` and `.extra`.
-//  That is, the atomic text needs to be edited by adding `.misspell` and `.swapped` chars.
+//  That is, the text needs to be edited by adding `.misspell` and `.swapped` chars.
 //
 
-/// A text former that consists of methods to form the basic atomic text.
-internal final class TextFormer {
+/// A text former that consists of methods to form the basic text.
+internal final class THTextFormer {
     
-    // MARK: - Form Atomic Text
+    // MARK: - Form Text
     
-    /// Forms an atomic text from the given compared and accurate texts with a specific configuration.
+    /// Forms a text from the given compared and accurate texts with a specific configuration.
     ///
     ///     let accurateText = "Hello"
     ///     let comparedText = "hola"
     ///
-    ///     let configuration = AtomicConfiguration()
+    ///     let configuration = THConfiguration()
     ///     configuration.letterCaseAction = .leadTo(.capitalized)
     ///
-    ///     let atomicText = TextFormer.formAtomicText(
+    ///     let text = THTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
     ///         with: configuration
     ///     )
     ///
-    ///     /*[AtomicCharacter("H", type: .correct),
-    ///        AtomicCharacter("e", type: .missing),
-    ///        AtomicCharacter("o", type: .extra  ),
-    ///        AtomicCharacter("l", type: .correct),
-    ///        AtomicCharacter("l", type: .missing),
-    ///        AtomicCharacter("o", type: .missing),
-    ///        AtomicCharacter("a", type: .extra  )]*/
+    ///     /*[THCharacter("H", type: .correct),
+    ///        THCharacter("e", type: .missing),
+    ///        THCharacter("o", type: .extra  ),
+    ///        THCharacter("l", type: .correct),
+    ///        THCharacter("l", type: .missing),
+    ///        THCharacter("o", type: .missing),
+    ///        THCharacter("a", type: .extra  )]*/
     ///
-    /// The formation is performed if there is at least one correct char; otherwise, it returns extra or missing atomic text.
+    /// The formation is performed if there is at least one correct char; otherwise, it returns extra or missing text.
     ///
     ///     let accurateText = "bye"
     ///     let comparedText = "hi!"
     ///
-    ///     let atomicText = TextFormer.formAtomicText(
+    ///     let text = THTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
-    ///         with: AtomicConfiguration()
+    ///         with: THConfiguration()
     ///     )
     ///
-    ///     /*[AtomicCharacter("h", type: .extra),
-    ///        AtomicCharacter("i", type: .extra),
-    ///        AtomicCharacter("!", type: .extra)]*/
+    ///     /*[THCharacter("h", type: .extra),
+    ///        THCharacter("i", type: .extra),
+    ///        THCharacter("!", type: .extra)]*/
     ///
-    /// - Returns: An atomic text by merging compared and accurate texts.
+    /// - Returns: A text by combining compared and accurate texts.
     @inlinable
-    internal static func formAtomicText(from comparedText: String, relyingOn accurateText: String, with configuration: AtomicConfiguration) -> AtomicText {
+    internal static func formText(from comparedText: String, relyingOn accurateText: String, with configuration: THConfiguration) -> THText {
         
-        var missingAccurateAtomicText: AtomicText { plainAtomicText(from: accurateText, ofType: .missing, with: configuration) }
-        var wrongComparedAtomicText:   AtomicText { plainAtomicText(from: comparedText, ofType: .extra,   with: configuration) }
+        var missingAccurateAtomicText: THText { plainText(from: accurateText, ofType: .missing, with: configuration) }
+        var wrongComparedAtomicText:   THText { plainText(from: comparedText, ofType: .extra,   with: configuration) }
         
         guard !comparedText.isEmpty else { return missingAccurateAtomicText }
         guard !accurateText.isEmpty else { return wrongComparedAtomicText   }
@@ -85,7 +85,7 @@ internal final class TextFormer {
         let quickComplianceIsPassed = checkQuickCompliance(for: comparedText, relyingOn: accurateText, to: configuration)
         guard quickComplianceIsPassed else { return wrongComparedAtomicText }
         
-        let basis = MathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+        let basis = THMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
         
         let exactComplianceIsPassed = checkExactCompliance(for: basis, to: configuration)
         guard exactComplianceIsPassed else { return wrongComparedAtomicText }
@@ -103,18 +103,18 @@ internal final class TextFormer {
     
     // MARK: - Adding Missing Chars
     
-    /// Returns an atomic text with added missing chars.
+    /// Returns a text with added missing chars.
     ///
     /// This method inserts missing chars after correct ones are set.
-    /// The existing atomic chars are not changed, but missing are added.
+    /// The existing chars are not changed, but missing are added.
     /// That is, the count of typified chars is changed, **which makes the basis no longer usable**.
     ///
     /// - Note: The order of typified chars should not changed before this method is called.
-    /// - Returns: An atomic text that has missing chars.
+    /// - Returns: A text that has missing chars.
     @inlinable
-    internal static func addingMissingChars(to atomicText: AtomicText, relyingOn accurateText: String, basedOn basis: MathCore.Basis) -> AtomicText {
+    internal static func addingMissingChars(to text: THText, relyingOn accurateText: String, basedOn basis: THMathCore.Basis) -> THText {
         
-        var atomicText = atomicText, subindex = Int()
+        var text = text, subindex = Int()
         var subelement: Int { basis.subsequence[subindex] }
         var missingElements = basis.missingElements
         var indexToInsert = Int(), offset = Int()
@@ -124,8 +124,8 @@ internal final class TextFormer {
             func insert(_ indexes: [Int]) -> Void {
                 for index in indexes.reversed() {
                     let char = accurateText[index]
-                    let atomicChar = AtomicCharacter(char, type: .missing)
-                    atomicText.insert(atomicChar, at: indexToInsert)
+                    let atomicChar = THCharacter(char, type: .missing)
+                    text.insert(atomicChar, at: indexToInsert)
                 }
             }
             
@@ -142,25 +142,25 @@ internal final class TextFormer {
             }
         }
         
-        return atomicText
+        return text
     }
     
     
     // MARK: - Adding Correct Chars
     
-    /// Returns an atomic text with added correct chars.
+    /// Returns a text with added correct chars.
     ///
     /// This method looks for the elements of `basis.subsequence` in `basis.sequence`, when this happens this char becomes correct.
     ///
-    /// Аfter executing this method, the values and the count of typified chars and are not changed, there are no rearrangements of atomic chars.
+    /// Аfter executing this method, the values and the count of typified chars and are not changed, there are no rearrangements of typed chars.
     /// Only some types of existing chars are changed from `.extra` to `.correct`.
     ///
     /// - Note: The order of typified chars should not be changed before this method is called.
-    /// - Returns: An atomic text that has correct chars.
+    /// - Returns: A text that has correct chars.
     @inlinable
-    internal static func addingCorrectChars(to atomicText: AtomicText, relyingOn accurateText: String, basedOn basis: MathCore.Basis, with configuration: AtomicConfiguration) -> AtomicText {
+    internal static func addingCorrectChars(to text: THText, relyingOn accurateText: String, basedOn basis: THMathCore.Basis, with configuration: THConfiguration) -> THText {
         
-        var atomicText = atomicText, subindex = Int()
+        var text = text, subindex = Int()
         var subelement: Int { basis.subsequence[subindex] }
         
         let shouldCompareLetterCases: Bool
@@ -173,15 +173,15 @@ internal final class TextFormer {
         for (index, element) in basis.sequence.enumerated() where element == subelement {
             if shouldCompareLetterCases {
                 let accurateChar = accurateText[subelement]
-                let comparedChar = atomicText[index].rawValue // because initially, all atomic chars match chars of the compared text
-                atomicText[index].hasCorrectLetterCase = accurateChar == comparedChar
+                let comparedChar = text[index].rawValue // because initially, all atomic chars match chars of the compared text
+                text[index].hasCorrectLetterCase = accurateChar == comparedChar
             }
-            atomicText[index].type = .correct
+            text[index].type = .correct
             subindex += 1
             guard subindex < basis.subsequence.count else { break }
         }
         
-        return atomicText
+        return text
     }
     
     
@@ -195,7 +195,7 @@ internal final class TextFormer {
     /// - Note: This method checks for the presence or absence of chars and for their order.
     /// - Returns: `True` if the basis satisfies all the conditions; otherwise, `false`.
     @inlinable
-    internal static func checkExactCompliance(for basis: MathCore.Basis, to configuration: AtomicConfiguration) -> Bool {
+    internal static func checkExactCompliance(for basis: THMathCore.Basis, to configuration: THConfiguration) -> Bool {
         
         guard !basis.subsequence.isEmpty else { return false }
         
@@ -229,9 +229,9 @@ internal final class TextFormer {
     /// - Note: This method only checks for the presence or absence of chars, but not for their order.
     /// - Returns: `True` if the compared text possibly satisfies all the conditions; otherwise, `false`.
     @inlinable
-    internal static func checkQuickCompliance(for comparedText: String, relyingOn accurateText: String, to configuration: AtomicConfiguration) -> Bool {
+    internal static func checkQuickCompliance(for comparedText: String, relyingOn accurateText: String, to configuration: THConfiguration) -> Bool {
         
-        let countOfCommonChars = MathCore.countCommonChars(between: comparedText, and: accurateText)
+        let countOfCommonChars = THMathCore.countCommonChars(between: comparedText, and: accurateText)
         
         guard countOfCommonChars > 0 else { return false }
         
@@ -248,47 +248,43 @@ internal final class TextFormer {
     }
     
     
-    // MARK: - Plain Atomic Text
+    // MARK: - Plain Text
     
-    /// Makes an atomic text from the given string where all atomic are one-type, and this text satisfies a specific configuration.
+    /// Makes a text from the given string where all atomic are one-type, and apply a specific configuration to it.
     ///
-    ///     var configuration = AtomicConfiguration()
+    ///     var configuration = THConfiguration()
     ///     configuration.letterCaseAction = .leadTo(.capitalized)
     ///
-    ///     let atomicText = plainAtomicText(
+    ///     let text = plainText(
     ///         from: "hello",
     ///         ofType: .correct,
     ///         with: configuration
     ///     )
     ///
-    ///     /*[AtomicCharacter("H", type: .correct),
-    ///        AtomicCharacter("e", type: .correct),
-    ///        AtomicCharacter("l", type: .correct),
-    ///        AtomicCharacter("l", type: .correct),
-    ///        AtomicCharacter("o", type: .correct)]*/
+    ///     /*[THCharacter("H", type: .correct),
+    ///        THCharacter("e", type: .correct),
+    ///        THCharacter("l", type: .correct),
+    ///        THCharacter("l", type: .correct),
+    ///        THCharacter("o", type: .correct)]*/
     ///
-    /// - Returns: A created atomic text instance.
+    /// - Returns: A created text instance with the applied configuration.
     @inlinable @inline(__always)
-    internal static func plainAtomicText(from text: String, ofType type: AtomicCharacter.AtomicType, with configuration: AtomicConfiguration) -> AtomicText {
-        var atomicText = AtomicText(from: text, type: type)
-        atomicText = applying(configuration, to: atomicText)
-        return atomicText
+    internal static func plainText(from text: String, ofType type: THCharacter.CharacterType, with configuration: THConfiguration) -> THText {
+        let text = THText(from: text, type: type)
+        return applying(configuration, to: text)
     }
     
     
     // MARK: - Applying Configuration
     
-    /// Returns an atomic text with applied configuration.
-    ///
-    /// Аfter executing this method, the values, the types, the order and the count of typified chars are not changed.
-    /// Only parameters such as `hasCorrectLetterCase` can be changed.
+    /// Returns a text with applied configuration.
     @inlinable @inline(__always)
-    internal static func applying(_ configuration: AtomicConfiguration, to atomicText: AtomicText) -> AtomicText {
-        var atomicText = atomicText
+    internal static func applying(_ configuration: THConfiguration, to text: THText) -> THText {
+        var text = text
         if case .leadTo(let version) = configuration.letterCaseAction {
-            atomicText.lead(to: version)
+            text.lead(to: version)
         }
-        return atomicText
+        return text
     }
     
     

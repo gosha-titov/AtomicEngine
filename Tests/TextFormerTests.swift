@@ -3,51 +3,51 @@ import XCTest
 
 final class TextFormerTests: XCTestCase {
 
-    // MARK: - TextFormer.applying(_:to:)
+    // MARK: - THTextFormer.applying(_:to:)
     
     func testApplyingConfiguration() -> Void {
         
-        var atomicText = AtomicText()
-        var configuration = AtomicConfiguration()
-        var result: AtomicText {
-            return TextFormer.applying(configuration, to: atomicText)
+        var text = THText()
+        var configuration = THConfiguration()
+        var result: THText {
+            return THTextFormer.applying(configuration, to: text)
         }
         
-        atomicText = []
+        text = []
         XCTAssertEqual(result, [])
         
-        atomicText = [
-            AtomicCharacter("a", type: .correct),
-            AtomicCharacter("B", type: .missing),
-            AtomicCharacter("c", type: .extra  )
+        text = [
+            THCharacter("a", type: .correct),
+            THCharacter("B", type: .missing),
+            THCharacter("c", type: .extra  )
         ]
         
         configuration.letterCaseAction = .compare
         XCTAssertEqual(result, [
-            AtomicCharacter("a", type: .correct),
-            AtomicCharacter("B", type: .missing),
-            AtomicCharacter("c", type: .extra  )
+            THCharacter("a", type: .correct),
+            THCharacter("B", type: .missing),
+            THCharacter("c", type: .extra  )
         ])
         
         configuration.letterCaseAction = .leadTo(.capitalized)
         XCTAssertEqual(result, [
-            AtomicCharacter("A", type: .correct),
-            AtomicCharacter("b", type: .missing),
-            AtomicCharacter("c", type: .extra  )
+            THCharacter("A", type: .correct),
+            THCharacter("b", type: .missing),
+            THCharacter("c", type: .extra  )
         ])
         
         configuration.letterCaseAction = .leadTo(.uppercase)
         XCTAssertEqual(result, [
-            AtomicCharacter("A", type: .correct),
-            AtomicCharacter("B", type: .missing),
-            AtomicCharacter("C", type: .extra  )
+            THCharacter("A", type: .correct),
+            THCharacter("B", type: .missing),
+            THCharacter("C", type: .extra  )
         ])
         
         configuration.letterCaseAction = .leadTo(.lowercase)
         XCTAssertEqual(result, [
-            AtomicCharacter("a", type: .correct),
-            AtomicCharacter("b", type: .missing),
-            AtomicCharacter("c", type: .extra  )
+            THCharacter("a", type: .correct),
+            THCharacter("b", type: .missing),
+            THCharacter("c", type: .extra  )
         ])
         
     }

@@ -1,13 +1,15 @@
 // Implementation notes
 // ====================
 //
+//  (source texts) –> (math basis) –> [formed text] -> (edited text)
+//                                     –––––––––––
+//
 // Example of forming a text
 // –––––––––––––––––––––––––––––––––
 //
 //  accurateText = "hello"
 //  comparedText = "hola"
 //
-//  (texts) –> [math basis] –> {formed text}
 //  +–––––––––––––––––+–––––––––––––––+  +––––––––––––––––+
 //  | accurateText    | h e   l l o   |  | Types denoting |
 //  | comparedText    | h   o l     a |  +----------------+
@@ -76,28 +78,28 @@ internal final class THTextFormer {
     @inlinable
     internal static func formText(from comparedText: String, relyingOn accurateText: String, with configuration: THConfiguration) -> THText {
         
-        var missingAccurateAtomicText: THText { plainText(from: accurateText, ofType: .missing, with: configuration) }
-        var wrongComparedAtomicText:   THText { plainText(from: comparedText, ofType: .extra,   with: configuration) }
+        var missingAccurateText: THText { plainText(from: accurateText, ofType: .missing, with: configuration) }
+        var wrongComparedText:   THText { plainText(from: comparedText, ofType: .extra,   with: configuration) }
         
-        guard !comparedText.isEmpty else { return missingAccurateAtomicText }
-        guard !accurateText.isEmpty else { return wrongComparedAtomicText   }
+        guard !comparedText.isEmpty else { return missingAccurateText }
+        guard !accurateText.isEmpty else { return wrongComparedText   }
         
         let quickComplianceIsPassed = checkQuickCompliance(for: comparedText, relyingOn: accurateText, to: configuration)
-        guard quickComplianceIsPassed else { return wrongComparedAtomicText }
+        guard quickComplianceIsPassed else { return wrongComparedText }
         
         let basis = THMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
         
         let exactComplianceIsPassed = checkExactCompliance(for: basis, to: configuration)
-        guard exactComplianceIsPassed else { return wrongComparedAtomicText }
+        guard exactComplianceIsPassed else { return wrongComparedText }
         
-        var atomicText = wrongComparedAtomicText
+        var formedText = wrongComparedText
         
-        atomicText = addingCorrectChars(to: atomicText, relyingOn: accurateText, basedOn: basis, with: configuration)
-        atomicText = addingMissingChars(to: atomicText, relyingOn: accurateText, basedOn: basis)
+        formedText = addingCorrectChars(to: formedText, relyingOn: accurateText, basedOn: basis, conformingTo: configuration)
+        formedText = addingMissingChars(to: formedText, relyingOn: accurateText, basedOn: basis, conformingTo: configuration)
         
-        atomicText = applying(configuration, to: atomicText)
+        formedText = applying(configuration, to: formedText)
         
-        return atomicText
+        return formedText
     }
     
     
@@ -112,7 +114,7 @@ internal final class THTextFormer {
     /// - Note: The order of typified chars should not changed before this method is called.
     /// - Returns: A text that has missing chars.
     @inlinable
-    internal static func addingMissingChars(to text: THText, relyingOn accurateText: String, basedOn basis: THMathCore.Basis) -> THText {
+    internal static func addingMissingChars(to text: THText, relyingOn accurateText: String, basedOn basis: THMathCore.Basis, conformingTo configuration: THConfiguration) -> THText {
         
         var text = text, subindex = Int()
         var subelement: Int { basis.subsequence[subindex] }
@@ -158,7 +160,7 @@ internal final class THTextFormer {
     /// - Note: The order of typified chars should not be changed before this method is called.
     /// - Returns: A text that has correct chars.
     @inlinable
-    internal static func addingCorrectChars(to text: THText, relyingOn accurateText: String, basedOn basis: THMathCore.Basis, with configuration: THConfiguration) -> THText {
+    internal static func addingCorrectChars(to text: THText, relyingOn accurateText: String, basedOn basis: THMathCore.Basis, conformingTo configuration: THConfiguration) -> THText {
         
         var text = text, subindex = Int()
         var subelement: Int { basis.subsequence[subindex] }
@@ -200,15 +202,17 @@ internal final class THTextFormer {
         guard !basis.subsequence.isEmpty else { return false }
         
         let accurateLength = basis.sourceSequence.count
-        if let requiredCount = configuration.requiredQuantityOfCorrectChars?.count(for: accurateLength) {
+        
+        if let requiredCount = configuration.requiredQuantityOfCorrectChars?.count(for: accurateLength, clamped: true) {
             let countOfMatchingChars = basis.subsequence.count
             guard requiredCount <= countOfMatchingChars else { return false }
         }
         
-        let comparedLength = basis.sequence.count
-        if let acceptableCount = configuration.acceptableQuantityOfWrongChars?.count(for: comparedLength) {
+        if let acceptableCount = configuration.acceptableQuantityOfWrongChars?.count(for: accurateLength) {
+            let countOfMissingChars = basis.missingElements.count
             let countOfWrongChars = basis.sequence.count - basis.subsequence.count + basis.missingElements.count
-            guard countOfWrongChars <= acceptableCount else { return false }
+            let maxCount = max(countOfWrongChars, countOfMissingChars) // because wrong and missing chars may be combined into misspell ones
+            guard maxCount <= acceptableCount else { return false }
         }
         
         return true
@@ -235,13 +239,17 @@ internal final class THTextFormer {
         
         guard countOfCommonChars > 0 else { return false }
         
-        if let requiredCount = configuration.requiredQuantityOfCorrectChars?.count(for: accurateText.count) {
+        let accurateLength = accurateText.count
+        
+        if let requiredCount = configuration.requiredQuantityOfCorrectChars?.count(for: accurateLength, clamped: true) {
             guard requiredCount <= countOfCommonChars else { return false }
         }
         
-        if let acceptableCount = configuration.acceptableQuantityOfWrongChars?.count(for: comparedText.count) {
+        if let acceptableCount = configuration.acceptableQuantityOfWrongChars?.count(for: accurateLength) {
+            let countOfMissingChars = accurateText.count - countOfCommonChars
             let countOfWrongChars = comparedText.count - countOfCommonChars
-            guard countOfWrongChars <= acceptableCount else { return false }
+            let maxCount = max(countOfWrongChars, countOfMissingChars) // because wrong and missing chars may be combined into misspell ones
+            guard maxCount <= acceptableCount else { return false }
         }
         
         return true

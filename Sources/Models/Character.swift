@@ -96,6 +96,21 @@ public struct THCharacter: Equatable {
 }
 
 
+extension THCharacter: CustomStringConvertible {
+    
+    /// The textual representation of this character.
+    ///
+    ///     let char = THCharacter("s", type: .missing)
+    ///     print(char)
+    ///     // Prints "Character 's' of type: missing"
+    ///
+    public var description: String {
+        return "Character '\(rawValue)' of type: \(type)"
+    }
+    
+}
+
+
 extension THCharacter {
     
     /// A type that describes a character relative to the original one.
@@ -123,6 +138,7 @@ extension THCharacter {
         
         /// Creates a character type instance with the `.extra` value.
         public init() { self = .extra }
+        
     }
     
 }

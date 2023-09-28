@@ -3,17 +3,6 @@ import Foundation
 /// A configuration that is applied the creation of the text.
 public struct THConfiguration {
     
-    /// The queue that is used to perform main operations which go strickly after each other.
-    ///
-    /// The default queue is created by the following way:
-    ///
-    ///     var mainQueue = DispatchQueue(
-    ///         label: "com.typo-hunt.main",
-    ///         qos: .userInteractive
-    ///     )
-    ///
-    public static var mainQueue = DispatchQueue(label: "com.typo-hunt.main", qos: .userInteractive)
-    
     /// The quantity that indicates the required number of correct chars.
     ///
     /// The text is considered incorrect if its count of matching chars is less than this quantity.
@@ -112,8 +101,11 @@ extension THConfiguration {
         // MARK: Methods
         
         /// Returns calculated `Int` value for the given length.
-        internal func count(for length: Int) -> Int {
-            guard let coefficient else { return number! }
+        internal func count(for length: Int, clamped: Bool = false) -> Int {
+            guard let coefficient else {
+                if clamped { return number!.clamped(to: 0...length) }
+                return number!
+            }
             if self == .all { return length }
             return (length.toDouble * coefficient).rounded().toInt
         }

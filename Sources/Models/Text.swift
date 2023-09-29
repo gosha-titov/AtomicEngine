@@ -10,7 +10,18 @@
 public typealias THText = [THCharacter]
 
 
-internal extension THText {
+extension THText {
+    
+    /// A boolean value that indicates whether this text has no typos or mistakes.
+    public var isCompletelyCorrect: Bool {
+        for char in self {
+            guard char.isCorrect else { return false }
+            if let letterCaseIsCorrect = char.hasCorrectLetterCase {
+                guard letterCaseIsCorrect else { return false }
+            }
+        }
+        return true
+    }
     
     /// Returns a text leaded to the given letter case version.
     ///
@@ -25,7 +36,7 @@ internal extension THText {
     ///        THCharacter("l", type: .correct),
     ///        THCharacter("o", type: .correct)]*/
     ///
-    func leading(to version: THConfiguration.LetterCaseVersion) -> THText {
+    public func leading(to version: THConfiguration.LetterCaseVersion) -> THText {
         guard self.count > 0 else { return [] }
         var result = THText()
         switch version {
@@ -50,7 +61,7 @@ internal extension THText {
     ///        THCharacter("l", type: .correct),
     ///        THCharacter("o", type: .correct)]*/
     ///
-    mutating func lead(to version: THConfiguration.LetterCaseVersion) -> Void {
+    public mutating func lead(to version: THConfiguration.LetterCaseVersion) -> Void {
         self = leading(to: version)
     }
     
@@ -64,7 +75,7 @@ internal extension THText {
     ///        THCharacter("l", type: .correct),
     ///        THCharacter("o", type: .correct)]*/
     ///
-    init(from string: String, type: THCharacter.CharacterType) {
+    public init(from string: String, type: THCharacter.CharacterType) {
         let atomicText = string.map { THCharacter($0, type: type) }
         self.init(atomicText)
     }

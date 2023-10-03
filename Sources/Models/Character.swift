@@ -1,5 +1,6 @@
 /// A character that has a type.
 ///
+///     let character = THCharacter("a", type: .missing)
 ///     character.rawValue // Character("a")
 ///     character.type // .missing
 ///
@@ -32,11 +33,14 @@ public struct THCharacter: Equatable {
     /// A boolean value that indicates whether the type of this character is missing.
     public var isMissing: Bool { type == .missing }
     
-    /// A boolean value that indicates whether the type of this character is swapped.
-    public var isSwapped: Bool { type == .swapped }
-    
     /// A boolean value that indicates whether the type of this character is extra.
     public var isExtra: Bool { type == .extra }
+    
+    /// A boolean value that indicates whether the type of this character is swapped.
+    public var isSwapped: Bool {
+        if case .swapped = type { return true }
+        return false
+    }
     
     /// A boolean value that indicates whether the type of this character is misspell.
     public var isMisspell: Bool {
@@ -51,7 +55,7 @@ public struct THCharacter: Equatable {
     ///     character.uppercased // THCharacter("A", type: .misspell("B"))
     ///
     /// - Note: The uppercase character has no boolean indicator of its letter case correctness.
-    internal var uppercased: THCharacter {
+    public var uppercased: THCharacter {
         let newRawValue = rawValue.uppercased().toCharacter!
         let newType: CharacterType
         switch self.type {
@@ -70,7 +74,7 @@ public struct THCharacter: Equatable {
     ///     character.lowercased // THCharacter("a", type: .misspell("b"))
     ///
     /// - Note: The lowercase character has no boolean indicator of its letter case correctness.
-    internal var lowercased: THCharacter {
+    public var lowercased: THCharacter {
         let newRawValue = rawValue.lowercased().toCharacter!
         let newType: CharacterType
         switch self.type {
@@ -105,7 +109,13 @@ extension THCharacter: CustomStringConvertible {
     ///     // Prints "Character 's' of type: missing"
     ///
     public var description: String {
-        return "Character '\(rawValue)' of type: \(type)"
+        let ending: String
+        if let hasCorrectLetterCase {
+            ending = ", with " + (hasCorrectLetterCase ? "correct" : "wrong") + " letter case"
+        } else {
+            ending = ""
+        }
+        return "Character '\(rawValue)' of type: \(type)" + ending
     }
     
 }
@@ -123,8 +133,8 @@ extension THCharacter {
         case correct
         
         /// A type that indicates whether a character is swapped with another one.
-        /// This means that if these two characters are swapped back, they are correct.
-        case swapped
+        /// This means that if these two characters are swapped back, they will become correct.
+        case swapped(position: SwappedPosition)
         
         /// A type that indicates whether a character is missing.
         /// This means that this character is in the original text but is missing in the entered one.
@@ -139,6 +149,23 @@ extension THCharacter {
         /// Creates a character type instance with the `.extra` value.
         public init() { self = .extra }
         
+    }
+    
+}
+
+
+extension THCharacter.CharacterType {
+    
+    /// A type that specifies a character position relative to the correct one.
+    ///
+    /// This is used when two characters are correct but swapped.
+    public enum SwappedPosition {
+        
+        /// A position of a character that is to the left of the correct position.
+        case left
+        
+        /// A position of a character that is to the right of the correct position.
+        case right
     }
     
 }

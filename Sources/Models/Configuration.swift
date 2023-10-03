@@ -31,6 +31,8 @@ public struct THConfiguration {
     /// If the value is `nil` then letter cases will not be changed. There is no mistake if letter cases do not match.
     public var letterCaseAction: LetterCaseAction?
     
+    /// Creates an empty configuration instance.
+    public init() {}
 }
 
 

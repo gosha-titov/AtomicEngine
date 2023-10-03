@@ -1,3 +1,5 @@
+import Foundation
+
 internal extension String {
     
     /// An optional character converted from this string.
@@ -6,6 +8,16 @@ internal extension String {
     ///     str.toCharacter! // Character("A")
     ///
     var toCharacter: Character? { Character(self) }
+    
+    // MARK: Properties
+        
+    /// A NSAttributedString value converted from this string value.
+    ///
+    ///     let attributedString = "text".toNSAttributedString
+    ///
+    var toNSAttributedString: NSAttributedString {
+        return NSAttributedString(string: self)
+    }
     
     /// Returns a string containing characters this string and the given string have in common,
     /// starting from the ending of each up to the first characters that aren’t equivalent.

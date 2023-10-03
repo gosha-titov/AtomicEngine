@@ -232,12 +232,12 @@ internal final class THTextEditor {
     ///        THCharacter("y", type: .correct)]*/
     ///
     @inlinable @inline(__always)
-    internal static func adjusting(_ atomicText: THText) -> THText {
+    internal static func adjusting(_ formedText: THText) -> THText {
         
         var countOfEqualCorrectChars = Int()
         var countOfMissingChars = Int()
         var indexOfFirstCorrectChar: Int? = nil
-        var atomicText = atomicText
+        var formedText = formedText
         
         func resetValues() -> Void {
             indexOfFirstCorrectChar = nil
@@ -245,7 +245,7 @@ internal final class THTextEditor {
             countOfMissingChars = 0
         }
         
-        for (currentIndex, currentChar) in atomicText.enumerated() {
+        for (currentIndex, currentChar) in formedText.enumerated() {
             switch currentChar.type {
             case .missing:
                 countOfMissingChars += 1
@@ -258,7 +258,7 @@ internal final class THTextEditor {
                     continue
                 }
                 if let indexOfFirstCorrectChar {
-                    let firstCorrectChar = atomicText[indexOfFirstCorrectChar]
+                    let firstCorrectChar = formedText[indexOfFirstCorrectChar]
                     guard firstCorrectChar.rawValue.lowercased() == currentChar.rawValue.lowercased() else {
                         resetValues()
                         continue
@@ -269,35 +269,35 @@ internal final class THTextEditor {
                 countOfEqualCorrectChars += 1
             case .extra:
                 guard countOfMissingChars > 0, let indexOfFirstChar = indexOfFirstCorrectChar,
-                      atomicText[indexOfFirstChar].rawValue.lowercased() == currentChar.rawValue.lowercased()
+                      formedText[indexOfFirstChar].rawValue.lowercased() == currentChar.rawValue.lowercased()
                 else {
                     resetValues()
                     continue
                 }
                 let indexOfLastChar = indexOfFirstChar + countOfEqualCorrectChars - 1
                 for index in ((indexOfFirstChar + 1)...(indexOfLastChar + 1)).reversed() {
-                    let previousChar = atomicText[index - 1]
+                    let previousChar = formedText[index - 1]
                     if let previousLetterCase = previousChar.hasCorrectLetterCase {
-                        let currentChar = atomicText[index]
+                        let currentChar = formedText[index]
                         if currentChar.rawValue == previousChar.rawValue {
-                            atomicText[index].hasCorrectLetterCase = previousLetterCase
+                            formedText[index].hasCorrectLetterCase = previousLetterCase
                         } else {
-                            atomicText[index].hasCorrectLetterCase = !previousLetterCase
+                            formedText[index].hasCorrectLetterCase = !previousLetterCase
                         }
                     } else {
-                        atomicText[index].hasCorrectLetterCase = nil
+                        formedText[index].hasCorrectLetterCase = nil
                     }
-                    atomicText[index].type = .correct
+                    formedText[index].type = .correct
                 }
-                atomicText[indexOfFirstChar].hasCorrectLetterCase = nil
-                atomicText[indexOfFirstChar].type = .extra
+                formedText[indexOfFirstChar].hasCorrectLetterCase = nil
+                formedText[indexOfFirstChar].type = .extra
                 indexOfFirstCorrectChar! += 1
                 countOfMissingChars -= 1
             default: resetValues()
             }
         }
         
-        return atomicText
+        return formedText
     }
     
     

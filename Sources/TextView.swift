@@ -44,7 +44,7 @@ open class THTextView: UIScrollView {
     public var correctColor: UIColor = .black
     
     /// The color that is used to emphasize swapped characters, arrows below them and wrong letter cases, settable.
-    public var warningColor: UIColor = .yellow
+    public var warningColor: UIColor = .orange
     
     /// The color that is used to display extra characters and strikethrough lines, settable.
     public var wrongColor: UIColor = .red

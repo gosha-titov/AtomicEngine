@@ -3,6 +3,9 @@ import Foundation
 // Implementation notes
 // ====================
 //
+//  (source texts) –> [math basis] –> (formed text) -> (edited text) -> (displayed text)
+//                     ––––––––––
+//
 // The complexity of the calculation depends on the count of identical chars.
 // This means that the more identical chars there are – the more operations are performed.
 //
@@ -126,36 +129,30 @@ internal final class THMathCore {
         
         let comparedText = comparedText.lowercased(), accurateText = accurateText.lowercased()
         let accurateSequence: Sequence = Array(0..<accurateText.count)
-        let sequence: OptionalSequence, subsequence: Sequence
         
-        if accurateText == comparedText {
-            sequence    = accurateSequence
-            subsequence = accurateSequence
-        } else {
-            // Find a common beginning(prefix) and ending(suffix) of the texts:
-            let prefix = comparedText.commonPrefix(with: accurateText).count
-            var partialAccurateText = accurateText.dropFirst(prefix).toString
-            var partialComparedText = comparedText.dropFirst(prefix).toString
-            
-            let suffix = partialComparedText.commonSuffix(with: partialAccurateText).count
-            partialAccurateText = partialAccurateText.dropLast(suffix).toString
-            partialComparedText = partialComparedText.dropLast(suffix).toString
-            
-            // Perform the work of the algorithm:
-            let rawSequences = generateRawSequences(for: partialComparedText, relyingOn: partialAccurateText)
-            let rawPairs = makeRawPairs(from: rawSequences)
-            let (partialSequence, partialSubsequence) = pickBestPair(among: rawPairs).toTuple
-            
-            // Restore the missing common parts:
-            let accurateSequencePrefix = accurateSequence.first(prefix)
-            let accurateSequenceSuffix = accurateSequence.last(suffix)
-            
-            // Put everything together:
-            let shiftedPartialSequence = partialSequence.map { $0.hasValue ? $0! + prefix : nil }
-            let shiftedPartialSubsequence = partialSubsequence.map { $0  + prefix }
-            sequence    = accurateSequencePrefix + shiftedPartialSequence    + accurateSequenceSuffix
-            subsequence = accurateSequencePrefix + shiftedPartialSubsequence + accurateSequenceSuffix
-        }
+        // Find a common beginning(prefix) and ending(suffix) of the texts:
+        let prefix = comparedText.commonPrefix(with: accurateText).count
+        var partialAccurateText = accurateText.dropFirst(prefix).toString
+        var partialComparedText = comparedText.dropFirst(prefix).toString
+        
+        let suffix = partialComparedText.commonSuffix(with: partialAccurateText).count
+        partialAccurateText = partialAccurateText.dropLast(suffix).toString
+        partialComparedText = partialComparedText.dropLast(suffix).toString
+        
+        // Perform the work of the algorithm:
+        let rawSequences = generateRawSequences(for: partialComparedText, relyingOn: partialAccurateText)
+        let rawPairs = makeRawPairs(from: rawSequences)
+        let (partialSequence, partialSubsequence) = pickBestPair(among: rawPairs).toTuple
+        
+        // Restore the missing common parts:
+        let accurateSequencePrefix = accurateSequence.first(prefix)
+        let accurateSequenceSuffix = accurateSequence.last(suffix)
+        
+        // Put everything together:
+        let shiftedPartialSequence    = partialSequence   .map { $0.hasValue ? $0! + prefix : nil }
+        let shiftedPartialSubsequence = partialSubsequence.map {               $0  + prefix       }
+        let sequence    = accurateSequencePrefix + shiftedPartialSequence    + accurateSequenceSuffix
+        let subsequence = accurateSequencePrefix + shiftedPartialSubsequence + accurateSequenceSuffix
         
         return Basis(accurateSequence, sequence, subsequence)
     }

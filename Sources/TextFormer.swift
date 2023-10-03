@@ -1,7 +1,7 @@
 // Implementation notes
 // ====================
 //
-//  (source texts) –> (math basis) –> [formed text] -> (edited text)
+//  (source texts) –> (math basis) –> [formed text] -> (edited text) -> (displayed text)
 //                                     –––––––––––
 //
 // Example of forming a text

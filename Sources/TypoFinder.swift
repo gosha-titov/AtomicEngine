@@ -30,7 +30,7 @@ open class THTypoFinder {
     
     // MARK: - Methods
     
-    /// Finds all typos and mistakes in the given compared text, asynchronously.
+    /// Finds all typos and mistakes in the given text, asynchronously.
     ///
     /// This method executes all operations asynchronously on the `queue` of this finder;
     /// otherwise (if the value is `nil`), does it asynchronously on the main queue.
@@ -69,7 +69,7 @@ open class THTypoFinder {
         }
     }
     
-    /// Finds all typos and mistakes in the given compared text.
+    /// Finds all typos and mistakes in the given text.
     ///
     /// The typo finding process uses the configuration that is set for this finder.
     ///

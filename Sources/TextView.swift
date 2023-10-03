@@ -65,82 +65,101 @@ open class THTextView: UIScrollView {
     ///     textView.text = newText
     ///
     public final func updateDisplayedText(with newText: THText) -> Void {
+        text = newText
+        
         let upperMutableString = NSMutableAttributedString()
         let centerMutableString = NSMutableAttributedString()
         let lowerMutableString = NSMutableAttributedString()
-        let space = " ".toNSAttributedString.applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
-        for char in newText {
-            let currentChar = char.rawValue.toNSAttributedString.applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
-            switch char.type {
-            case .correct:
-                let correctChar = currentChar.applying(foregroundColor: correctColor)
-                upperMutableString.append(space)
-                centerMutableString.append(correctChar)
-                lowerMutableString.append(space)
-            case .swapped(let position):
-                let arrowSymbol: String
-                switch position {
-                case .left:  arrowSymbol = "←"
-                case .right: arrowSymbol = "→"
+        
+        if newText.isCompletelyCorrect {
+            let correctText = newText.rawValue.toNSAttributedString
+                .applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
+                .applying(foregroundColor: completelyCorrectColor)
+            centerMutableString.append(correctText)
+        } else {
+            let space = " ".toNSAttributedString.applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
+            for char in newText {
+                let currentChar = char.rawValue.toNSAttributedString.applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
+                switch char.type {
+                    
+                case .correct:
+                    var correctChar = currentChar.applying(foregroundColor: correctColor)
+                    if let letterCaseIsCorrect = char.hasCorrectLetterCase, letterCaseIsCorrect == false {
+                        correctChar = correctChar.applying(underline: .single, withColor: warningColor)
+                    }
+                    upperMutableString.append(space)
+                    centerMutableString.append(correctChar)
+                    lowerMutableString.append(space)
+                    
+                case .swapped(let position):
+                    let arrowSymbol: String
+                    switch position {
+                    case .left:  arrowSymbol = "←"
+                    case .right: arrowSymbol = "→"
+                    }
+                    let swappedChar: NSAttributedString
+                    if char.rawValue == " " {
+                        swappedChar = currentChar
+                            .applying(underline: .single, withColor: warningColor)
+                    } else {
+                        swappedChar = currentChar
+                            .applying(foregroundColor: warningColor)
+                    }
+                    let arrow = arrowSymbol.toNSAttributedString.applying(foregroundColor: warningColor)
+                    upperMutableString.append(space)
+                    centerMutableString.append(swappedChar)
+                    lowerMutableString.append(arrow)
+                    
+                case .missing:
+                    let missingChar: NSAttributedString
+                    if char.rawValue == " " {
+                        missingChar = currentChar
+                            .applying(underline: .single, withColor: missingColor)
+                    } else {
+                        missingChar = currentChar
+                            .applying(foregroundColor: missingColor)
+                    }
+                    upperMutableString.append(space)
+                    centerMutableString.append(missingChar)
+                    lowerMutableString.append(space)
+                    
+                case .extra:
+                    let extraChar: NSAttributedString
+                    if char.rawValue == " " {
+                        extraChar = currentChar
+                            .applying(underline: .single, withColor: wrongColor)
+                    } else {
+                        extraChar = currentChar
+                            .applying(foregroundColor: correctColor)
+                            .applying(strikethrough: 1, withColor: wrongColor)
+                    }
+                    upperMutableString.append(space)
+                    centerMutableString.append(extraChar)
+                    lowerMutableString.append(space)
+                    
+                case .misspell(let correctSymbol):
+                    let misspellChar: NSAttributedString
+                    let correctChar: NSAttributedString
+                    if char.rawValue == " " {
+                        misspellChar = currentChar
+                            .applying(underline: .single, withColor: wrongColor)
+                    } else {
+                        misspellChar = currentChar
+                            .applying(foregroundColor: correctColor)
+                            .applying(strikethrough: 1, withColor: wrongColor)
+                    }
+                    if correctSymbol == " " {
+                        correctChar = currentChar
+                            .applying(underline: .single, withColor: wrongColor)
+                    } else {
+                        correctChar = correctSymbol.toNSAttributedString
+                            .applying(foregroundColor: wrongColor)
+                    }
+                    upperMutableString.append(correctChar)
+                    centerMutableString.append(misspellChar)
+                    lowerMutableString.append(space)
                 }
-                let swappedChar: NSAttributedString
-                if char.rawValue == " " {
-                    swappedChar = currentChar
-                        .applying(underline: .single, withColor: warningColor)
-                } else {
-                    swappedChar = currentChar
-                        .applying(foregroundColor: warningColor)
-                }
-                let arrow = arrowSymbol.toNSAttributedString.applying(foregroundColor: warningColor)
-                upperMutableString.append(space)
-                centerMutableString.append(swappedChar)
-                lowerMutableString.append(arrow)
-            case .missing:
-                let missingChar: NSAttributedString
-                if char.rawValue == " " {
-                    missingChar = currentChar
-                        .applying(underline: .single, withColor: missingColor)
-                } else {
-                    missingChar = currentChar
-                        .applying(foregroundColor: missingColor)
-                }
-                upperMutableString.append(space)
-                centerMutableString.append(missingChar)
-                lowerMutableString.append(space)
-            case .extra:
-                let extraChar: NSAttributedString
-                if char.rawValue == " " {
-                    extraChar = currentChar
-                        .applying(underline: .single, withColor: wrongColor)
-                } else {
-                    extraChar = currentChar
-                        .applying(foregroundColor: correctColor)
-                        .applying(strikethrough: 1, withColor: wrongColor)
-                }
-                upperMutableString.append(space)
-                centerMutableString.append(extraChar)
-                lowerMutableString.append(space)
-            case .misspell(let correctSymbol):
-                let misspellChar: NSAttributedString
-                let correctChar: NSAttributedString
-                if char.rawValue == " " {
-                    misspellChar = currentChar
-                        .applying(underline: .single, withColor: wrongColor)
-                } else {
-                    misspellChar = currentChar
-                        .applying(foregroundColor: correctColor)
-                        .applying(strikethrough: 1, withColor: wrongColor)
-                }
-                if correctSymbol == " " {
-                    correctChar = currentChar
-                        .applying(underline: .single, withColor: wrongColor)
-                } else {
-                    correctChar = correctSymbol.toNSAttributedString
-                        .applying(foregroundColor: wrongColor)
-                }
-                upperMutableString.append(correctChar)
-                centerMutableString.append(misspellChar)
-                lowerMutableString.append(space)
+                
             }
         }
         upperLabel.attributedText = upperMutableString

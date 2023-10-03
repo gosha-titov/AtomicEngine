@@ -1,5 +1,26 @@
 import Foundation
 
+/// A typo finder that can show all typos and mistakes in a text.
+///
+/// You usually define a new class that subclasses the `THTypoFinder` class, and create a singleton instance of it:
+///
+///     import TypoHunt
+///
+///     final class TypoFinder: THTypoFinder {
+///
+///         /// The singleton typo finder instance.
+///         static let shared: TypoFinder = {
+///             let configuration = THConfiguration()
+///             configuration.letterCaseAction = .leadTo(.capitalized)
+///             configuration.requiredQuantityOfCorrectChars = .high
+///             configuration.acceptableQuantityOfWrongChars = .one
+///             let finder = TypoFinder()
+///             finder.configuration = configuration
+///             return finder
+///         }()
+///
+///     }
+///
 open class THTypoFinder {
     
     // MARK: - Properties

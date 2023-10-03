@@ -1,6 +1,9 @@
 // Implementation notes
 // ====================
 //
+//  (source texts) –> (math basis) –> (formed text) -> [edited text] -> (displayed text)
+//                                                      –––––––––––
+//
 // +––––––––––––––––+
 // | Types denoting |
 // +----------------+
@@ -14,32 +17,22 @@
 //
 // Step 0: adjusting source text
 //
-//     Initial values              After forming                   After adjusting                  After editing
-// +––––––––––––––+–––––+       +–––––––+–––––––––+              +–––––––+–––––––––+              +–––––––+–––––––+
-// | accurateText | day |       | text  | d a y y |              | text  | d a y y |              | text  | d y y |
-// +--------------+-----+ ––––> +-------+---------+ –––––––––––> +-------+---------+ –––––––––––> +-------+-------+
-// | comparedText | dyy |       | types | + ? + ! |              | types | + ? ! + |              | types | + a + |
-// +––––––––––––––+–––––+       +–––––––+–––––––––+              +–––––––+–––––––––+              +–––––––+–––––––+
-// +––––––––––––––+––––––––+    +–––––––+–––––––––––––––––––+    +–––––––+–––––––––––––––––––+    +–––––––+–––––––––––––+
-// | accurateText | abyyyc |    | text  | a b y y y y y y c |    | text  | a b y y y y y y c |    | text  | y y y y y y |
-// +--------------+--------+ –> +-------+-------------------+ –> +-------+-------------------+ -> +-------+-------------+
-// | comparedText | yyyyyy |    | types | ? ? + + + ! ! ! ? |    | types | ? ? ! ! + + + ! ? |    | types | a b + + + c |
-// +––––––––––––––+––––––––+    +–––––––+–––––––––––––––––––+    +–––––––+–––––––––––––––––––+    +–––––––+–––––––––––––+
+//     Initial values           After forming         After adjusting        After editing
+// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––––+    +–––––––+–––––––+
+// | accurateText | day |    | text  | d a y y |    | text  | d a y y |    | text  | d y y |
+// +--------------+-----+ –> +-------+---------+ –> +-------+---------+ –> +-------+-------+
+// | comparedText | dyy |    | types | + ? + ! |    | types | + ? ! + |    | types | + a + |
+// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––––+    +–––––––+–––––––+
 //
 //
 // Step 1: adding misspell chars
 //
-//     Initial values           After forming           After editing
-// +––––––––––––––+–––––+    +–––––––+–––––––––+      +–––––––+–––––––+
-// | accurateText | day |    | text  | d a e y |      | text  | d e y |
-// +--------------+-----+ –> +-------+---------+ –––> +-------+-------+
-// | comparedText | dey |    | types | + ? ! + |      | types | + a + |
-// +––––––––––––––+–––––+    +–––––––+–––––––––+      +–––––––+–––––––+
-// +––––––––––––––+–––––+    +–––––––+–––––––––––+    +–––––––+–––––––+
-// | accurateText | aa  |    | text  | a a b b b |    | text  | b b b |
-// +--------------+-----+ –> +-------+-----------+ –> +-------+-------+
-// | comparedText | bbb |    | types | ? ? ! ! ! |    | types | a a ! |
-// +––––––––––––––+–––––+    +–––––––+–––––––––––+    +–––––––+–––––––+
+//     Initial values           After forming         After editing
+// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––+
+// | accurateText | day |    | text  | d a e y |    | text  | d e y |
+// +--------------+-----+ –> +-------+---------+ –> +-------+-------+
+// | comparedText | dey |    | types | + ? ! + |    | types | + a + |
+// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––+
 //
 //
 // Step 2: adding swapped chars
@@ -53,7 +46,48 @@
 //
 
 /// A text editor that consists of methods to make a formed text user-friendly.
-internal final class TextEditor {
+internal final class THTextEditor {
+    
+    // MARK: - Make Text User Friendly
+    
+    /// Edits the given text by making it user-friendly.
+    ///
+    ///     let accurateText = "Hello"
+    ///     let comparedText = "Halol"
+    ///     let configuration = THConfiguration()
+    ///
+    ///     let formedText = THTextFormer.formText(
+    ///         from: comparedText,
+    ///         relyingOn: accurateText,
+    ///         with: configuration
+    ///     )
+    ///     /*[THCharacter("H", type: .correct),
+    ///        THCharacter("e", type: .missing),
+    ///        THCharacter("a", type: .extra  ),
+    ///        THCharacter("l", type: .correct),
+    ///        THCharacter("o", type: .extra  ),
+    ///        THCharacter("l", type: .correct),
+    ///        THCharacter("o", type: .missing)]*/
+    ///
+    ///     let editedText = THTextEditor.makeTextUserFriendly(
+    ///         formedText,
+    ///         with: configuration
+    ///     )
+    ///     /*[THCharacter("H", type: .correct),
+    ///        THCharacter("a", type: .misspell("o")),
+    ///        THCharacter("l", type: .correct),
+    ///        THCharacter("o", type: .swapped(position: .left ),
+    ///        THCharacter("l", type: .swapped(position: .right) )]*/
+    ///
+    /// - Returns: The edited text that is user-friendly and is ready to be displayed.
+    @inlinable
+    internal static func makeTextUserFriendly(_ text: THText, with configuration: THConfiguration) -> THText {
+        var text = adjusting(text)
+        text = addindMisspellChars(to: text)
+        text = addingSwappedChars(to: text)
+        return text
+    }
+    
     
     // MARK: - Adding Misspell Chars
     
@@ -74,31 +108,31 @@ internal final class TextEditor {
     ///        THCharacter("e", type: .extra  ),
     ///        THCharacter("y", type: .correct)]*/
     ///
-    ///     let editedText = addindMisspellChars(to: formedText)
+    ///     let editedText = addindMisspellChars(to: formedText, with)
     ///     /*[THCharacter("d", type: .correct       ),
     ///        THCharacter("e", type: .misspell("a") ),
     ///        THCharacter("y", type: .correct       )]*/
     ///
-    /// - Returns: A text that has misspell chars.
-    @inlinable
-    internal static func addindMisspellChars(to atomicText: THText) -> THText {
+    /// - Returns: An edited text that has misspell chars.
+    @inlinable @inline(__always)
+    internal static func addindMisspellChars(to text: THText) -> THText {
         
         var indexesOfMissingChars = [Int]()
         var indexesOfExtraChars   = [Int]()
-        var atomicText = atomicText
+        var text = text
         var offset = Int()
         
-        for i in 0..<atomicText.count {
+        for i in 0..<text.count {
             var index: Int { i + offset }
-            switch atomicText[index].type {
+            switch text[index].type {
              case .missing:
                  if indexesOfExtraChars.count > 0 {
                      let indexOfExtraChar = indexesOfExtraChars.removeFirst()
-                     let extraChar = atomicText[indexOfExtraChar].rawValue
-                     let missingChar = atomicText[index].rawValue
+                     let extraChar = text[indexOfExtraChar].rawValue
+                     let missingChar = text[index].rawValue
                      let misspellChar = THCharacter(extraChar, type: .misspell(missingChar))
-                     atomicText[indexOfExtraChar] = misspellChar
-                     atomicText.remove(at: index)
+                     text[indexOfExtraChar] = misspellChar
+                     text.remove(at: index)
                      offset -= 1
                  } else {
                      indexesOfMissingChars.append(index)
@@ -106,11 +140,11 @@ internal final class TextEditor {
              case .extra:
                  if indexesOfMissingChars.count > 0 {
                      let indexOfMissingChar = indexesOfMissingChars.removeFirst()
-                     let missingChar = atomicText[indexOfMissingChar].rawValue
-                     let extraChar = atomicText[index].rawValue
+                     let missingChar = text[indexOfMissingChar].rawValue
+                     let extraChar = text[index].rawValue
                      let misspellChar = THCharacter(extraChar, type: .misspell(missingChar))
-                     atomicText[indexOfMissingChar] = misspellChar
-                     atomicText.remove(at: index)
+                     text[indexOfMissingChar] = misspellChar
+                     text.remove(at: index)
                      offset -= 1
                  } else {
                      indexesOfExtraChars.append(index)
@@ -121,20 +155,20 @@ internal final class TextEditor {
              }
         }
         
-        return atomicText
+        return text
     }
     
     
     // MARK: - Adding Swapped Chars
     
-    /// Returns an atomic text with added swapped chars.
+    /// Returns a text with added swapped chars.
     ///
     /// This method finds `.extra` and `.missing` equal chars through the `.correct` char and replaces them to swapped ones.
     ///
     ///     let accurateText = "day"
     ///     let comparedText = "dya"
     ///
-    ///     let formedAtomicText = THTextFormer.formText(
+    ///     let formedText = THTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
     ///         with: THConfiguration()
@@ -144,60 +178,60 @@ internal final class TextEditor {
     ///        THCharacter("a", type: .correct),
     ///        THCharacter("y", type: .missing)]*/
     ///
-    ///     let atomicText = addindSwappedChars(to: atomicText)
+    ///     let editedText = addindSwappedChars(to: formedText)
     ///     /*[THCharacter("d", type: .correct),
-    ///        THCharacter("y", type: .swapped),
-    ///        THCharacter("a", type: .swapped)]*/
+    ///        THCharacter("y", type: .swapped(position: .left),
+    ///        THCharacter("a", type: .swapped(position: .right) )]*/
     ///
-    /// - Returns: An atomic text that has swapped chars.
-    @inlinable
-    internal static func addingSwappedChars(to atomicText: THText) -> THText {
+    /// - Returns: An edited text that has swapped chars.
+    @inlinable @inline(__always)
+    internal static func addingSwappedChars(to text: THText) -> THText {
         
-        var atomicText = atomicText
+        var text = text
         
         // range should be reversed or we should have offset index
-        for index in (1..<atomicText.count - 1).reversed() {
+        for index in (1..<text.count - 1).reversed() {
             
-            let prevChar = atomicText[index - 1], nextChar = atomicText[index + 1]
+            let prevChar = text[index - 1], nextChar = text[index + 1]
             let prevAndNextCharsAreEqual = prevChar.rawValue.lowercased() == nextChar.rawValue.lowercased()
-            let currentCharIsCorrect = atomicText[index].isCorrect
+            let currentCharIsCorrect = text[index].isCorrect
             
             if prevAndNextCharsAreEqual, prevChar.isExtra, currentCharIsCorrect, nextChar.isMissing {
-                atomicText[index - 1].type = .swapped
-                atomicText[index]    .type = .swapped
-                atomicText.remove(at: index + 1)
+                text[index - 1].type = .swapped(position: .left)
+                text[index]    .type = .swapped(position: .right)
+                text.remove(at: index + 1)
             }
         }
         
-        return atomicText
+        return text
     }
     
     
-    // MARK: - Adjusting Atomic Text
+    // MARK: - Adjusting Text
     
-    /// Returns an adjusted atomic text in which certain atomic characters can be "rearranged".
-    /// This method prepares the given atomic text so that the next methods can find all mistakes.
+    /// Returns an adjusted text in which certain characters can be "rearranged".
+    /// This method prepares the given text so that the next methods can find all mistakes.
     ///
     ///     let accurateText = "day"
     ///     let comparedText = "dyy"
     ///
-    ///     let formedAtomicText = THTextFormer.formText(
+    ///     let formedText = THTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
-    ///         with: THConfiguration()
+    ///         with: configuration
     ///     )
     ///     /*[THCharacter("d", type: .correct),
     ///        THCharacter("a", type: .missing),
     ///        THCharacter("y", type: .correct),
     ///        THCharacter("y", type: .extra  )]*/
     ///
-    ///     let adjustedAtomicText = adjusting(formedAtomicText)
+    ///     let adjustedText = adjusting(formedText)
     ///     /*[THCharacter("d", type: .correct),
     ///        THCharacter("a", type: .missing),
     ///        THCharacter("y", type: .extra  ),
     ///        THCharacter("y", type: .correct)]*/
     ///
-    @inlinable
+    @inlinable @inline(__always)
     internal static func adjusting(_ atomicText: THText) -> THText {
         
         var countOfEqualCorrectChars = Int()

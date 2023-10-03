@@ -12,6 +12,27 @@ public typealias THText = [THCharacter]
 
 extension THText {
     
+    /// The string that contains all characters of this text.
+    ///
+    ///     let text = [
+    ///         THCharacter("H", type: .correct),
+    ///         THCharacter("e", type: .correct),
+    ///         THCharacter("l", type: .correct),
+    ///         THCharacter("l", type: .correct),
+    ///         THCharacter("o", type: .correct)
+    ///     ]
+    ///     print(text.rawValue)
+    ///     // Prints "Hello"
+    ///
+    ///
+    public var rawValue: String {
+        var string = String()
+        for char in self {
+            string.append(char.rawValue)
+        }
+        return string
+    }
+    
     /// A boolean value that indicates whether this text has no typos or mistakes.
     public var isCompletelyCorrect: Bool {
         for char in self {

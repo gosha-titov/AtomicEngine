@@ -59,13 +59,7 @@ open class THTextView: UIScrollView {
     // MARK: - Methods
     
     /// Updates a displayed text by replacing the current text with the given one.
-    ///
-    /// You usually don't call this method directly, instead you set a new text to the corresponding `text` property:
-    ///
-    ///     textView.text = newText
-    ///
-    public final func updateDisplayedText(with newText: THText) -> Void {
-        text = newText
+    private func updateDisplayedText(with newText: THText) -> Void {
         
         let upperMutableString = NSMutableAttributedString()
         let centerMutableString = NSMutableAttributedString()

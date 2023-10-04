@@ -278,7 +278,7 @@ internal final class THTextFormer {
     /// - Returns: A created text instance with the applied configuration.
     @inlinable @inline(__always)
     internal static func plainText(from text: String, ofType type: THCharacter.CharacterType, with configuration: THConfiguration) -> THText {
-        let text = THText(from: text, type: type)
+        let text = THText(string: text, type: type)
         return applying(configuration, to: text)
     }
     

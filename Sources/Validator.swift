@@ -1,31 +1,31 @@
 import Foundation
 
-/// A typo finder that can show all typos and mistakes in a text.
+/// A validator that can check for typos and mistakes in a text relying on another one.
 ///
-/// You usually define a new class that subclasses the `THTypoFinder` class, and create a singleton instance of it:
+/// You usually define a new class that subclasses the `THFinder` class, and create a singleton instance of it:
 ///
 ///     import TypoHunt
 ///
-///     final class TypoFinder: THTypoFinder {
+///     final class Validator: THValidator {
 ///
-///         /// The singleton typo finder instance.
-///         static let shared: TypoFinder = {
-///             let configuration = THConfiguration()
+///         /// The singleton validator instance.
+///         static let shared: Validator = {
+///             var configuration = THConfiguration()
 ///             configuration.letterCaseAction = .leadTo(.capitalized)
 ///             configuration.requiredQuantityOfCorrectChars = .high
 ///             configuration.acceptableQuantityOfWrongChars = .one
-///             let finder = TypoFinder()
-///             finder.configuration = configuration
-///             return finder
+///             let validator = Validator()
+///             validator.configuration = configuration
+///             return validator
 ///         }()
 ///
 ///     }
 ///
-open class THTypoFinder {
+open class THValidator {
     
     // MARK: - Properties
     
-    /// The queue that is used for **asynchronous** execution of all finding operations which go strickly after each other.
+    /// The queue that is used for **asynchronous** execution of all checking operations which go strickly after each other.
     ///
     /// This property has the default value that is created in the following way:
     ///
@@ -34,7 +34,7 @@ open class THTypoFinder {
     ///         qos: .userInitiated
     ///     )
     ///
-    /// - Note: In the case when this property has no value (`nil`), the typo finding process is performed **asynchronously** on **the main thread**.
+    /// - Note: In the case when this property has no value (`nil`), the checking process is performed **asynchronously** on **the main thread**.
     public var queue: DispatchQueue? = .init(label: "com.typo-hunt.main", qos: .userInitiated)
     
     /// The configuration consisting of parameters that are used during the creation of a text.
@@ -44,21 +44,21 @@ open class THTypoFinder {
     ///
     ///     let configuration = THConfiguration()
     ///     configuration.letterCaseAction = .leadTo(.capitalized)
-    ///     finder.configuration = configuration
+    ///     validator.configuration = configuration
     ///
     public var configuration = THConfiguration()
     
     
     // MARK: - Methods
     
-    /// Finds all typos and mistakes in the given text, asynchronously.
+    /// Checks for all typos and mistakes in the given text relying on the accurate one, asynchronously.
     ///
-    /// This method executes all operations asynchronously on the `queue` of this finder;
+    /// This method executes all operations asynchronously on the `queue` of this validator;
     /// otherwise (if the value is `nil`), does it asynchronously on the main queue.
     ///
-    /// The typo finding process uses the configuration that is set for this finder.
+    /// The checking process uses the `configuration` that is set for this validator.
     ///
-    ///     finder.findTypos(
+    ///     validator.checkForTyposAndMistakes(
     ///         in: "Hola", relyingOn: "Hello",
     ///         andHandleResult: { text in
     ///             print(text)
@@ -72,27 +72,27 @@ open class THTypoFinder {
     ///
     /// - Note: In order for you to update your UI components, this method calls the handling closure **always on the main queue, asynchronously**.
     /// - Parameter comparedText: A text to be compared with `accurateText` in order to find the best set of matching characters.
-    /// - Parameter accurateText: A text based on which the typo finding proccess performs.
+    /// - Parameter accurateText: A text based on which the checking proccess performs.
     /// - Parameter handle: A closure that takes a result text as a parameter to handle.
-    public final func findTypos(in comparedText: String, relyingOn accurateText: String, andHandleResult handle: @escaping (THText) -> Void) -> Void {
+    public final func checkForTyposAndMistakes(in comparedText: String, relyingOn accurateText: String, andHandleResult handle: @escaping (THText) -> Void) -> Void {
         if let queue {
             queue.async {
-                let text = self.findTypos(in: comparedText, relyingOn: accurateText)
+                let text = self.checkForTyposAndMistakes(in: comparedText, relyingOn: accurateText)
                 DispatchQueue.main.async {
                     handle(text)
                 }
             }
         } else {
             DispatchQueue.main.async {
-                let text = self.findTypos(in: comparedText, relyingOn: accurateText)
+                let text = self.checkForTyposAndMistakes(in: comparedText, relyingOn: accurateText)
                 handle(text)
             }
         }
     }
     
-    /// Finds all typos and mistakes in the given text.
+    /// Checks for all typos and mistakes in the given text relying on the accurate one.
     ///
-    /// The typo finding process uses the configuration that is set for this finder.
+    /// The checking process uses the `configuration` that is set for this validator.
     ///
     ///     let text = finder.findTypos(in: "Hola", relyingOn: "Hello")
     ///     /*[THCharacter("H", type: .correct),
@@ -104,9 +104,9 @@ open class THTypoFinder {
     /// If you need to execute this method asynchronously then call the `findTypos(in:relyingOn:andHandleResult:)` method.
     ///
     /// - Parameter comparedText: A text to be compared with `accurateText` in order to find the best set of matching characters.
-    /// - Parameter accurateText: A text based on which the typo finding proccess performs.
+    /// - Parameter accurateText: A text based on which the checking proccess performs.
     /// - Returns: The created text combined from the given compared and accurate strings.
-    public final func findTypos(in comparedText: String, relyingOn accurateText: String) -> THText {
+    public final func checkForTyposAndMistakes(in comparedText: String, relyingOn accurateText: String) -> THText {
         let formedText = THTextFormer.formText(from: comparedText, relyingOn: accurateText, with: configuration)
         let editedText = THTextEditor.makeTextUserFriendly(formedText, with: configuration)
         return editedText
@@ -115,7 +115,7 @@ open class THTypoFinder {
     
     // MARK: - Init
     
-    /// Creates a typo finder instance.
+    /// Creates a validator instance.
     public init() {}
     
 }

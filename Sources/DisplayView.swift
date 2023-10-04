@@ -1,9 +1,9 @@
 #if canImport(UIKit)
 import UIKit
 
-/// The view that can display a text containing typos, such as missing, misspell or extra characters.
+/// The view that can display a text containing typos and mistakes, such as missing, misspell, swapped or extra characters.
 ///
-///     finder.findTypos(
+///     validator.checkForTyposAndMistakes(
 ///         in: "Hola", relyingOn: "Hello",
 ///         andHandleResult: { text in
 ///             textView.text = text
@@ -11,15 +11,14 @@ import UIKit
 ///     )
 ///
 @available(iOS 13.0, *)
-open class THTextView: UIScrollView {
+open class THDisplayView: UIScrollView {
     
     // MARK: - Properties
     
     /// The text that is currently displayed, settable.
+    /// - Note: When you set a new text to this property, it also updates the display.
     public var text = THText() {
-        didSet {
-           updateDisplayedText(with: text)
-        }
+        didSet { updateDisplayedText(with: text) }
     }
     
     
@@ -58,7 +57,7 @@ open class THTextView: UIScrollView {
     
     // MARK: - Methods
     
-    /// Updates a displayed text by replacing the current text with the given one.
+    /// Updates a text that is currently displayed in the labels.
     private func updateDisplayedText(with newText: THText) -> Void {
         
         let upperMutableString = NSMutableAttributedString()
@@ -164,7 +163,13 @@ open class THTextView: UIScrollView {
     
     // MARK: - Init
     
-    /// Creates a text view with the specified frame rectangle.
+    /// Creates a text view with zero frame and the specified font size.
+    /// - Parameter fontSize: The size (in points) for the monospaced font that is used for displaying text.
+    public convenience init(fontSize: CGFloat = 16.0) {
+        self.init(frame: .zero, fontSize: fontSize)
+    }
+    
+    /// Creates a text view with the specified frame rectangle and font size.
     /// - Parameter frame: The frame rectangle for the view, measured in points.
     /// - Parameter fontSize: The size (in points) for the monospaced font that is used for displaying text.
     public init(frame: CGRect, fontSize: CGFloat = 16.0) {

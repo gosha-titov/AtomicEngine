@@ -2,7 +2,7 @@ import Foundation
 
 /// A validator that can check for typos and mistakes in a text relying on another one.
 ///
-/// You usually define a new class that subclasses the `THFinder` class, and create a singleton instance of it:
+/// You usually define a new class that subclasses the `THValidator` class, and create a singleton instance of it.
 ///
 ///     import TypoHunt
 ///
@@ -14,12 +14,29 @@ import Foundation
 ///             configuration.letterCaseAction = .leadTo(.capitalized)
 ///             configuration.requiredQuantityOfCorrectChars = .high
 ///             configuration.acceptableQuantityOfWrongChars = .one
-///             let validator = Validator()
-///             validator.configuration = configuration
-///             return validator
+///             return Validator(configuration: configuration)
 ///         }()
 ///
 ///     }
+///
+/// Then you use its method to check, for example, the user input text with the correct one and display it on the screen:
+///
+///     func checkUserAnswerAndDisplayResult(_ userAnswer: String) -> Void {
+///         Validator.shared.checkForTyposAndMistakes(
+///             in: userAnswer, relyingOn: correctAnswer,
+///             andHandleResult: { resultText in
+///                 displayView.text = resultText
+///             }
+///         )
+///     }
+///
+/// The validator has two following properties:
+/// - **queue**: The queue that is used for asynchronous execution of all checking operations which go strickly after each other;
+/// - **configuration**: The configuration consisting of parameters that is used during the creation of a text.
+///
+/// and has two methods for sync and async executions:
+/// - **checkForTyposAndMistakes(in:relyingOn:)** is used for synchronous execution;
+/// - **checkForTyposAndMistakes(in:relyingOn:andHandleResult:)** is used for asynchronous execution.
 ///
 open class THValidator {
     
@@ -37,7 +54,7 @@ open class THValidator {
     /// - Note: In the case when this property has no value (`nil`), the checking process is performed **asynchronously** on **the main thread**.
     public var queue: DispatchQueue? = .init(label: "com.typo-hunt.main", qos: .userInitiated)
     
-    /// The configuration consisting of parameters that are used during the creation of a text.
+    /// The configuration consisting of parameters that is used during the creation of a text.
     ///
     /// The default value of this configuration does not contain any parameters.
     /// So if you need to establish conditions or to lead a text to a certain version, then set your own configuration as in the following example:
@@ -46,7 +63,7 @@ open class THValidator {
     ///     configuration.letterCaseAction = .leadTo(.capitalized)
     ///     validator.configuration = configuration
     ///
-    public var configuration = THConfiguration()
+    public var configuration: THConfiguration
     
     
     // MARK: - Methods
@@ -115,7 +132,11 @@ open class THValidator {
     
     // MARK: - Init
     
-    /// Creates a validator instance.
-    public init() {}
+    /// Creates a validator instance with the specified configuration.
+    /// - Parameter configuration: The configuration consisting of parameters that is used during the creation of a text.
+    /// The default value is empty configuration.
+    public init(configuration: THConfiguration = .init()) {
+        self.configuration = configuration
+    }
     
 }

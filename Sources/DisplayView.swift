@@ -3,12 +3,33 @@ import UIKit
 
 /// The view that can display a text containing typos and mistakes, such as missing, misspell, swapped or extra characters.
 ///
+/// This view is a scroll view that consists of three labels to display a text.
+///
+/// You can manually setup colors by changing values of the following properties:
+/// - **completelyCorrectColor** is used when the text is completely correct;
+/// - **correctColor** is used for the correct characters;
+/// - **warningColor** is used for swapped characters, arrows below them and wrong letter cases;
+/// - **wrongColor** is used for extra characters and strikethrough lines;
+/// - **missingColor** is used for missing characters.
+///
+/// You usually change the text property inside the checking method of the validator:
+///
 ///     validator.checkForTyposAndMistakes(
 ///         in: "Hola", relyingOn: "Hello",
 ///         andHandleResult: { text in
+///             // The handling closure is always called on the main queue
+///             // That is, it allows you to update your UI components
 ///             textView.text = text
 ///         }
 ///     )
+///
+/// In order to get the height of this view, you can use the `computedHeight` property:
+///
+///     let height = displayView.computedHeight
+///     NSLayoutConstraint.activate([
+///         displayView.bottomAnchor.constraint(equalTo: topAnchor, constant: height)
+///         ...
+///     ])
 ///
 @available(iOS 13.0, *)
 open class THDisplayView: UIScrollView {
@@ -37,25 +58,44 @@ open class THDisplayView: UIScrollView {
     // MARK: UI attributes
     
     /// The color that is used to display completely correct text, settable.
-    public var completelyCorrectColor: UIColor = .green
+    /// - Note: When you set a new color to this property, it also updates the display.
+    public var completelyCorrectColor: UIColor = .green {
+        didSet { updateDisplay() }
+    }
     
     /// The color that is used to display correct characters, settable.
-    public var correctColor: UIColor = .black
+    public var correctColor: UIColor = .black {
+        didSet { updateDisplay() }
+    }
     
     /// The color that is used to emphasize swapped characters, arrows below them and wrong letter cases, settable.
-    public var warningColor: UIColor = .orange
+    public var warningColor: UIColor = .orange {
+        didSet { updateDisplay() }
+    }
     
     /// The color that is used to display extra characters and strikethrough lines, settable.
-    public var wrongColor: UIColor = .red
+    public var wrongColor: UIColor = .red {
+        didSet { updateDisplay() }
+    }
     
     /// The color that is used to display missing characters, settable.
-    public var missingColor: UIColor = .lightGray
+    public var missingColor: UIColor = .lightGray {
+        didSet { updateDisplay() }
+    }
+    
+    /// The height of this display.
+    public var computedHeight: CGFloat {
+        return labelHeight * 3
+    }
     
     /// The size for the monospaced font that is used for displaying text.
     private let fontSize: CGFloat
     
+    /// The height of each label.
+    private let labelHeight: CGFloat
     
-    // MARK: - Methods
+    
+    // MARK: - Display Methods
     
     /// Updates a text that is currently displayed in the labels.
     private func updateDisplayedText(with newText: THText) -> Void {
@@ -160,6 +200,10 @@ open class THDisplayView: UIScrollView {
         lowerLabel.attributedText = lowerMutableString
     }
     
+    private func updateDisplay() -> Void {
+        updateDisplayedText(with: text)
+    }
+    
     
     // MARK: - Init
     
@@ -173,6 +217,7 @@ open class THDisplayView: UIScrollView {
     /// - Parameter frame: The frame rectangle for the view, measured in points.
     /// - Parameter fontSize: The size (in points) for the monospaced font that is used for displaying text.
     public init(frame: CGRect, fontSize: CGFloat = 16.0) {
+        labelHeight = (fontSize * 1.2).rounded()
         self.fontSize = fontSize
         super.init(frame: frame)
         addSubviews()
@@ -212,9 +257,10 @@ open class THDisplayView: UIScrollView {
     private func applyConstraintsToUpperLabel() -> Void {
         upperLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            upperLabel.bottomAnchor.constraint(equalTo: textLabel.topAnchor),
             upperLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             upperLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            upperLabel.bottomAnchor.constraint(equalTo: textLabel.topAnchor),
+            upperLabel.heightAnchor.constraint(equalToConstant: labelHeight),
         ])
     }
     
@@ -224,15 +270,17 @@ open class THDisplayView: UIScrollView {
             textLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             textLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             textLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            textLabel.heightAnchor.constraint(equalToConstant: labelHeight),
         ])
     }
     
     private func applyConstraintsToLowerLabel() -> Void {
         lowerLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            lowerLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor),
             lowerLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             lowerLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            lowerLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor),
+            lowerLabel.heightAnchor.constraint(equalToConstant: labelHeight),
         ])
     }
     

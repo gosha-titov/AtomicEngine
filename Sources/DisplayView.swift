@@ -23,9 +23,9 @@ import UIKit
 ///         }
 ///     )
 ///
-/// In order to get the height of this view, you can use the `computedHeight` property:
+/// In order to get the height of this view, you can use the `computedContentHeight` property:
 ///
-///     let height = displayView.computedHeight
+///     let height = displayView.computedContentHeight
 ///     NSLayoutConstraint.activate([
 ///         displayView.bottomAnchor.constraint(equalTo: topAnchor, constant: height)
 ///         ...
@@ -84,15 +84,12 @@ open class THDisplayView: UIScrollView {
     }
     
     /// The height of this display.
-    public var computedHeight: CGFloat {
-        return labelHeight * 3
+    public var computedContentHeight: CGFloat {
+        return fontSize * 3
     }
     
     /// The size for the monospaced font that is used for displaying text.
     private let fontSize: CGFloat
-    
-    /// The height of each label.
-    private let labelHeight: CGFloat
     
     
     // MARK: - Display Methods
@@ -138,7 +135,9 @@ open class THDisplayView: UIScrollView {
                         swappedChar = currentChar
                             .applying(foregroundColor: warningColor)
                     }
-                    let arrow = arrowSymbol.toNSAttributedString.applying(foregroundColor: warningColor)
+                    let arrow = arrowSymbol.toNSAttributedString
+                        .applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
+                        .applying(foregroundColor: warningColor)
                     upperMutableString.append(space)
                     centerMutableString.append(swappedChar)
                     lowerMutableString.append(arrow)
@@ -147,10 +146,12 @@ open class THDisplayView: UIScrollView {
                     let missingChar: NSAttributedString
                     if char.rawValue == " " {
                         missingChar = currentChar
-                            .applying(underline: .single, withColor: missingColor)
+                            .applying(backgroundColor: missingColor)
+                            .applying(underline: .single, withColor: wrongColor)
                     } else {
                         missingChar = currentChar
                             .applying(foregroundColor: missingColor)
+                            .applying(underline: .single, withColor: wrongColor)
                     }
                     upperMutableString.append(space)
                     centerMutableString.append(missingChar)
@@ -175,6 +176,7 @@ open class THDisplayView: UIScrollView {
                     let correctChar: NSAttributedString
                     if char.rawValue == " " {
                         misspellChar = currentChar
+                            .applying(backgroundColor: missingColor)
                             .applying(underline: .single, withColor: wrongColor)
                     } else {
                         misspellChar = currentChar
@@ -217,7 +219,6 @@ open class THDisplayView: UIScrollView {
     /// - Parameter frame: The frame rectangle for the view, measured in points.
     /// - Parameter fontSize: The size (in points) for the monospaced font that is used for displaying text.
     public init(frame: CGRect, fontSize: CGFloat = 16.0) {
-        labelHeight = (fontSize * 1.2).rounded()
         self.fontSize = fontSize
         super.init(frame: frame)
         addSubviews()
@@ -260,7 +261,7 @@ open class THDisplayView: UIScrollView {
             upperLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             upperLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             upperLabel.bottomAnchor.constraint(equalTo: textLabel.topAnchor),
-            upperLabel.heightAnchor.constraint(equalToConstant: labelHeight),
+            upperLabel.heightAnchor.constraint(equalToConstant: fontSize),
         ])
     }
     
@@ -270,7 +271,7 @@ open class THDisplayView: UIScrollView {
             textLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             textLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             textLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            textLabel.heightAnchor.constraint(equalToConstant: labelHeight),
+            textLabel.heightAnchor.constraint(equalToConstant: fontSize),
         ])
     }
     
@@ -280,7 +281,7 @@ open class THDisplayView: UIScrollView {
             lowerLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             lowerLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             lowerLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor),
-            lowerLabel.heightAnchor.constraint(equalToConstant: labelHeight),
+            lowerLabel.heightAnchor.constraint(equalToConstant: fontSize),
         ])
     }
     

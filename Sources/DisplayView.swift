@@ -226,7 +226,7 @@ open class THDisplayView: UIScrollView {
     }
     
     private func updateTextAlignment() -> Void {
-        if alignsTextToCenterIfFits, textLabel.frame.width < frame.width {
+        if alignsTextToCenterIfFits, contentSize.width < frame.width {
             upperLabel.textAlignment = .center
             textLabel .textAlignment = .center
             lowerLabel.textAlignment = .center

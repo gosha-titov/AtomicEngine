@@ -42,6 +42,12 @@ open class THDisplayView: UIScrollView {
         didSet { updateDisplayedText(with: text) }
     }
     
+    /// The boolean value that indicates whether the text is centered if its length fits into this display view’s bounding rectangle.
+    /// - Note: When you set a new value to this property, it also updates the display.
+    public var alignsTextToCenterIfFits = true {
+        didSet { setNeedsLayout() }
+    }
+    
     
     // MARK: UI views
     
@@ -64,26 +70,30 @@ open class THDisplayView: UIScrollView {
     }
     
     /// The color that is used to display correct characters, settable.
+    /// - Note: When you set a new color to this property, it also updates the display.
     public var correctColor: UIColor = .black {
         didSet { updateDisplay() }
     }
     
     /// The color that is used to emphasize swapped characters, arrows below them and wrong letter cases, settable.
+    /// - Note: When you set a new color to this property, it also updates the display.
     public var warningColor: UIColor = .orange {
         didSet { updateDisplay() }
     }
     
     /// The color that is used to display extra characters and strikethrough lines, settable.
+    /// - Note: When you set a new color to this property, it also updates the display.
     public var wrongColor: UIColor = .red {
         didSet { updateDisplay() }
     }
     
     /// The color that is used to display missing characters, settable.
+    /// - Note: When you set a new color to this property, it also updates the display.
     public var missingColor: UIColor = .lightGray {
         didSet { updateDisplay() }
     }
     
-    /// The height of this display.
+    /// The height needed to display the text of this view.
     public var computedContentHeight: CGFloat {
         return fontSize * 3
     }
@@ -202,8 +212,29 @@ open class THDisplayView: UIScrollView {
         lowerLabel.attributedText = lowerMutableString
     }
     
+    
     private func updateDisplay() -> Void {
         updateDisplayedText(with: text)
+    }
+    
+    
+    // MARK: Other Methods
+    
+    override open func layoutSubviews() -> Void {
+        super.layoutSubviews()
+        updateTextAlignment()
+    }
+    
+    private func updateTextAlignment() -> Void {
+        if alignsTextToCenterIfFits, textLabel.frame.width < frame.width {
+            upperLabel.textAlignment = .center
+            textLabel .textAlignment = .center
+            lowerLabel.textAlignment = .center
+        } else {
+            upperLabel.textAlignment = .left
+            textLabel .textAlignment = .left
+            lowerLabel.textAlignment = .left
+        }
     }
     
     
@@ -262,6 +293,7 @@ open class THDisplayView: UIScrollView {
             upperLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             upperLabel.bottomAnchor.constraint(equalTo: textLabel.topAnchor),
             upperLabel.heightAnchor.constraint(equalToConstant: fontSize),
+            upperLabel.widthAnchor.constraint(greaterThanOrEqualTo: widthAnchor, multiplier: 1)
         ])
     }
     
@@ -272,6 +304,7 @@ open class THDisplayView: UIScrollView {
             textLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             textLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             textLabel.heightAnchor.constraint(equalToConstant: fontSize),
+            textLabel.widthAnchor.constraint(greaterThanOrEqualTo: widthAnchor, multiplier: 1),
         ])
     }
     
@@ -282,6 +315,7 @@ open class THDisplayView: UIScrollView {
             lowerLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             lowerLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor),
             lowerLabel.heightAnchor.constraint(equalToConstant: fontSize),
+            lowerLabel.widthAnchor.constraint(greaterThanOrEqualTo: widthAnchor, multiplier: 1),
         ])
     }
     

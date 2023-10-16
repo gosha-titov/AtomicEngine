@@ -245,7 +245,7 @@ open class THDisplayView: UIScrollView {
     }
     
     private func updateAlignment() -> Void {
-        if alignsTextToCenterIfFits, contentSize.width <= frame.width {
+        if alignsTextToCenterIfFits, textLabel.frame.width <= frame.width { // contentSize.width is 0
             constraintsToCenter.forEach { $0.isActive = true }
             constraintsToFill.forEach { $0.isActive = false }
         } else {
@@ -340,7 +340,6 @@ open class THDisplayView: UIScrollView {
             constraintsToFill.append(contentsOf: [
                 label.leadingAnchor.constraint(equalTo: leadingAnchor),
                 label.trailingAnchor.constraint(equalTo: trailingAnchor),
-                label.widthAnchor.constraint(greaterThanOrEqualTo: widthAnchor, multiplier: 1.0),
             ])
             constraintsToCenter.append(label.centerXAnchor.constraint(equalTo: centerXAnchor))
         }

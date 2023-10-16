@@ -340,7 +340,7 @@ open class THDisplayView: UIScrollView {
             constraintsToFill.append(contentsOf: [
                 label.leadingAnchor.constraint(equalTo: leadingAnchor),
                 label.trailingAnchor.constraint(equalTo: trailingAnchor),
-                label.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 1.0),
+                label.widthAnchor.constraint(greaterThanOrEqualTo: widthAnchor, multiplier: 1.0),
             ])
             constraintsToCenter.append(label.centerXAnchor.constraint(equalTo: centerXAnchor))
         }

@@ -337,8 +337,11 @@ open class THDisplayView: UIScrollView {
     
     private func addToggleableConstraints() -> Void {
         for label in [upperLabel, textLabel, lowerLabel] {
-            constraintsToFill.append(label.leadingAnchor.constraint(equalTo: leadingAnchor))
-            constraintsToFill.append(label.trailingAnchor.constraint(equalTo: trailingAnchor))
+            constraintsToFill.append(contentsOf: [
+                label.leadingAnchor.constraint(equalTo: leadingAnchor),
+                label.trailingAnchor.constraint(equalTo: trailingAnchor),
+                label.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 1.0),
+            ])
             constraintsToCenter.append(label.centerXAnchor.constraint(equalTo: centerXAnchor))
         }
     }

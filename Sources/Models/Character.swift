@@ -1,21 +1,21 @@
 /// A character that has a type.
 ///
-///     let character = THCharacter("a", type: .missing)
+///     let character = LMCharacter("a", type: .missing)
 ///     character.rawValue // Character("a")
 ///     character.type // .missing
 ///
-public struct THCharacter: Equatable {
+public struct LMCharacter: Equatable {
     
     /// The corresponding value of this character.
     ///
-    ///     let character = THCharacter("v", type: .correct)
+    ///     let character = LMCharacter("v", type: .correct)
     ///     character.rawValue // Character("v")
     ///
     public let rawValue: Character
     
     /// The type of this character.
     ///
-    ///     let character = THCharacter("t", type: .correct)
+    ///     let character = LMCharacter("t", type: .correct)
     ///     character.type // .correct
     ///
     public var type: CharacterType
@@ -51,11 +51,11 @@ public struct THCharacter: Equatable {
     
     /// An uppercase version of this character.
     ///
-    ///     let character = THCharacter("a", type: .misspell("b"))
-    ///     character.uppercased // THCharacter("A", type: .misspell("B"))
+    ///     let character = LMCharacter("a", type: .misspell("b"))
+    ///     character.uppercased // LMCharacter("A", type: .misspell("B"))
     ///
     /// - Note: The uppercase character has no boolean indicator of its letter case correctness.
-    public var uppercased: THCharacter {
+    public var uppercased: LMCharacter {
         let newRawValue = rawValue.uppercased().toCharacter!
         let newType: CharacterType
         switch self.type {
@@ -65,16 +65,16 @@ public struct THCharacter: Equatable {
         default:
             newType = type
         }
-        return THCharacter(newRawValue, type: newType, hasCorrectLetterCase: nil)
+        return LMCharacter(newRawValue, type: newType, hasCorrectLetterCase: nil)
     }
     
     /// A lowercase version of this character.
     ///
-    ///     let character = THCharacter("A", type: .misspell("B"))
-    ///     character.lowercased // THCharacter("a", type: .misspell("b"))
+    ///     let character = LMCharacter("A", type: .misspell("B"))
+    ///     character.lowercased // LMCharacter("a", type: .misspell("b"))
     ///
     /// - Note: The lowercase character has no boolean indicator of its letter case correctness.
-    public var lowercased: THCharacter {
+    public var lowercased: LMCharacter {
         let newRawValue = rawValue.lowercased().toCharacter!
         let newType: CharacterType
         switch self.type {
@@ -84,7 +84,7 @@ public struct THCharacter: Equatable {
         default:
             newType = type
         }
-        return THCharacter(newRawValue, type: newType, hasCorrectLetterCase: nil)
+        return LMCharacter(newRawValue, type: newType, hasCorrectLetterCase: nil)
     }
     
     
@@ -100,11 +100,11 @@ public struct THCharacter: Equatable {
 }
 
 
-extension THCharacter: CustomStringConvertible {
+extension LMCharacter: CustomStringConvertible {
     
     /// The textual representation of this character.
     ///
-    ///     let char = THCharacter("s", type: .missing)
+    ///     let char = LMCharacter("s", type: .missing)
     ///     print(char)
     ///     // Prints "Character 's' of type: missing"
     ///
@@ -121,7 +121,7 @@ extension THCharacter: CustomStringConvertible {
 }
 
 
-extension THCharacter {
+extension LMCharacter {
     
     /// A type that describes a character relative to the original one.
     ///
@@ -154,7 +154,7 @@ extension THCharacter {
 }
 
 
-extension THCharacter.CharacterType {
+extension LMCharacter.CharacterType {
     
     /// A type that specifies a character position relative to the correct one.
     ///
@@ -171,9 +171,9 @@ extension THCharacter.CharacterType {
 }
 
 
-extension THCharacter {
+extension LMCharacter {
     
-    public static func == (lhs: THCharacter, rhs: THCharacter) -> Bool {
+    public static func == (lhs: LMCharacter, rhs: LMCharacter) -> Bool {
         if lhs.rawValue == rhs.rawValue, lhs.type == rhs.type, lhs.hasCorrectLetterCase == rhs.hasCorrectLetterCase {
             return true
         } else {

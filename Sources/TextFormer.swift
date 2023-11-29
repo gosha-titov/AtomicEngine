@@ -33,7 +33,7 @@
 //
 
 /// A text former that consists of methods to form the basic text.
-internal final class THTextFormer {
+internal final class LMTextFormer {
     
     // MARK: - Form Text
     
@@ -42,44 +42,44 @@ internal final class THTextFormer {
     ///     let accurateText = "Hello"
     ///     let comparedText = "hola"
     ///
-    ///     let configuration = THConfiguration()
+    ///     let configuration = LMConfiguration()
     ///     configuration.letterCaseAction = .leadTo(.capitalized)
     ///
-    ///     let text = THTextFormer.formText(
+    ///     let text = LMTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
     ///         with: configuration
     ///     )
     ///
-    ///     /*[THCharacter("H", type: .correct),
-    ///        THCharacter("e", type: .missing),
-    ///        THCharacter("o", type: .extra  ),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("l", type: .missing),
-    ///        THCharacter("o", type: .missing),
-    ///        THCharacter("a", type: .extra  )]*/
+    ///     /*[LMCharacter("H", type: .correct),
+    ///        LMCharacter("e", type: .missing),
+    ///        LMCharacter("o", type: .extra  ),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("l", type: .missing),
+    ///        LMCharacter("o", type: .missing),
+    ///        LMCharacter("a", type: .extra  )]*/
     ///
     /// The formation is performed if there is at least one correct char; otherwise, it returns extra or missing text.
     ///
     ///     let accurateText = "bye"
     ///     let comparedText = "hi!"
     ///
-    ///     let text = THTextFormer.formText(
+    ///     let text = LMTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
-    ///         with: THConfiguration()
+    ///         with: LMConfiguration()
     ///     )
     ///
-    ///     /*[THCharacter("h", type: .extra),
-    ///        THCharacter("i", type: .extra),
-    ///        THCharacter("!", type: .extra)]*/
+    ///     /*[LMCharacter("h", type: .extra),
+    ///        LMCharacter("i", type: .extra),
+    ///        LMCharacter("!", type: .extra)]*/
     ///
     /// - Returns: A text by combining compared and accurate texts.
     @inlinable
-    internal static func formText(from comparedText: String, relyingOn accurateText: String, with configuration: THConfiguration) -> THText {
+    internal static func formText(from comparedText: String, relyingOn accurateText: String, with configuration: LMConfiguration) -> LMText {
         
-        var missingAccurateText: THText { plainText(from: accurateText, ofType: .missing, with: configuration) }
-        var wrongComparedText:   THText { plainText(from: comparedText, ofType: .extra,   with: configuration) }
+        var missingAccurateText: LMText { plainText(from: accurateText, ofType: .missing, with: configuration) }
+        var wrongComparedText:   LMText { plainText(from: comparedText, ofType: .extra,   with: configuration) }
         
         guard !comparedText.isEmpty else { return missingAccurateText }
         guard !accurateText.isEmpty else { return wrongComparedText   }
@@ -87,7 +87,7 @@ internal final class THTextFormer {
         let quickComplianceIsPassed = checkQuickCompliance(for: comparedText, relyingOn: accurateText, to: configuration)
         guard quickComplianceIsPassed else { return wrongComparedText }
         
-        let basis = THMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+        let basis = LMMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
         
         let exactComplianceIsPassed = checkExactCompliance(for: basis, to: configuration)
         guard exactComplianceIsPassed else { return wrongComparedText }
@@ -114,7 +114,7 @@ internal final class THTextFormer {
     /// - Note: The order of typified chars should not changed before this method is called.
     /// - Returns: A text that has missing chars.
     @inlinable
-    internal static func addingMissingChars(to text: THText, relyingOn accurateText: String, basedOn basis: THMathCore.Basis, conformingTo configuration: THConfiguration) -> THText {
+    internal static func addingMissingChars(to text: LMText, relyingOn accurateText: String, basedOn basis: LMMathCore.Basis, conformingTo configuration: LMConfiguration) -> LMText {
         
         var text = text, subindex = Int()
         var subelement: Int { basis.subsequence[subindex] }
@@ -125,9 +125,9 @@ internal final class THTextFormer {
             
             func insert(_ indexes: [Int]) -> Void {
                 for index in indexes.reversed() {
-                    let char = accurateText[index]
-                    let atomicChar = THCharacter(char, type: .missing)
-                    text.insert(atomicChar, at: indexToInsert)
+                    let rawCharacter = accurateText[index]
+                    let character = LMCharacter(rawCharacter, type: .missing)
+                    text.insert(character, at: indexToInsert)
                 }
             }
             
@@ -160,7 +160,7 @@ internal final class THTextFormer {
     /// - Note: The order of typified chars should not be changed before this method is called.
     /// - Returns: A text that has correct chars.
     @inlinable
-    internal static func addingCorrectChars(to text: THText, relyingOn accurateText: String, basedOn basis: THMathCore.Basis, conformingTo configuration: THConfiguration) -> THText {
+    internal static func addingCorrectChars(to text: LMText, relyingOn accurateText: String, basedOn basis: LMMathCore.Basis, conformingTo configuration: LMConfiguration) -> LMText {
         
         var text = text, subindex = Int()
         var subelement: Int { basis.subsequence[subindex] }
@@ -175,7 +175,7 @@ internal final class THTextFormer {
         for (index, element) in basis.sequence.enumerated() where element == subelement {
             if shouldCompareLetterCases {
                 let accurateChar = accurateText[subelement]
-                let comparedChar = text[index].rawValue // because initially, all atomic chars match chars of the compared text
+                let comparedChar = text[index].rawValue // because initially, all these chars match chars of the compared text
                 text[index].hasCorrectLetterCase = accurateChar == comparedChar
             }
             text[index].type = .correct
@@ -197,7 +197,7 @@ internal final class THTextFormer {
     /// - Note: This method checks for the presence or absence of chars and for their order.
     /// - Returns: `True` if the basis satisfies all the conditions; otherwise, `false`.
     @inlinable
-    internal static func checkExactCompliance(for basis: THMathCore.Basis, to configuration: THConfiguration) -> Bool {
+    internal static func checkExactCompliance(for basis: LMMathCore.Basis, to configuration: LMConfiguration) -> Bool {
         
         guard !basis.subsequence.isEmpty else { return false }
         
@@ -233,9 +233,9 @@ internal final class THTextFormer {
     /// - Note: This method only checks for the presence or absence of chars, but not for their order.
     /// - Returns: `True` if the compared text possibly satisfies all the conditions; otherwise, `false`.
     @inlinable
-    internal static func checkQuickCompliance(for comparedText: String, relyingOn accurateText: String, to configuration: THConfiguration) -> Bool {
+    internal static func checkQuickCompliance(for comparedText: String, relyingOn accurateText: String, to configuration: LMConfiguration) -> Bool {
         
-        let countOfCommonChars = THMathCore.countCommonChars(between: comparedText, and: accurateText)
+        let countOfCommonChars = LMMathCore.countCommonChars(between: comparedText, and: accurateText)
         
         guard countOfCommonChars > 0 else { return false }
         
@@ -277,8 +277,8 @@ internal final class THTextFormer {
     ///
     /// - Returns: A created text instance with the applied configuration.
     @inlinable @inline(__always)
-    internal static func plainText(from text: String, ofType type: THCharacter.CharacterType, with configuration: THConfiguration) -> THText {
-        let text = THText(string: text, type: type)
+    internal static func plainText(from text: String, ofType type: LMCharacter.CharacterType, with configuration: LMConfiguration) -> LMText {
+        let text = LMText(string: text, type: type)
         return applying(configuration, to: text)
     }
     
@@ -287,7 +287,7 @@ internal final class THTextFormer {
     
     /// Returns a text with applied configuration.
     @inlinable @inline(__always)
-    internal static func applying(_ configuration: THConfiguration, to text: THText) -> THText {
+    internal static func applying(_ configuration: LMConfiguration, to text: LMText) -> LMText {
         var text = text
         if case .leadTo(let version) = configuration.letterCaseAction {
             text.lead(to: version)

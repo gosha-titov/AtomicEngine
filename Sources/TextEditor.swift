@@ -46,7 +46,7 @@
 //
 
 /// A text editor that consists of methods to make a formed text user-friendly.
-internal final class THTextEditor {
+internal final class LMTextEditor {
     
     // MARK: - Make Text User Friendly
     
@@ -54,34 +54,34 @@ internal final class THTextEditor {
     ///
     ///     let accurateText = "Hello"
     ///     let comparedText = "Halol"
-    ///     let configuration = THConfiguration()
+    ///     let configuration = LMConfiguration()
     ///
-    ///     let formedText = THTextFormer.formText(
+    ///     let formedText = LMTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
     ///         with: configuration
     ///     )
-    ///     /*[THCharacter("H", type: .correct),
-    ///        THCharacter("e", type: .missing),
-    ///        THCharacter("a", type: .extra  ),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("o", type: .extra  ),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("o", type: .missing)]*/
+    ///     /*[LMCharacter("H", type: .correct),
+    ///        LMCharacter("e", type: .missing),
+    ///        LMCharacter("a", type: .extra  ),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("o", type: .extra  ),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("o", type: .missing)]*/
     ///
-    ///     let editedText = THTextEditor.makeTextUserFriendly(
+    ///     let editedText = LMTextEditor.makeTextUserFriendly(
     ///         formedText,
     ///         with: configuration
     ///     )
-    ///     /*[THCharacter("H", type: .correct),
-    ///        THCharacter("a", type: .misspell("o")),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("o", type: .swapped(position: .left ),
-    ///        THCharacter("l", type: .swapped(position: .right) )]*/
+    ///     /*[LMCharacter("H", type: .correct),
+    ///        LMCharacter("a", type: .misspell("o")),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("o", type: .swapped(position: .left ),
+    ///        LMCharacter("l", type: .swapped(position: .right) )]*/
     ///
     /// - Returns: The edited text that is user-friendly and is ready to be displayed.
     @inlinable
-    internal static func makeTextUserFriendly(_ text: THText, with configuration: THConfiguration) -> THText {
+    internal static func makeTextUserFriendly(_ text: LMText, with configuration: LMConfiguration) -> LMText {
         var text = adjusting(text)
         text = addindMisspellChars(to: text)
         text = addingSwappedChars(to: text)
@@ -98,24 +98,24 @@ internal final class THTextEditor {
     ///     let accurateText = "day"
     ///     let comparedText = "dey"
     ///
-    ///     let formedText = THTextFormer.formText(
+    ///     let formedText = LMTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
     ///         with: THConfiguration()
     ///     )
-    ///     /*[THCharacter("d", type: .correct),
-    ///        THCharacter("a", type: .missing),
-    ///        THCharacter("e", type: .extra  ),
-    ///        THCharacter("y", type: .correct)]*/
+    ///     /*[LMCharacter("d", type: .correct),
+    ///        LMCharacter("a", type: .missing),
+    ///        LMCharacter("e", type: .extra  ),
+    ///        LMCharacter("y", type: .correct)]*/
     ///
     ///     let editedText = addindMisspellChars(to: formedText, with)
-    ///     /*[THCharacter("d", type: .correct       ),
-    ///        THCharacter("e", type: .misspell("a") ),
-    ///        THCharacter("y", type: .correct       )]*/
+    ///     /*[LMCharacter("d", type: .correct       ),
+    ///        LMCharacter("e", type: .misspell("a") ),
+    ///        LMCharacter("y", type: .correct       )]*/
     ///
     /// - Returns: An edited text that has misspell chars.
     @inlinable @inline(__always)
-    internal static func addindMisspellChars(to text: THText) -> THText {
+    internal static func addindMisspellChars(to text: LMText) -> LMText {
         
         var indexesOfMissingChars = [Int]()
         var indexesOfExtraChars   = [Int]()
@@ -130,7 +130,7 @@ internal final class THTextEditor {
                      let indexOfExtraChar = indexesOfExtraChars.removeFirst()
                      let extraChar = text[indexOfExtraChar].rawValue
                      let missingChar = text[index].rawValue
-                     let misspellChar = THCharacter(extraChar, type: .misspell(missingChar))
+                     let misspellChar = LMCharacter(extraChar, type: .misspell(missingChar))
                      text[indexOfExtraChar] = misspellChar
                      text.remove(at: index)
                      offset -= 1
@@ -142,7 +142,7 @@ internal final class THTextEditor {
                      let indexOfMissingChar = indexesOfMissingChars.removeFirst()
                      let missingChar = text[indexOfMissingChar].rawValue
                      let extraChar = text[index].rawValue
-                     let misspellChar = THCharacter(extraChar, type: .misspell(missingChar))
+                     let misspellChar = LMCharacter(extraChar, type: .misspell(missingChar))
                      text[indexOfMissingChar] = misspellChar
                      text.remove(at: index)
                      offset -= 1
@@ -168,24 +168,24 @@ internal final class THTextEditor {
     ///     let accurateText = "day"
     ///     let comparedText = "dya"
     ///
-    ///     let formedText = THTextFormer.formText(
+    ///     let formedText = LMTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
     ///         with: THConfiguration()
     ///     )
-    ///     /*[THCharacter("d", type: .correct),
-    ///        THCharacter("y", type: .extra  ),
-    ///        THCharacter("a", type: .correct),
-    ///        THCharacter("y", type: .missing)]*/
+    ///     /*[LMCharacter("d", type: .correct),
+    ///        LMCharacter("y", type: .extra  ),
+    ///        LMCharacter("a", type: .correct),
+    ///        LMCharacter("y", type: .missing)]*/
     ///
     ///     let editedText = addindSwappedChars(to: formedText)
-    ///     /*[THCharacter("d", type: .correct),
-    ///        THCharacter("y", type: .swapped(position: .left),
-    ///        THCharacter("a", type: .swapped(position: .right) )]*/
+    ///     /*[LMCharacter("d", type: .correct),
+    ///        LMCharacter("y", type: .swapped(position: .left),
+    ///        LMCharacter("a", type: .swapped(position: .right) )]*/
     ///
     /// - Returns: An edited text that has swapped chars.
     @inlinable @inline(__always)
-    internal static func addingSwappedChars(to text: THText) -> THText {
+    internal static func addingSwappedChars(to text: LMText) -> LMText {
         
         var text = text
         
@@ -215,24 +215,24 @@ internal final class THTextEditor {
     ///     let accurateText = "day"
     ///     let comparedText = "dyy"
     ///
-    ///     let formedText = THTextFormer.formText(
+    ///     let formedText = LMTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
     ///         with: configuration
     ///     )
-    ///     /*[THCharacter("d", type: .correct),
-    ///        THCharacter("a", type: .missing),
-    ///        THCharacter("y", type: .correct),
-    ///        THCharacter("y", type: .extra  )]*/
+    ///     /*[LMCharacter("d", type: .correct),
+    ///        LMCharacter("a", type: .missing),
+    ///        LMCharacter("y", type: .correct),
+    ///        LMCharacter("y", type: .extra  )]*/
     ///
     ///     let adjustedText = adjusting(formedText)
-    ///     /*[THCharacter("d", type: .correct),
-    ///        THCharacter("a", type: .missing),
-    ///        THCharacter("y", type: .extra  ),
-    ///        THCharacter("y", type: .correct)]*/
+    ///     /*[LMCharacter("d", type: .correct),
+    ///        LMCharacter("a", type: .missing),
+    ///        LMCharacter("y", type: .extra  ),
+    ///        LMCharacter("y", type: .correct)]*/
     ///
     @inlinable @inline(__always)
-    internal static func adjusting(_ formedText: THText) -> THText {
+    internal static func adjusting(_ formedText: LMText) -> LMText {
         
         var countOfEqualCorrectChars = Int()
         var countOfMissingChars = Int()

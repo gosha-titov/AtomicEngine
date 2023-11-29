@@ -45,11 +45,11 @@ import UIKit
 ///     ])
 ///
 @available(iOS 13.0, *)
-open class THDisplayView: UIScrollView {
+open class LMDisplayView: UIScrollView {
     
     /// The text that is currently displayed, settable.
     /// - Note: When you set a new text to this property, it also updates the display.
-    public var text = THText() {
+    public var text = LMText() {
         didSet {
             resetAlignment()
             display(text)
@@ -130,7 +130,7 @@ open class THDisplayView: UIScrollView {
     // MARK: - Display Methods
     
     /// Updates a text that is currently displayed in the labels.
-    private func display(_ newText: THText) -> Void {
+    private func display(_ newText: LMText) -> Void {
         
         let upperMutableString = NSMutableAttributedString()
         let centerMutableString = NSMutableAttributedString()

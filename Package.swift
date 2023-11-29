@@ -4,22 +4,22 @@
 import PackageDescription
 
 let package = Package(
-    name: "TypoHunt",
+    name: "LetterMatter",
     products: [
         .library(
-            name: "TypoHunt",
-            targets: ["TypoHunt"]),
+            name: "LetterMatter",
+            targets: ["LetterMatter"]),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "TypoHunt",
+            name: "LetterMatter",
             dependencies: [],
             path: "Sources"
         ),
         .testTarget(
-            name: "TypoHuntTests",
-            dependencies: ["TypoHunt"],
+            name: "LetterMatterTests",
+            dependencies: ["LetterMatter"],
             path: "Tests"
         ),
     ],

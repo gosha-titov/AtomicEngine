@@ -101,7 +101,7 @@ import Foundation
 //
 
 /// A math core that consists of static methods for working with numbers, sequences, subsequences and so on.
-internal final class THMathCore {
+internal final class LMMathCore {
     
     // MARK: - Calculate Basis
     
@@ -110,7 +110,7 @@ internal final class THMathCore {
     ///     let accurateText = "Hello"
     ///     let comparedText = "hola"
     ///
-    ///     let basis = MathBox.calculateBasis(
+    ///     let basis = LMMathCore.calculateBasis(
     ///         for: comparedText,
     ///         relyingOn: accurateText
     ///     )
@@ -457,7 +457,7 @@ internal final class THMathCore {
 
 
 
-extension THMathCore {
+extension LMMathCore {
     
     // MARK: - Math Types
     
@@ -539,21 +539,21 @@ extension THMathCore {
 
 
 
-internal extension THMathCore.Basis {
+internal extension LMMathCore.Basis {
     
     /// Creates a math basis instance with visible arguments.
     /// - Note: It's mainly used for testing.
-    init(sourceSequence: THMathCore.Sequence, sequence: THMathCore.OptionalSequence, subsequence: THMathCore.Subsequence) {
+    init(sourceSequence: LMMathCore.Sequence, sequence: LMMathCore.OptionalSequence, subsequence: LMMathCore.Subsequence) {
         self.init(sourceSequence, sequence, subsequence)
     }
     
     /// Creates an empty math basis instance.
     /// - Note: It's mainly used for testing.
     init() {
-        self.init(THMathCore.Sequence(), THMathCore.OptionalSequence(), THMathCore.Subsequence())
+        self.init(LMMathCore.Sequence(), LMMathCore.OptionalSequence(), LMMathCore.Subsequence())
     }
     
-    static func == (lhs: THMathCore.Basis, rhs: THMathCore.Basis) -> Bool {
+    static func == (lhs: LMMathCore.Basis, rhs: LMMathCore.Basis) -> Bool {
         if lhs.sourceSequence == rhs.sourceSequence,
            lhs.subsequence == rhs.subsequence,
            lhs.sequence == rhs.sequence {
@@ -566,25 +566,25 @@ internal extension THMathCore.Basis {
 
 
 
-internal extension THMathCore.Pair {
+internal extension LMMathCore.Pair {
     
     /// A tuple value converted from this pair.
-    var toTuple: (sequence: THMathCore.OptionalSequence, subsequence: THMathCore.Subsequence) {
+    var toTuple: (sequence: LMMathCore.OptionalSequence, subsequence: LMMathCore.Subsequence) {
         return (sequence, subsequence)
     }
     
     /// Creates a math pair instance with visible arguments.
     /// - Note: It's mainly used for testing.
-    init(sequence: THMathCore.OptionalSequence, subsequence: THMathCore.Subsequence) {
+    init(sequence: LMMathCore.OptionalSequence, subsequence: LMMathCore.Subsequence) {
         self.init(sequence, subsequence)
     }
     
     /// Creates an empty math pair instance.
     init() {
-        self.init(THMathCore.OptionalSequence(), THMathCore.Subsequence())
+        self.init(LMMathCore.OptionalSequence(), LMMathCore.Subsequence())
     }
     
-    static func == (lhs: THMathCore.Pair, rhs: THMathCore.Pair) -> Bool {
+    static func == (lhs: LMMathCore.Pair, rhs: LMMathCore.Pair) -> Bool {
         if lhs.subsequence == rhs.subsequence,
            lhs.sequence == rhs.sequence {
             return true

@@ -1,11 +1,11 @@
 /// A text consisting of typed characters.
 ///
 ///     print(text)
-///     /*[THCharacter("H", type: .correct, hasCorrectLetterCase: false),
-///        THCharacter("e", type: .correct, hasCorrectLetterCase: true),
-///        THCharacter("l", type: .correct, hasCorrectLetterCase: true),
-///        THCharacter("l", type: .correct, hasCorrectLetterCase: true),
-///        THCharacter("o", type: .missing, hasCorrectLetterCase: nil)]*/
+///     /*[LMCharacter("H", type: .correct, hasCorrectLetterCase: false),
+///        LMCharacter("e", type: .correct, hasCorrectLetterCase: true),
+///        LMCharacter("l", type: .correct, hasCorrectLetterCase: true),
+///        LMCharacter("l", type: .correct, hasCorrectLetterCase: true),
+///        LMCharacter("o", type: .missing, hasCorrectLetterCase: nil)]*/
 ///
 ///     text.isCompletelyCorrect // false
 ///     text.countOfTyposAndMistakes // 1
@@ -14,12 +14,10 @@
 ///     print(text.rawValue)
 ///     // Prints "Hello"
 ///
-public typealias THText = [THCharacter]
+public typealias LMText = [LMCharacter]
 
 
-extension THText {
-    
-    // MARK: - Properties
+extension LMText {
     
     /// A boolean value that indicates whether this text has no typos or mistakes.
     public var isCompletelyCorrect: Bool {
@@ -102,9 +100,9 @@ extension THText {
     ///        THCharacter("o", type: .correct)]*/
     ///
     /// - Note: The characters of the leading text have no boolean indicator of their letter case correctness.
-    public func leading(to version: THConfiguration.LetterCaseVersion) -> THText {
+    public func leading(to version: LMConfiguration.LetterCaseVersion) -> LMText {
         guard self.count > 0 else { return [] }
-        var result = THText()
+        var result = LMText()
         switch version {
         case .uppercase: result = map { $0.uppercased }
         case .lowercase: result = map { $0.lowercased }
@@ -128,7 +126,7 @@ extension THText {
     ///        THCharacter("o", type: .correct)]*/
     ///
     /// - Note: The characters of the leading text have no boolean indicator of their letter case correctness.
-    public mutating func lead(to version: THConfiguration.LetterCaseVersion) -> Void {
+    public mutating func lead(to version: LMConfiguration.LetterCaseVersion) -> Void {
         self = leading(to: version)
     }
     
@@ -145,8 +143,8 @@ extension THText {
     ///        THCharacter("l", type: .correct),
     ///        THCharacter("o", type: .correct)]*/
     ///
-    public init(string: String, type: THCharacter.CharacterType) {
-        let text = string.map { THCharacter($0, type: type) }
+    public init(string: String, type: LMCharacter.CharacterType) {
+        let text = string.map { LMCharacter($0, type: type) }
         self.init(text)
     }
     

@@ -1,7 +1,7 @@
 import Foundation
 
 /// A configuration that is applied the creation of the text.
-public struct THConfiguration {
+public struct LMConfiguration {
     
     /// The quantity that indicates the required number of correct chars.
     ///
@@ -36,7 +36,7 @@ public struct THConfiguration {
 }
 
 
-extension THConfiguration {
+extension LMConfiguration {
     
     public enum CharQuantity: Equatable {
         
@@ -117,7 +117,7 @@ extension THConfiguration {
 }
 
 
-extension THConfiguration {
+extension LMConfiguration {
     
     public enum LetterCaseAction: Equatable {
         
@@ -132,7 +132,7 @@ extension THConfiguration {
 }
 
 
-extension THConfiguration {
+extension LMConfiguration {
     
     /// A letter case version that indicates how a text should be written.
     public enum LetterCaseVersion: Equatable {

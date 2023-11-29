@@ -1,13 +1,13 @@
 import XCTest
-@testable import TypoHunt
+@testable import LetterMatter
 
 final class THMathCoreTests: XCTestCase {
     
-    typealias OptionalSequence = THMathCore.OptionalSequence
-    typealias Subsequence = THMathCore.Subsequence
-    typealias Sequence = THMathCore.Sequence
-    typealias Basis = THMathCore.Basis
-    typealias Pair = THMathCore.Pair
+    typealias OptionalSequence = LMMathCore.OptionalSequence
+    typealias Subsequence = LMMathCore.Subsequence
+    typealias Sequence = LMMathCore.Sequence
+    typealias Basis = LMMathCore.Basis
+    typealias Pair = LMMathCore.Pair
     
     func testTime() -> Void {
         
@@ -27,16 +27,14 @@ final class THMathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - MathCore.calculateBasis(for:relyingOn:)
+    // MARK: - LMMathCore.calculateBasis(for:relyingOn:)
     
     func testCalculateBasis() -> Void {
-            
-        typealias Basis = THMathCore.Basis
         
         var comparedText = String()
         var accurateText = String()
         var basis: Basis {
-            return THMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+            return LMMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
         }
         
         XCTAssertEqual(basis, Basis([], [], []))
@@ -94,13 +92,13 @@ final class THMathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - THMathCore.pickBestPair(among:)
+    // MARK: - LMMathCore.pickBestPair(among:)
     
     func testPickBestPair() -> Void {
             
         var rawPairs = [Pair]()
         var bestPair: Pair {
-            return THMathCore.pickBestPair(among: rawPairs)
+            return LMMathCore.pickBestPair(among: rawPairs)
         }
         
         rawPairs = []
@@ -134,13 +132,13 @@ final class THMathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - THMathCore.makeRawPairs(from:)
+    // MARK: - LMMathCore.makeRawPairs(from:)
     
     func testMakeRawPairs() -> Void {
         
         var rawSequences = [OptionalSequence]()
         var rawPairs: [Pair] {
-            return THMathCore.makeRawPairs(from: rawSequences)
+            return LMMathCore.makeRawPairs(from: rawSequences)
         }
         
         rawSequences = []
@@ -175,14 +173,14 @@ final class THMathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - THMathCore.generateRawSequences(for:relyingOn:)
+    // MARK: - LMMathCore.generateRawSequences(for:relyingOn:)
         
     func testGenerateRawSequences() -> Void {
             
         var comparedText = String()
         var accurateText = String()
         var rawSequences: [OptionalSequence] {
-            return THMathCore.generateRawSequences(for: comparedText, relyingOn: accurateText)
+            return LMMathCore.generateRawSequences(for: comparedText, relyingOn: accurateText)
         }
         
         comparedText = ""; accurateText = ""
@@ -227,14 +225,14 @@ final class THMathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - THMathCore.countCommonChars(between:and:)
+    // MARK: - LMMathCore.countCommonChars(between:and:)
     
     func testCountCommonChars() -> Void {
         
         var text1 = String()
         var text2 = String()
         var count: Int {
-            return THMathCore.countCommonChars(between: text1, and: text2)
+            return LMMathCore.countCommonChars(between: text1, and: text2)
         }
         
         text1 = ""; text2 = ""
@@ -269,13 +267,13 @@ final class THMathCoreTests: XCTestCase {
     }
 
     
-    // MARK: - THMathCore.charPositions(of:)
+    // MARK: - LMMathCore.charPositions(of:)
     
     func testCharPositions() -> Void {
         
         var text = String()
         var dict: [Character: [Int]] {
-            return THMathCore.charPositions(of: text)
+            return LMMathCore.charPositions(of: text)
         }
         
         text = ""
@@ -301,13 +299,13 @@ final class THMathCoreTests: XCTestCase {
     }
     
     
-    // MARK: - THMathCore.findLis(of:)
+    // MARK: - LMMathCore.findLis(of:)
     
     func testFindLis() {
         
         var sequence = Sequence()
         var subsequence: Subsequence {
-            return THMathCore.findLIS(of: sequence)
+            return LMMathCore.findLIS(of: sequence)
         }
         
         sequence = []

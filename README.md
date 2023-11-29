@@ -35,7 +35,7 @@ final class Validator: LMValidator {
     static let shared: Validator = {
         // A configuration that is applied during the creation of the text.
         var configuration = LMConfiguration()
-        configuration.letterCaseAction = .leadTo(.capitalized)
+        configuration.letterCaseAction = .make(.capitalized)
         configuration.requiredQuantityOfCorrectChars = .high
         configuration.acceptableQuantityOfWrongChars = .one
         let validator = Validator(configuration: configuration)

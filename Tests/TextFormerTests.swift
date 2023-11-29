@@ -200,21 +200,21 @@ final class TextFormerTests: XCTestCase {
             LMCharacter("c", type: .correct)
         ])
         
-        configuration.letterCaseAction = .leadTo(.capitalized)
+        configuration.letterCaseAction = .make(.capitalized)
         XCTAssertEqual(result, [
             LMCharacter("A", type: .correct),
             LMCharacter("b", type: .correct),
             LMCharacter("c", type: .correct)
         ])
         
-        configuration.letterCaseAction = .leadTo(.uppercase); type = .extra
+        configuration.letterCaseAction = .make(.uppercase); type = .extra
         XCTAssertEqual(result, [
             LMCharacter("A", type: .extra),
             LMCharacter("B", type: .extra),
             LMCharacter("C", type: .extra)
         ])
         
-        configuration.letterCaseAction = .leadTo(.lowercase); type = .missing
+        configuration.letterCaseAction = .make(.lowercase); type = .missing
         XCTAssertEqual(result, [
             LMCharacter("a", type: .missing),
             LMCharacter("b", type: .missing),
@@ -238,15 +238,15 @@ final class TextFormerTests: XCTestCase {
         XCTAssertEqual(result, [])
         
         text = [LMCharacter("a", type: .misspell("b"))]
-        configuration.letterCaseAction = .leadTo(.capitalized)
+        configuration.letterCaseAction = .make(.capitalized)
         XCTAssertEqual(result, [LMCharacter("A", type: .misspell("B"))])
         
         text = [LMCharacter("a", type: .misspell("b"))]
-        configuration.letterCaseAction = .leadTo(.uppercase)
+        configuration.letterCaseAction = .make(.uppercase)
         XCTAssertEqual(result, [LMCharacter("A", type: .misspell("B"))])
         
         text = [LMCharacter("A", type: .misspell("B"))]
-        configuration.letterCaseAction = .leadTo(.lowercase)
+        configuration.letterCaseAction = .make(.lowercase)
         XCTAssertEqual(result, [LMCharacter("a", type: .misspell("b"))])
         
         text = [
@@ -262,21 +262,21 @@ final class TextFormerTests: XCTestCase {
             LMCharacter("c", type: .extra  )
         ])
         
-        configuration.letterCaseAction = .leadTo(.capitalized)
+        configuration.letterCaseAction = .make(.capitalized)
         XCTAssertEqual(result, [
             LMCharacter("A", type: .correct),
             LMCharacter("b", type: .missing),
             LMCharacter("c", type: .extra  )
         ])
         
-        configuration.letterCaseAction = .leadTo(.uppercase)
+        configuration.letterCaseAction = .make(.uppercase)
         XCTAssertEqual(result, [
             LMCharacter("A", type: .correct),
             LMCharacter("B", type: .missing),
             LMCharacter("C", type: .extra  )
         ])
         
-        configuration.letterCaseAction = .leadTo(.lowercase)
+        configuration.letterCaseAction = .make(.lowercase)
         XCTAssertEqual(result, [
             LMCharacter("a", type: .correct),
             LMCharacter("b", type: .missing),

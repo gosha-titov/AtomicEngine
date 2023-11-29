@@ -124,8 +124,8 @@ extension LMConfiguration {
         /// Letter cases will be compared. That is, there is a mistake if letter cases do not match.
         case compare
         
-        /// Letter cases will be leaded to the given version. That is, there is no mistake if letter cases do not match.
-        case leadTo(LetterCaseVersion)
+        /// Letter cases will be made in the given version. That is, there is no mistake if letter cases do not match.
+        case make(LetterCaseVersion)
         
     }
     

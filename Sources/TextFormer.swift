@@ -43,7 +43,7 @@ internal final class LMTextFormer {
     ///     let comparedText = "hola"
     ///
     ///     let configuration = LMConfiguration()
-    ///     configuration.letterCaseAction = .leadTo(.capitalized)
+    ///     configuration.letterCaseAction = .make(.capitalized)
     ///
     ///     let text = LMTextFormer.formText(
     ///         from: comparedText,
@@ -261,7 +261,7 @@ internal final class LMTextFormer {
     /// Makes a text from the given string where all atomic are one-type, and apply a specific configuration to it.
     ///
     ///     var configuration = THConfiguration()
-    ///     configuration.letterCaseAction = .leadTo(.capitalized)
+    ///     configuration.letterCaseAction = .make(.capitalized)
     ///
     ///     let text = plainText(
     ///         from: "hello",
@@ -289,7 +289,7 @@ internal final class LMTextFormer {
     @inlinable @inline(__always)
     internal static func applying(_ configuration: LMConfiguration, to text: LMText) -> LMText {
         var text = text
-        if case .leadTo(let version) = configuration.letterCaseAction {
+        if case .make(let version) = configuration.letterCaseAction {
             text.lead(to: version)
         }
         return text

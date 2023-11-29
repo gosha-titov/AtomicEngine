@@ -11,7 +11,7 @@ import Foundation
 ///         /// The singleton validator instance.
 ///         static let shared: Validator = {
 ///             var configuration = LMConfiguration()
-///             configuration.letterCaseAction = .leadTo(.capitalized)
+///             configuration.letterCaseAction = .make(.capitalized)
 ///             configuration.requiredQuantityOfCorrectChars = .high
 ///             configuration.acceptableQuantityOfWrongChars = .one
 ///             return Validator(configuration: configuration)

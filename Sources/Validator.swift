@@ -38,7 +38,7 @@ import Foundation
 /// - **checkForTyposAndMistakes(in:relyingOn:)** is used for synchronous execution;
 /// - **checkForTyposAndMistakes(in:relyingOn:andHandleResult:)** is used for asynchronous execution.
 ///
-open class THValidator {
+open class LMValidator {
     
     // MARK: - Properties
     

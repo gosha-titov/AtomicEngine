@@ -4,6 +4,6 @@
 /*.xcodeproj
 xcuserdata/
 
-.swiftpm/xcode/package.xcworkspace/
+.swiftpm/
 
 *.xml

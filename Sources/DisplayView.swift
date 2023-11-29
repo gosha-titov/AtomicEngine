@@ -29,10 +29,10 @@ import UIKit
 ///
 ///     validator.checkForTyposAndMistakes(
 ///         in: "Hola", relyingOn: "Hello",
-///         andHandleResult: { text in
+///         andHandleResult: { checkedText in
 ///             // The handling closure is always called on the main queue
-///             // That is, it allows you to update your UI components
-///             textView.text = text
+///             // That is, it allows you to update your UI components here
+///             textView.text = checkedText
 ///         }
 ///     )
 ///
@@ -47,22 +47,27 @@ import UIKit
 @available(iOS 13.0, *)
 open class THDisplayView: UIScrollView {
     
-    // MARK: - Properties
-    
     /// The text that is currently displayed, settable.
     /// - Note: When you set a new text to this property, it also updates the display.
     public var text = THText() {
-        didSet { updateDisplayedText(with: text) }
+        didSet {
+            resetAlignment()
+            display(text)
+            needsUpdateAlignment = true
+            setNeedsLayout()
+        }
     }
     
     /// The boolean value that indicates whether the text is centered if its length fits into this display view’s bounding rectangle.
     /// - Note: When you set a new value to this property, it also updates the display.
     public var alignsTextToCenterIfFits = true {
-        didSet { updateAlignment() }
+        didSet {
+            resetAlignment()
+            needsUpdateAlignment = true
+            setNeedsLayout()
+        }
     }
     
-    
-    // MARK: UI views
     
     /// The label that displays correct characters for misspell ones.
     public let upperLabel = UILabel()
@@ -73,8 +78,6 @@ open class THDisplayView: UIScrollView {
     /// The label that displays arrows for swapped characters.
     public let lowerLabel = UILabel()
     
-    
-    // MARK: UI attributes
     
     /// The color that is used to display completely correct text, settable.
     /// - Note: When you set a new color to this property, it also updates the display.
@@ -106,7 +109,7 @@ open class THDisplayView: UIScrollView {
         didSet { updateDisplay() }
     }
     
-    /// The height needed to display the text of this view.
+    /// The minimum height needed to display the text of this view.
     public var computedContentHeight: CGFloat {
         return fontSize * 3
     }
@@ -120,11 +123,14 @@ open class THDisplayView: UIScrollView {
     /// The constraints that are used to align label to fill this scroll view.
     private var constraintsToFill = [NSLayoutConstraint]()
     
+    /// The boolean value that indicates whether the layout of labels should be updated.
+    private var needsUpdateAlignment = false
+    
     
     // MARK: - Display Methods
     
     /// Updates a text that is currently displayed in the labels.
-    private func updateDisplayedText(with newText: THText) -> Void {
+    private func display(_ newText: THText) -> Void {
         
         let upperMutableString = NSMutableAttributedString()
         let centerMutableString = NSMutableAttributedString()
@@ -233,7 +239,7 @@ open class THDisplayView: UIScrollView {
     
     
     private func updateDisplay() -> Void {
-        updateDisplayedText(with: text)
+        display(text)
     }
     
     
@@ -241,16 +247,18 @@ open class THDisplayView: UIScrollView {
     
     override open func layoutSubviews() -> Void {
         super.layoutSubviews()
-        updateAlignment()
+        updateAlignmentIfNeeded()
     }
     
-    private func updateAlignment() -> Void {
+    private func updateAlignmentIfNeeded() -> Void {
+        guard needsUpdateAlignment else { return }
+        needsUpdateAlignment = false
         if alignsTextToCenterIfFits, textLabel.frame.width <= frame.width { // contentSize.width is 0
-            constraintsToCenter.forEach { $0.isActive = true }
-            constraintsToFill.forEach { $0.isActive = false }
+            NSLayoutConstraint.activate(constraintsToCenter)
+            NSLayoutConstraint.deactivate(constraintsToFill)
         } else {
-            constraintsToCenter.forEach { $0.isActive = false }
-            constraintsToFill.forEach { $0.isActive = true }
+            NSLayoutConstraint.deactivate(constraintsToCenter)
+            NSLayoutConstraint.activate(constraintsToFill)
         }
     }
     
@@ -302,29 +310,28 @@ open class THDisplayView: UIScrollView {
         applyConstraintsToUpperLabel()
         applyConstraintsToTextLabel()
         applyConstraintsToLowerLabel()
-        applyCommonConstraints()
-        updateAlignment()
+        needsUpdateAlignment = true
+        updateAlignmentIfNeeded()
     }
     
-    private func applyCommonConstraints() -> Void {
-        for label in [upperLabel, textLabel, lowerLabel] {
-            NSLayoutConstraint.activate([
-                label.heightAnchor.constraint(equalToConstant: fontSize),
-            ])
-        }
+    private func resetAlignment() -> Void {
+        NSLayoutConstraint.deactivate(constraintsToCenter)
+        NSLayoutConstraint.deactivate(constraintsToFill)
     }
     
     private func applyConstraintsToUpperLabel() -> Void {
         upperLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            upperLabel.bottomAnchor.constraint(equalTo: textLabel.topAnchor),
+            upperLabel.topAnchor.constraint(equalTo: contentLayoutGuide.topAnchor),
+            upperLabel.heightAnchor.constraint(equalToConstant: fontSize),
         ])
     }
     
     private func applyConstraintsToTextLabel() -> Void {
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            textLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            textLabel.topAnchor.constraint(equalTo: upperLabel.bottomAnchor),
+            textLabel.heightAnchor.constraint(equalToConstant: fontSize),
         ])
     }
     
@@ -332,17 +339,22 @@ open class THDisplayView: UIScrollView {
         lowerLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             lowerLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor),
+            lowerLabel.bottomAnchor.constraint(equalTo: contentLayoutGuide.bottomAnchor),
+            lowerLabel.heightAnchor.constraint(equalToConstant: fontSize),
         ])
     }
     
     private func addToggleableConstraints() -> Void {
         for label in [upperLabel, textLabel, lowerLabel] {
             constraintsToFill.append(contentsOf: [
-                label.leadingAnchor.constraint(equalTo: leadingAnchor),
-                label.trailingAnchor.constraint(equalTo: trailingAnchor),
-                label.widthAnchor.constraint(greaterThanOrEqualTo: widthAnchor, multiplier: 1.0)
+                label.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor),
+                label.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor),
             ])
-            constraintsToCenter.append(label.centerXAnchor.constraint(equalTo: centerXAnchor))
+            constraintsToCenter.append(contentsOf: [
+                label.centerXAnchor.constraint(equalTo: centerXAnchor),
+                label.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor),
+                label.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor),
+            ])
         }
     }
     

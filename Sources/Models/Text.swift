@@ -7,7 +7,8 @@
 ///        LMCharacter("l", type: .correct, hasCorrectLetterCase: true),
 ///        LMCharacter("o", type: .missing, hasCorrectLetterCase: nil)]*/
 ///
-///     text.isCompletelyCorrect // false
+///     text.isAbsolutelyRight // false
+///     text.isCompletelyWrong // false
 ///     text.countOfTyposAndMistakes // 1
 ///     text.countOfWrongLetterCases // 1
 ///
@@ -20,12 +21,20 @@ public typealias LMText = [LMCharacter]
 extension LMText {
     
     /// A boolean value that indicates whether this text has no typos or mistakes.
-    public var isCompletelyCorrect: Bool {
+    public var isAbsolutelyRight: Bool {
         for char in self {
             guard char.isCorrect else { return false }
             if let letterCaseIsCorrect = char.hasCorrectLetterCase {
                 guard letterCaseIsCorrect else { return false }
             }
+        }
+        return true
+    }
+    
+    /// A boolean value that indicates whether this text has only wrong characters.
+    public var isCompletelyWrong: Bool {
+        for char in self {
+            guard char.isExtra || char.isMissing || char.isMisspell else { return false }
         }
         return true
     }

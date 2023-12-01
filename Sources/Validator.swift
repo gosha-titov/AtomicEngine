@@ -60,7 +60,7 @@ open class LMValidator {
     /// So if you need to establish conditions or to lead a text to a certain version, then set your own configuration as in the following example:
     ///
     ///     let configuration = LMConfiguration()
-    ///     configuration.letterCaseAction = .leadTo(.capitalized)
+    ///     configuration.letterCaseAction = .make(.capitalized)
     ///     validator.configuration = configuration
     ///
     public var configuration: LMConfiguration

@@ -136,7 +136,7 @@ open class LMDisplayView: UIScrollView {
         let centerMutableString = NSMutableAttributedString()
         let lowerMutableString = NSMutableAttributedString()
         
-        if newText.isCompletelyCorrect {
+        if newText.isAbsolutelyRight {
             let correctText = newText.rawValue.toNSAttributedString
                 .applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
                 .applying(foregroundColor: completelyCorrectColor)

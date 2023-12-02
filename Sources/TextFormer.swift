@@ -260,7 +260,7 @@ internal final class LMTextFormer {
     
     /// Makes a text from the given string where all atomic are one-type, and apply a specific configuration to it.
     ///
-    ///     var configuration = THConfiguration()
+    ///     var configuration = LMConfiguration()
     ///     configuration.letterCaseAction = .make(.capitalized)
     ///
     ///     let text = plainText(
@@ -269,11 +269,11 @@ internal final class LMTextFormer {
     ///         with: configuration
     ///     )
     ///
-    ///     /*[THCharacter("H", type: .correct),
-    ///        THCharacter("e", type: .correct),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("o", type: .correct)]*/
+    ///     /*[LMCharacter("H", type: .correct),
+    ///        LMCharacter("e", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("o", type: .correct)]*/
     ///
     /// - Returns: A created text instance with the applied configuration.
     @inlinable @inline(__always)
@@ -290,7 +290,7 @@ internal final class LMTextFormer {
     internal static func applying(_ configuration: LMConfiguration, to text: LMText) -> LMText {
         var text = text
         if case .make(let version) = configuration.letterCaseAction {
-            text.lead(to: version)
+            text.changeVersion(to: version)
         }
         return text
     }

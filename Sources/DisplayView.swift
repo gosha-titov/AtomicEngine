@@ -194,14 +194,9 @@ open class LMDisplayView: UIScrollView {
                     
                 case .extra:
                     let extraChar: NSAttributedString
-                    if char.rawValue == " " {
-                        extraChar = currentChar
-                            .applying(underline: .single, withColor: wrongColor)
-                    } else {
-                        extraChar = currentChar
-                            .applying(foregroundColor: correctColor)
-                            .applying(strikethrough: 1, withColor: wrongColor)
-                    }
+                    extraChar = currentChar
+                        .applying(foregroundColor: correctColor)
+                        .applying(strikethrough: 1, withColor: wrongColor)
                     upperMutableString.append(space)
                     centerMutableString.append(extraChar)
                     lowerMutableString.append(space)

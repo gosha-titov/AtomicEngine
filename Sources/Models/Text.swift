@@ -21,6 +21,12 @@ public typealias LMText = [LMCharacter]
 extension LMText {
     
     /// A boolean value that indicates whether this text has no typos or mistakes.
+    ///
+    ///     print(text)
+    ///     /*[LMCharacter("H", type: .correct, hasCorrectLetterCase: false),
+    ///        LMCharacter("i", type: .correct, hasCorrectLetterCase: true)]*/
+    ///     text.isAbsolutelyRight // false
+    ///
     public var isAbsolutelyRight: Bool {
         for char in self {
             guard char.isCorrect else { return false }
@@ -32,6 +38,12 @@ extension LMText {
     }
     
     /// A boolean value that indicates whether this text has only wrong characters.
+    ///
+    ///     print(text)
+    ///     /*[LMCharacter("i", type: .swapped(position: .left)),
+    ///        LMCharacter("h", type: .swapped(position: .right))]*/
+    ///     text.isCompletelyWrong // false
+    ///
     public var isCompletelyWrong: Bool {
         for char in self {
             guard char.isExtra || char.isMissing || char.isMisspell else { return false }
@@ -72,11 +84,11 @@ extension LMText {
     /// The string that contains all characters of this text.
     ///
     ///     let text = [
-    ///         THCharacter("H", type: .correct),
-    ///         THCharacter("e", type: .correct),
-    ///         THCharacter("l", type: .correct),
-    ///         THCharacter("l", type: .correct),
-    ///         THCharacter("o", type: .correct)
+    ///         LMCharacter("H", type: .correct),
+    ///         LMCharacter("e", type: .correct),
+    ///         LMCharacter("l", type: .correct),
+    ///         LMCharacter("l", type: .correct),
+    ///         LMCharacter("o", type: .correct)
     ///     ]
     ///     print(text.rawValue)
     ///     // Prints "Hello"
@@ -95,21 +107,21 @@ extension LMText {
     
     // MARK: - Methods
     
-    /// Returns a text that is leaded to the given letter case version.
+    /// Returns a text, whose letter cases are changed to the given version.
     ///
-    ///     let text = THText(
+    ///     let text = LMText(
     ///         from: "hELlo",
     ///         withType: .correct
-    ///     ).leading(to: .lowercase)
+    ///     ).changingVersion(to: .lowercase)
     ///
-    ///     /*[THCharacter("h", type: .correct),
-    ///        THCharacter("e", type: .correct),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("o", type: .correct)]*/
+    ///     /*[LMCharacter("h", type: .correct),
+    ///        LMCharacter("e", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("o", type: .correct)]*/
     ///
-    /// - Note: The characters of the leading text have no boolean indicator of their letter case correctness.
-    public func leading(to version: LMConfiguration.LetterCaseVersion) -> LMText {
+    /// - Note: The characters of the letter-case-changed text have no boolean indicator of their letter case correctness.
+    public func changingVersion(to version: LMConfiguration.LetterCaseVersion) -> LMText {
         guard self.count > 0 else { return [] }
         var result = LMText()
         switch version {
@@ -123,20 +135,20 @@ extension LMText {
         return result
     }
     
-    /// Leads this text to the given letter case version.
+    /// Changes letter cases of this text to the version.
     ///
-    ///     var text = THText(from: "hELlo", withType: .correct)
-    ///     text.lead(to: .lowercase)
+    ///     var text = LMText(from: "hELlo", withType: .correct)
+    ///     text.changeVersion(to: .lowercase)
     ///
-    ///     /*[THCharacter("h", type: .correct),
-    ///        THCharacter("e", type: .correct),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("o", type: .correct)]*/
+    ///     /*[LMCharacter("h", type: .correct),
+    ///        LMCharacter("e", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("o", type: .correct)]*/
     ///
-    /// - Note: The characters of the leading text have no boolean indicator of their letter case correctness.
-    public mutating func lead(to version: LMConfiguration.LetterCaseVersion) -> Void {
-        self = leading(to: version)
+    /// - Note: The characters of the letter-case-changed text have no boolean indicator of their letter case correctness.
+    public mutating func changeVersion(to version: LMConfiguration.LetterCaseVersion) -> Void {
+        self = changingVersion(to: version)
     }
     
     
@@ -144,13 +156,13 @@ extension LMText {
     
     /// Creates a text instance from the given string where all characters are one-type.
     ///
-    ///     let text = THText(string: "Hello", type: .correct)
+    ///     let text = LMText(string: "Hello", type: .correct)
     ///
-    ///     /*[THCharacter("H", type: .correct),
-    ///        THCharacter("e", type: .correct),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("l", type: .correct),
-    ///        THCharacter("o", type: .correct)]*/
+    ///     /*[LMCharacter("H", type: .correct),
+    ///        LMCharacter("e", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("o", type: .correct)]*/
     ///
     public init(string: String, type: LMCharacter.CharacterType) {
         let text = string.map { LMCharacter($0, type: type) }

@@ -42,12 +42,7 @@ open class LMDisplayView: UIScrollView {
     /// The text that is currently displayed, settable.
     /// - Note: When you set a new text to this property, it also updates the display.
     public var text = LMText() {
-        didSet {
-            resetAlignment()
-            display(text)
-            needsUpdateAlignment = true
-            setNeedsLayout()
-        }
+        didSet { updateDisplay() }
     }
     
     /// The boolean value that indicates whether the text is centered if its length fits into this display view’s bounding rectangle.
@@ -103,11 +98,12 @@ open class LMDisplayView: UIScrollView {
     
     /// The size for the monospaced font that is used for displaying text, settable.
     public var fontSize: CGFloat = 20 {
-        didSet {
-            resetAlignment()
-            needsUpdateAlignment = true
-            setNeedsLayout()
-        }
+        didSet { updateDisplay() }
+    }
+    
+    /// The weight for the monospaced font that is used for displaying text, settable.
+    public var fontWeight: UIFont.Weight = .medium {
+        didSet { updateDisplay() }
     }
     
     
@@ -136,15 +132,18 @@ open class LMDisplayView: UIScrollView {
         let centerMutableString = NSMutableAttributedString()
         let lowerMutableString = NSMutableAttributedString()
         
+        let space = " ".toNSAttributedString.applying(font: .monospacedSystemFont(ofSize: fontSize, weight: fontWeight))
+        
         if newText.isAbsolutelyRight {
             let correctText = newText.rawValue.toNSAttributedString
                 .applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
                 .applying(foregroundColor: completelyCorrectColor)
+            upperMutableString.append(space)
             centerMutableString.append(correctText)
+            lowerMutableString.append(space)
         } else {
-            let space = " ".toNSAttributedString.applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
             for char in newText {
-                let currentChar = char.rawValue.toNSAttributedString.applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
+                let currentChar = char.rawValue.toNSAttributedString.applying(font: .monospacedSystemFont(ofSize: fontSize, weight: fontWeight))
                 switch char.type {
                     
                 case .correct:
@@ -171,7 +170,7 @@ open class LMDisplayView: UIScrollView {
                             .applying(foregroundColor: warningColor)
                     }
                     let arrow = arrowSymbol.toNSAttributedString
-                        .applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
+                        .applying(font: .monospacedSystemFont(ofSize: fontSize, weight: fontWeight))
                         .applying(foregroundColor: warningColor)
                     upperMutableString.append(space)
                     centerMutableString.append(swappedChar)
@@ -234,7 +233,10 @@ open class LMDisplayView: UIScrollView {
     
     
     private func updateDisplay() -> Void {
+        resetAlignment()
         display(text)
+        needsUpdateAlignment = true
+        setNeedsLayout()
     }
     
     

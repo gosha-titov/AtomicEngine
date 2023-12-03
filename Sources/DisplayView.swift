@@ -134,6 +134,13 @@ open class LMDisplayView: UIScrollView {
         
         let space = " ".toNSAttributedString.applying(font: .monospacedSystemFont(ofSize: fontSize, weight: fontWeight))
         
+        guard newText.isEmpty == false else {
+            upperLabel.attributedText = space
+            textLabel.attributedText = space
+            lowerLabel.attributedText = space
+            return
+        }
+        
         if newText.isAbsolutelyRight {
             let correctText = newText.rawValue.toNSAttributedString
                 .applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))

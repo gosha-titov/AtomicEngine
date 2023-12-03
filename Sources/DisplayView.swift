@@ -36,14 +36,6 @@ import UIKit
 ///         }
 ///     )
 ///
-/// In order to get the height of this view, you can use the `computedContentHeight` property:
-///
-///     let height = displayView.computedContentHeight
-///     NSLayoutConstraint.activate([
-///         displayView.bottomAnchor.constraint(equalTo: topAnchor, constant: height)
-///         ...
-///     ])
-///
 @available(iOS 13.0, *)
 open class LMDisplayView: UIScrollView {
     
@@ -109,13 +101,15 @@ open class LMDisplayView: UIScrollView {
         didSet { updateDisplay() }
     }
     
-    /// The minimum height needed to display the text of this view.
-    public var computedContentHeight: CGFloat {
-        return fontSize * 3
+    /// The size for the monospaced font that is used for displaying text, settable.
+    public var fontSize: CGFloat = 20 {
+        didSet {
+            resetAlignment()
+            needsUpdateAlignment = true
+            setNeedsLayout()
+        }
     }
     
-    /// The size for the monospaced font that is used for displaying text.
-    public let fontSize: CGFloat
     
     /// The constraints that are used to align label to the center.
     private var constraintsToCenter = [NSLayoutConstraint]()
@@ -125,6 +119,12 @@ open class LMDisplayView: UIScrollView {
     
     /// The boolean value that indicates whether the layout of labels should be updated.
     private var needsUpdateAlignment = false
+    
+    /// The edge inset values for the content view.
+    private let padding: UIEdgeInsets
+    
+    /// The distance between labels.
+    private let spacing: CGFloat
     
     
     // MARK: - Display Methods
@@ -257,20 +257,21 @@ open class LMDisplayView: UIScrollView {
         }
     }
     
+    private func resetAlignment() -> Void {
+        NSLayoutConstraint.deactivate(constraintsToCenter)
+        NSLayoutConstraint.deactivate(constraintsToFill)
+    }
+    
     
     // MARK: - Init
     
-    /// Creates a text view with zero frame and the specified font size.
-    /// - Parameter fontSize: The size (in points) for the monospaced font that is used for displaying text.
-    public convenience init(fontSize: CGFloat = 16.0) {
-        self.init(frame: .zero, fontSize: fontSize)
-    }
-    
     /// Creates a text view with the specified frame rectangle and font size.
     /// - Parameter frame: The frame rectangle for the view, measured in points.
-    /// - Parameter fontSize: The size (in points) for the monospaced font that is used for displaying text.
-    public init(frame: CGRect, fontSize: CGFloat = 16.0) {
-        self.fontSize = fontSize
+    /// - Parameter padding: The edge inset values for the content view.
+    /// - Parameter spacing: The distance between labels.
+    public init(frame: CGRect, padding: UIEdgeInsets = .zero, spacing: CGFloat = 0) {
+        self.padding = padding
+        self.spacing = spacing
         super.init(frame: frame)
         addSubviews()
         setupLabels()
@@ -302,53 +303,41 @@ open class LMDisplayView: UIScrollView {
     
     private func setupLayout() -> Void {
         addToggleableConstraints()
-        applyConstraintsToUpperLabel()
-        applyConstraintsToTextLabel()
-        applyConstraintsToLowerLabel()
+        applyConstraintsToSelf()
+        applyCommonConstraintsToLabels()
         needsUpdateAlignment = true
         updateAlignmentIfNeeded()
     }
     
-    private func resetAlignment() -> Void {
-        NSLayoutConstraint.deactivate(constraintsToCenter)
-        NSLayoutConstraint.deactivate(constraintsToFill)
+    private func applyConstraintsToSelf() -> Void {
+        translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            heightAnchor.constraint(equalTo: contentLayoutGuide.heightAnchor),
+        ])
     }
     
-    private func applyConstraintsToUpperLabel() -> Void {
+    private func applyCommonConstraintsToLabels() -> Void {
         upperLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            upperLabel.topAnchor.constraint(equalTo: contentLayoutGuide.topAnchor),
-            upperLabel.heightAnchor.constraint(equalToConstant: fontSize),
-        ])
-    }
-    
-    private func applyConstraintsToTextLabel() -> Void {
         textLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            textLabel.topAnchor.constraint(equalTo: upperLabel.bottomAnchor),
-            textLabel.heightAnchor.constraint(equalToConstant: fontSize),
-        ])
-    }
-    
-    private func applyConstraintsToLowerLabel() -> Void {
         lowerLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            lowerLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor),
-            lowerLabel.bottomAnchor.constraint(equalTo: contentLayoutGuide.bottomAnchor),
-            lowerLabel.heightAnchor.constraint(equalToConstant: fontSize),
+            upperLabel.topAnchor.constraint(equalTo: contentLayoutGuide.topAnchor, constant: padding.top),
+            textLabel.topAnchor.constraint(equalTo: upperLabel.bottomAnchor, constant: spacing),
+            lowerLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: spacing),
+            lowerLabel.bottomAnchor.constraint(equalTo: contentLayoutGuide.bottomAnchor, constant: -padding.bottom),
         ])
     }
     
     private func addToggleableConstraints() -> Void {
         for label in [upperLabel, textLabel, lowerLabel] {
             constraintsToFill.append(contentsOf: [
-                label.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor),
-                label.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor),
+                label.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor, constant: padding.left),
+                label.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor, constant: -padding.right),
             ])
             constraintsToCenter.append(contentsOf: [
                 label.centerXAnchor.constraint(equalTo: centerXAnchor),
-                label.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor),
-                label.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor),
+                label.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: padding.left),
+                label.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -padding.right),
             ])
         }
     }

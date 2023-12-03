@@ -217,6 +217,7 @@ open class LMDisplayView: UIScrollView {
                             .applying(underline: .single, withColor: wrongColor)
                     } else {
                         correctChar = correctSymbol.toNSAttributedString
+                            .applying(font: .monospacedSystemFont(ofSize: fontSize, weight: fontWeight))
                             .applying(foregroundColor: wrongColor)
                     }
                     upperMutableString.append(correctChar)

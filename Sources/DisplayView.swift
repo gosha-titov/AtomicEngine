@@ -45,7 +45,7 @@ open class LMDisplayView: UIScrollView {
         didSet { updateDisplay() }
     }
     
-    /// The boolean value that indicates whether the text is centered if its length fits into this display view’s bounding rectangle.
+    /// The boolean value that detemines whether the text is centered if its length fits into this display view’s bounding rectangle.
     /// - Note: When you set a new value to this property, it also updates the display.
     public var alignsTextToCenterIfFits = true {
         didSet {
@@ -68,31 +68,31 @@ open class LMDisplayView: UIScrollView {
     
     /// The color that is used to display completely correct text, settable.
     /// - Note: When you set a new color to this property, it also updates the display.
-    public var completelyCorrectColor: UIColor = .green {
+    public var completelyCorrectColor: UIColor = .systemGreen {
         didSet { updateDisplay() }
     }
     
     /// The color that is used to display correct characters, settable.
     /// - Note: When you set a new color to this property, it also updates the display.
-    public var correctColor: UIColor = .black {
+    public var correctColor: UIColor = .label {
         didSet { updateDisplay() }
     }
     
     /// The color that is used to emphasize swapped characters, arrows below them and wrong letter cases, settable.
     /// - Note: When you set a new color to this property, it also updates the display.
-    public var warningColor: UIColor = .orange {
+    public var warningColor: UIColor = .systemYellow {
         didSet { updateDisplay() }
     }
     
     /// The color that is used to display extra characters and strikethrough lines, settable.
     /// - Note: When you set a new color to this property, it also updates the display.
-    public var wrongColor: UIColor = .red {
+    public var wrongColor: UIColor = .systemRed {
         didSet { updateDisplay() }
     }
     
     /// The color that is used to display missing characters, settable.
     /// - Note: When you set a new color to this property, it also updates the display.
-    public var missingColor: UIColor = .lightGray {
+    public var missingColor: UIColor = .systemGray3 {
         didSet { updateDisplay() }
     }
     
@@ -143,7 +143,7 @@ open class LMDisplayView: UIScrollView {
         
         if newText.isAbsolutelyRight {
             let correctText = newText.rawValue.toNSAttributedString
-                .applying(font: .monospacedSystemFont(ofSize: fontSize, weight: .regular))
+                .applying(font: .monospacedSystemFont(ofSize: fontSize, weight: fontWeight))
                 .applying(foregroundColor: completelyCorrectColor)
             upperMutableString.append(space)
             centerMutableString.append(correctText)
@@ -297,8 +297,8 @@ open class LMDisplayView: UIScrollView {
     
     private func setupLabels() -> Void {
         for label in [upperLabel, textLabel, lowerLabel] {
+            label.font = .monospacedSystemFont(ofSize: fontSize, weight: fontWeight)
             label.backgroundColor = .clear
-            label.font = .monospacedSystemFont(ofSize: fontSize, weight: .regular)
         }
     }
     

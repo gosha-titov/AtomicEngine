@@ -40,8 +40,6 @@ import Foundation
 ///
 open class LMValidator {
     
-    // MARK: - Properties
-    
     /// The queue that is used for **asynchronous** execution of all checking operations which go strickly after each other.
     ///
     /// This property has the default value that is created in the following way:
@@ -66,7 +64,26 @@ open class LMValidator {
     public var configuration: LMConfiguration
     
     
-    // MARK: - Methods
+    // MARK: Methods
+    
+    /// Checks for all typos and mistakes in the given text relying on the accurate one.
+    ///
+    ///     let text = LMValidator.checkForTyposAndMistakes(in: "Hola", relyingOn: "Hello", with: configuration)
+    ///     /*[LMCharacter("H", type: .correct),
+    ///        LMCharacter("o", type: .misspell("e")),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("a", type: .misspell("l")),
+    ///        LMCharacter("o", type: .missing)      ]*/
+    ///
+    /// - Parameter comparedText: The text to be compared with `accurateText` in order to find the best set of matching characters.
+    /// - Parameter accurateText: The text based on which the checking proccess performs.
+    /// - Parameter configuration: The configuration consisting of parameters that is used during the creation of a result text.
+    /// - Returns: The created text combined from the given compared and accurate strings.
+    public static func checkForTyposAndMistakes(in comparedText: String, relyingOn accurateText: String, with configuration: LMConfiguration) -> LMText {
+        let formedText = LMTextFormer.formText(from: comparedText, relyingOn: accurateText, with: configuration)
+        let editedText = LMTextEditor.makeTextUserFriendly(formedText, with: configuration)
+        return editedText
+    }
     
     /// Checks for all typos and mistakes in the given text relying on the accurate one, asynchronously.
     ///
@@ -88,8 +105,8 @@ open class LMValidator {
     ///        LMCharacter("o", type: .missing)      ]*/
     ///
     /// - Note: In order for you to update your UI components, this method calls the handling closure **always on the main queue, asynchronously**.
-    /// - Parameter comparedText: A text to be compared with `accurateText` in order to find the best set of matching characters.
-    /// - Parameter accurateText: A text based on which the checking proccess performs.
+    /// - Parameter comparedText: The text to be compared with `accurateText` in order to find the best set of matching characters.
+    /// - Parameter accurateText: The text based on which the checking proccess performs.
     /// - Parameter handle: A closure that takes a result text as a parameter to handle.
     public final func checkForTyposAndMistakes(in comparedText: String, relyingOn accurateText: String, andHandleResult handle: @escaping (LMText) -> Void) -> Void {
         if let queue {
@@ -118,10 +135,10 @@ open class LMValidator {
     ///        LMCharacter("a", type: .misspell("l")),
     ///        LMCharacter("o", type: .missing)      ]*/
     ///
-    /// If you need to execute this method asynchronously then call the `findTypos(in:relyingOn:andHandleResult:)` method.
+    /// If you need to execute this method asynchronously then call the `checkForTyposAndMistakes(in:relyingOn:andHandleResult:)` method.
     ///
-    /// - Parameter comparedText: A text to be compared with `accurateText` in order to find the best set of matching characters.
-    /// - Parameter accurateText: A text based on which the checking proccess performs.
+    /// - Parameter comparedText: The text to be compared with `accurateText` in order to find the best set of matching characters.
+    /// - Parameter accurateText: The text based on which the checking proccess performs.
     /// - Returns: The created text combined from the given compared and accurate strings.
     public final func checkForTyposAndMistakes(in comparedText: String, relyingOn accurateText: String) -> LMText {
         let formedText = LMTextFormer.formText(from: comparedText, relyingOn: accurateText, with: configuration)
@@ -130,7 +147,7 @@ open class LMValidator {
     }
     
     
-    // MARK: - Init
+    // MARK: Init
     
     /// Creates a validator instance with the specified configuration.
     /// - Parameter configuration: The configuration consisting of parameters that is used during the creation of a text.

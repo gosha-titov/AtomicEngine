@@ -20,34 +20,51 @@ public struct LMCharacter: Equatable {
     ///
     public var type: CharacterType
     
-    
     /// A boolean value that indicates whether the letter case of this character is correct.
     ///
     /// - Note: `Nil` value means that the letter case does not matter.
     /// This is when the text is leaded to a certain version, for example, to its lowercase version.
     public var hasCorrectLetterCase: Bool?
     
+    
+    /// Creates a character instance.
+    public init(_ rawValue: Character, type: CharacterType, hasCorrectLetterCase: Bool? = nil) {
+        self.hasCorrectLetterCase = hasCorrectLetterCase
+        self.rawValue = rawValue
+        self.type = type
+    }
+    
+}
+
+
+
+// MARK: - Behavior Extensions
+
+extension LMCharacter {
+    
     /// A boolean value that indicates whether the type of this character is correct.
+    @inlinable @inline(__always)
     public var isCorrect: Bool { type == .correct }
     
     /// A boolean value that indicates whether the type of this character is missing.
+    @inlinable @inline(__always)
     public var isMissing: Bool { type == .missing }
     
     /// A boolean value that indicates whether the type of this character is extra.
+    @inlinable @inline(__always)
     public var isExtra: Bool { type == .extra }
     
     /// A boolean value that indicates whether the type of this character is swapped.
+    @inlinable @inline(__always)
     public var isSwapped: Bool {
-        if case .swapped = type { return true }
-        return false
+        return if case .swapped = type { true } else { false }
     }
     
     /// A boolean value that indicates whether the type of this character is misspell.
+    @inlinable @inline(__always)
     public var isMisspell: Bool {
-        if case .misspell = type { return true }
-        return false
+        return if case .misspell = type { true } else { false }
     }
-    
     
     /// An uppercase version of this character.
     ///
@@ -55,6 +72,7 @@ public struct LMCharacter: Equatable {
     ///     character.uppercased // LMCharacter("A", type: .misspell("B"))
     ///
     /// - Note: The uppercase character has no boolean indicator of its letter case correctness.
+    @inlinable @inline(__always)
     public var uppercased: LMCharacter {
         let newRawValue = rawValue.uppercased().toCharacter!
         let newType: CharacterType
@@ -74,6 +92,7 @@ public struct LMCharacter: Equatable {
     ///     character.lowercased // LMCharacter("a", type: .misspell("b"))
     ///
     /// - Note: The lowercase character has no boolean indicator of its letter case correctness.
+    @inlinable @inline(__always)
     public var lowercased: LMCharacter {
         let newRawValue = rawValue.lowercased().toCharacter!
         let newType: CharacterType
@@ -87,16 +106,6 @@ public struct LMCharacter: Equatable {
         return LMCharacter(newRawValue, type: newType, hasCorrectLetterCase: nil)
     }
     
-    
-    // MARK: - Init
-    
-    /// Creates a character instance.
-    public init(_ rawValue: Character, type: CharacterType, hasCorrectLetterCase: Bool? = nil) {
-        self.rawValue = rawValue
-        self.type = type
-        self.hasCorrectLetterCase = hasCorrectLetterCase
-    }
-    
 }
 
 
@@ -108,6 +117,7 @@ extension LMCharacter: CustomStringConvertible {
     ///     print(char)
     ///     // Prints "Character 's' of type: missing"
     ///
+    @inlinable @inline(__always)
     public var description: String {
         let ending: String
         if let hasCorrectLetterCase {
@@ -121,6 +131,9 @@ extension LMCharacter: CustomStringConvertible {
 }
 
 
+
+// MARK: - Character Type
+
 extension LMCharacter {
     
     /// A type that describes a character relative to the original one.
@@ -128,28 +141,33 @@ extension LMCharacter {
     /// There are only five types of character: `correct`, `missing`, `swapped`, `misspell` and `extra`.
     public enum CharacterType: Equatable {
         
-        /// A type that indicates whether a character is correct.
+        /// The type indicating whether a character is correct.
         /// This means that this character is the same as the original one.
         case correct
         
-        /// A type that indicates whether a character is swapped with another one.
+        /// The type indicating whether a character is swapped with another one.
         /// This means that if these two characters are swapped back, they will become correct.
         case swapped(position: SwappedPosition)
         
-        /// A type that indicates whether a character is missing.
+        /// The type indicating whether a character is missing.
         /// This means that this character is in the original text but is missing in the entered one.
         case missing
         
-        /// A type that indicates whether a character is extra.
+        /// The type indicating whether a character is extra.
         case extra
         
-        /// A type that indicates whether a character is misspell, and has associated value that is a correct character.
+        /// The type indicating whether a character is misspell, and has associated value that is a correct character.
         case misspell(_ correctChar: Character)
         
-        /// Creates a character type instance with the `.extra` value.
-        public init() { self = .extra }
-        
     }
+    
+}
+
+
+extension LMCharacter.CharacterType {
+    
+    /// Creates a character type instance with the `.extra` value.
+    public init() { self = .extra }
     
 }
 
@@ -159,26 +177,13 @@ extension LMCharacter.CharacterType {
     /// A type that specifies a character position relative to the correct one.
     ///
     /// This is used when two characters are correct but swapped.
-    public enum SwappedPosition {
+    public enum SwappedPosition: String, Codable, Equatable {
         
         /// A position of a character that is to the left of the correct position.
         case left
         
         /// A position of a character that is to the right of the correct position.
         case right
-    }
-    
-}
-
-
-extension LMCharacter {
-    
-    public static func == (lhs: LMCharacter, rhs: LMCharacter) -> Bool {
-        if lhs.rawValue == rhs.rawValue, lhs.type == rhs.type, lhs.hasCorrectLetterCase == rhs.hasCorrectLetterCase {
-            return true
-        } else {
-            return false
-        }
     }
     
 }

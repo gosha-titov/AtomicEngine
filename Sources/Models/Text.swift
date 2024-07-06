@@ -18,6 +18,9 @@
 public typealias LMText = [LMCharacter]
 
 
+
+// MARK: - Behavior Extensions
+
 extension LMText {
     
     /// A boolean value that indicates whether this text has no typos or mistakes.
@@ -27,6 +30,7 @@ extension LMText {
     ///        LMCharacter("i", type: .correct, hasCorrectLetterCase: true)]*/
     ///     text.isAbsolutelyRight // false
     ///
+    @inlinable @inline(__always)
     public var isAbsolutelyRight: Bool {
         for char in self {
             guard char.isCorrect else { return false }
@@ -44,6 +48,7 @@ extension LMText {
     ///        LMCharacter("h", type: .swapped(position: .right))]*/
     ///     text.isCompletelyWrong // false
     ///
+    @inlinable @inline(__always)
     public var isCompletelyWrong: Bool {
         for char in self {
             guard char.isExtra || char.isMissing || char.isMisspell else { return false }
@@ -55,6 +60,7 @@ extension LMText {
     ///
     /// A misspell, missing or extra char is considered as one mistake;
     /// two swapped chars are considered as one mistake.
+    @inlinable @inline(__always)
     public var countOfTyposAndMistakes: Int {
         var count = 0
         var countOfSwappedChars = 0
@@ -69,8 +75,8 @@ extension LMText {
     }
     
     /// Count of characters that have wrong letter case.
-    ///
-    /// `Nil` values are not considered.
+    /// - Note: `Nil` values are not considered.
+    @inlinable @inline(__always)
     public var countOfWrongLetterCases: Int {
         var count = 0
         for char in self {
@@ -93,6 +99,7 @@ extension LMText {
     ///     print(text.rawValue)
     ///     // Prints "Hello"
     ///
+    @inlinable @inline(__always)
     public var rawValue: String {
         var string = String()
         for char in self {
@@ -105,65 +112,66 @@ extension LMText {
     }
     
     
-    // MARK: - Methods
+    // MARK: Methods
     
-    /// Returns a text, whose letter cases are changed to the given version.
+    /// Returns a capitalized version of this text.
     ///
-    ///     let text = LMText(
-    ///         from: "hELlo",
-    ///         withType: .correct
-    ///     ).changingVersion(to: .lowercase)
-    ///
-    ///     /*[LMCharacter("h", type: .correct),
-    ///        LMCharacter("e", type: .correct),
-    ///        LMCharacter("l", type: .correct),
-    ///        LMCharacter("l", type: .correct),
-    ///        LMCharacter("o", type: .correct)]*/
-    ///
-    /// - Note: The characters of the letter-case-changed text have no boolean indicator of their letter case correctness.
-    public func changingVersion(to version: LMConfiguration.LetterCaseVersion) -> LMText {
-        guard self.count > 0 else { return [] }
-        var result = LMText()
-        switch version {
-        case .uppercase: result = map { $0.uppercased }
-        case .lowercase: result = map { $0.lowercased }
-        case .capitalized:
-            result.append(first!.uppercased)
-            guard count > 1 else { return result}
-            for char in self[1...] { result.append(char.lowercased) }
-        }
-        return result
-    }
-    
-    /// Changes letter cases of this text to the version.
-    ///
-    ///     var text = LMText(from: "hELlo", withType: .correct)
-    ///     text.changeVersion(to: .lowercase)
-    ///
-    ///     /*[LMCharacter("h", type: .correct),
-    ///        LMCharacter("e", type: .correct),
-    ///        LMCharacter("l", type: .correct),
-    ///        LMCharacter("l", type: .correct),
-    ///        LMCharacter("o", type: .correct)]*/
-    ///
-    /// - Note: The characters of the letter-case-changed text have no boolean indicator of their letter case correctness.
-    public mutating func changeVersion(to version: LMConfiguration.LetterCaseVersion) -> Void {
-        self = changingVersion(to: version)
-    }
-    
-    
-    // MARK: - Init
-    
-    /// Creates a text instance from the given string where all characters are one-type.
-    ///
-    ///     let text = LMText(string: "Hello", type: .correct)
-    ///
+    ///     let text = LMText(string: "helLo", type: .correct)
+    ///     print(text.capitalized)
     ///     /*[LMCharacter("H", type: .correct),
     ///        LMCharacter("e", type: .correct),
     ///        LMCharacter("l", type: .correct),
     ///        LMCharacter("l", type: .correct),
     ///        LMCharacter("o", type: .correct)]*/
     ///
+    @inlinable @inline(__always)
+    public var capitalized: LMText {
+        guard let first = first?.uppercased else { return [] }
+        guard count > 1 else { return [first] }
+        return [first] + self[1...].map(\.lowercased)
+    }
+    
+    /// Returns an uppercased version of this text.
+    ///
+    ///     let text = LMText(string: "Url", type: .correct)
+    ///     print(text.uppercased)
+    ///     /*[LMCharacter("U", type: .correct),
+    ///        LMCharacter("R", type: .correct),
+    ///        LMCharacter("L", type: .correct)]*/
+    ///
+    @inlinable @inline(__always)
+    public var uppercased: LMText {
+        return map(\.uppercased)
+    }
+    
+    /// Returns a lowercased version of this text.
+    ///
+    ///     let text = LMText(string: "hELlo", type: .correct)
+    ///     print(text.lowercased)
+    ///     /*[LMCharacter("h", type: .correct),
+    ///        LMCharacter("e", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("o", type: .correct)]*/
+    ///
+    @inlinable @inline(__always)
+    public var lowercased: LMText {
+        return map(\.lowercased)
+    }
+    
+    
+    // MARK: Init
+    
+    /// Creates a text instance from the given string where all characters are one-type.
+    ///
+    ///     let text = LMText(string: "Hello", type: .correct)
+    ///     /*[LMCharacter("H", type: .correct),
+    ///        LMCharacter("e", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("l", type: .correct),
+    ///        LMCharacter("o", type: .correct)]*/
+    ///
+    @inlinable @inline(__always)
     public init(string: String, type: LMCharacter.CharacterType) {
         let text = string.map { LMCharacter($0, type: type) }
         self.init(text)

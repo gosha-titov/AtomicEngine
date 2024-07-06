@@ -1,160 +1,212 @@
 import Foundation
 
 /// A configuration that is applied the creation of the text.
+///
+/// The configuration includes the following rules for the text checking:
+///
+///     var requiredQuantityOfCorrectChars: CharQuantity
+///     var acceptableQuantityOfWrongChars: CharQuantity
+///     var letterCaseAction: LetterCaseAction
+///
+/// Example of a configuration for checking a phrase:
+///
+///     configuration.requiredQuantityOfCorrectChars // .high
+///     configuration.acceptableQuantityOfWrongChars // .three
+///     configuration.letterCaseAction // .lowercase
+///
 public struct LMConfiguration {
     
     /// The quantity that indicates the required number of correct chars.
     ///
     /// The text is considered incorrect if its count of matching chars is less than this quantity.
-    /// If this quantity is `nil` then the check will not be performed.
+    /// If this quantity is `none` then the check will not be performed.
     /// - Note: The required count of correct chars is counted relative to the accurate text.
-    public var requiredQuantityOfCorrectChars: CharQuantity?
+    public var requiredQuantityOfCorrectChars = CharQuantity()
     
     /// The quantity that indicates the acceptable number of wrong chars.
     ///
     /// The text is considered incorrect if its count of wrong chars is more than this quantity.
-    /// If this quantity is `nil` then the check will not be performed.
+    /// If this quantity is `none` then the check will not be performed.
     /// - Note: The acceptable count of wrong chars is counted relative to the compared text.
-    public var acceptableQuantityOfWrongChars: CharQuantity?
+    public var acceptableQuantityOfWrongChars = CharQuantity()
     
     /// The action to be applied to the letter cases of the text.
     ///
     /// All kinds of action:
     ///
-    /// - **compare**: Letter cases will be compared. That is, there is a mistake if letter cases do not match.
+    /// - **compare**: Letter cases will be compared. There is a mistake if letter cases do not match.
+    /// - **none**:  Letter cases will not be changed. There is no mistake if letter cases do not match.
     ///
-    /// + **leadTo(Version)**: Letter cases will be leaded to the given version. That is, there is no mistake if letter cases do not match.
-    ///     - **capitalized**: The writing of a word with its first letter in uppercase and the remaining letters in lowercase.
-    ///     - **uppercase**: The writing of a word in capital letters.
-    ///     - **lowercase**: The writing of a word in small letters.
+    /// Next actions convert letter cases to the specified version, there is no mistake if letter cases do not match:
+    /// - **capitalize**: The writing of a word with its first letter in uppercase and the remaining letters in lowercase.
+    /// - **uppercase**: The writing of a word in capital letters.
+    /// - **lowercase**: The writing of a word in small letters.
     ///
-    /// If the value is `nil` then letter cases will not be changed. There is no mistake if letter cases do not match.
-    public var letterCaseAction: LetterCaseAction?
+    public var letterCaseAction = LetterCaseAction()
+    
     
     /// Creates an empty configuration instance.
     public init() {}
+    
 }
 
 
+
+// MARK: - Char Quantity
+
 extension LMConfiguration {
     
+    /// A quantity that can be a certain number or coefficient.
     public enum CharQuantity: Equatable {
+        
+        /// The case indicating that there is no quantity.
+        case none
+        
         
         // MARK: Coefficients
         
-        /// A default quantity associated with 100% of chars, that is, the coefficient is `1.0`.
+        /// The default quantity associated with 100% of chars, that is, the coefficient is `1.0`.
         case all
         
-        /// A default quantity associated with 75% of chars, that is, the coefficient is `0.75`.
+        /// The default quantity associated with 75% of chars, that is, the coefficient is `0.75`.
         case high
         
-        /// A default quantity associated with 50% of chars, that is, the coefficient is `0.5`.
+        /// The default quantity associated with 50% of chars, that is, the coefficient is `0.5`.
         case half
         
-        /// A default quantity associated with 25% of chars, that is, the coefficient is `0.25`.
+        /// The default quantity associated with 25% of chars, that is, the coefficient is `0.25`.
         case low
         
-        /// A quantity associated with a certain percentage of chars.
+        /// The quantity associated with a certain percentage of chars.
         case coefficient(Double)
-        
-        /// A double value associated with this quantity.
-        internal var coefficient: Double? {
-            switch self {
-            case .coefficient(let value): return value.clamped(to: 0...1.0)
-            case .all:  return 1.0
-            case .high: return 0.75
-            case .half: return 0.5
-            case .low:  return 0.25
-            default: return nil
-            }
-        }
         
         
         // MARK: Numbers
         
-        /// A quantity associated with a zero number of chars.
+        /// The quantity associated with a zero number of chars.
         case zero
         
-        /// A quantity associated with a 1 char.
+        /// The quantity associated with a 1 char.
         case one
         
-        /// A quantity associated with 2 chars.
+        /// The quantity associated with 2 chars.
         case two
         
-        /// A quantity associated with 3 chars.
+        /// The quantity associated with 3 chars.
         case three
         
-        /// A quantity associated with a certain number of chars.
+        /// The quantity associated with a certain number of chars.
         case number(Int)
         
-        /// An integer value associated with this quantity.
-        internal var number: Int? {
-            switch self {
-            case .number(let value): return value.clamped(to: 0...)
-            case .zero:  return 0
-            case .one:   return 1
-            case .two:   return 2
-            case .three: return 3
-            default: return nil
-            }
+    }
+    
+}
+
+
+extension LMConfiguration.CharQuantity {
+    
+    /// A double value associated with this quantity.
+    @inlinable @inline(__always)
+    public var coefficient: Double? {
+        return switch self {
+        case .coefficient(let value): value.clamped(to: 0...1.0)
+        case .all:  1.0
+        case .high: 0.75
+        case .half: 0.5
+        case .low:  0.25
+        default: nil
         }
-        
-        
-        // MARK: Methods
-        
-        /// Returns calculated `Int` value for the given length.
-        internal func count(for length: Int, clamped: Bool = false) -> Int {
-            guard let coefficient else {
-                if clamped { return number!.clamped(to: 0...length) }
-                return number!
-            }
+    }
+    
+    /// An integer value associated with this quantity.
+    @inlinable @inline(__always)
+    public var number: Int? {
+        return switch self {
+        case .number(let value): value.clamped(to: 0...)
+        case .zero:  0
+        case .one:   1
+        case .two:   2
+        case .three: 3
+        default: nil
+        }
+    }
+    
+    
+    // MARK: Methods
+    
+    /// Returns a calculated `Int` value for the given length.
+    @inlinable @inline(__always)
+    internal func count(for length: Int, clamped: Bool = false) -> Int? {
+        if let coefficient {
             if self == .all { return length }
             return (length.toDouble * coefficient).rounded().toInt
         }
-        
+        if let number {
+            if clamped { return number.clamped(to: 0...length) }
+            return number
+        }
+        return nil
+    }
+    
+    
+    // MARK: Init
+    
+    /// Creates a quantity with the `.none` value.
+    @inlinable @inline(__always)
+    public init() {
+        self = .none
     }
     
 }
 
 
+
+// MARK: - Action On Letter Cases
+
 extension LMConfiguration {
     
-    public enum LetterCaseAction: Equatable {
+    /// An action that is applied to the letter cases of the text.
+    public enum LetterCaseAction: String, Codable, Equatable {
         
-        /// Letter cases will be compared. That is, there is a mistake if letter cases do not match.
+        /// The action determining that letter cases will be compared.
+        /// That is, there is a mistake if letter cases do not match.
         case compare
         
-        /// Letter cases will be made in the given version. That is, there is no mistake if letter cases do not match.
-        case make(LetterCaseVersion)
-        
-    }
-    
-}
-
-
-extension LMConfiguration {
-    
-    /// A letter case version that indicates how a text should be written.
-    public enum LetterCaseVersion: Equatable {
-        
-        /// The writing of a text with its first letter in uppercase and the remaining letters in lowercase.
+        /// The action determining that letter cases will be converted to the capitalized version.
+        /// That is, there is no mistake if letter cases do not match.
         ///
-        ///     let text = "Capitalized"
+        ///     "Capitalized"
         ///
-        case capitalized
+        case capitalize
         
-        /// The writing of a text in capital letters.
+        /// The action determining that letter cases will be converted to the uppercase version.
+        /// That is, there is no mistake if letter cases do not match.
         ///
-        ///     let text = "UPPERCASE"
+        ///     "UPPERCASE"
         ///
         case uppercase
         
-        /// The writing of a text in small letters.
+        /// The actiondetermining that letter cases will be converted to the uppercase version.
+        /// That is, there is no mistake if letter cases do not match.
         ///
-        ///     let text = "lowercase"
+        ///     "lowercase"
         ///
         case lowercase
         
+        /// The case indicating that there is no action.
+        case none
+        
+    }
+    
+}
+
+
+extension LMConfiguration.LetterCaseAction {
+    
+    /// Creates an action with the `.none` value.
+    @inlinable @inline(__always)
+    public init() {
+        self = .none
     }
     
 }

@@ -21,7 +21,7 @@ final class THMathCoreTests: XCTestCase {
 //        comparedText = "babababababa"
 //
 //        ExecutionTime.measure {
-//            let _ = THMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+//            let _ = LMMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
 //        }
         
     }

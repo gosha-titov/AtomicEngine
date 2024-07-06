@@ -9,6 +9,7 @@ internal extension NSAttributedString {
     /// - Parameter color: The color of the underline.
     /// - Parameter range: The range of characters to which these attributes apply.
     /// If `nil` is specified,  these attributes are applied to the full string.
+    @inlinable @inline(__always)
     func applying(underline style: NSUnderlineStyle, withColor color: UIColor, inRange range: NSRange? = nil) -> NSAttributedString {
         return applying([.underlineColor: color, .underlineStyle: style.rawValue], inRange: range)
     }
@@ -18,6 +19,7 @@ internal extension NSAttributedString {
     /// - Parameter color: The color of the strikethrough.
     /// - Parameter range: The range of characters to which these attributes apply.
     /// If `nil` is specified,  these attributes are applied to the full string.
+    @inlinable @inline(__always)
     func applying(strikethrough value: Int, withColor color: UIColor, inRange range: NSRange? = nil) -> NSAttributedString {
         return applying([.strikethroughStyle: value, .strikethroughColor: color], inRange: range)
     }
@@ -26,6 +28,7 @@ internal extension NSAttributedString {
     /// - Parameter font: The font of the text.
     /// - Parameter range: The range of characters to which this attribute applies.
     /// If `nil` is specified, this attribute is applied to the full string.
+    @inlinable @inline(__always)
     func applying(font: UIFont, inRange range: NSRange? = nil) -> NSAttributedString {
         return applying([.font: font], inRange: range)
     }
@@ -34,6 +37,7 @@ internal extension NSAttributedString {
     /// - Parameter color: The color of the background behind the text.
     /// - Parameter range: The range of characters to which this attribute applies.
     /// If `nil` is specified, this attribute is applied to the full string.
+    @inlinable @inline(__always)
     func applying(backgroundColor: UIColor, inRange range: NSRange? = nil) -> NSAttributedString {
         return applying([.backgroundColor: backgroundColor], inRange: range)
     }
@@ -42,6 +46,7 @@ internal extension NSAttributedString {
     /// - Parameter color: The color of the text.
     /// - Parameter range: The range of characters to which this attribute applies.
     /// If `nil` is specified, this attribute is applied to the full string.
+    @inlinable @inline(__always)
     func applying(foregroundColor: UIColor, inRange range: NSRange? = nil) -> NSAttributedString {
         return applying([.foregroundColor: foregroundColor], inRange: range)
     }
@@ -50,6 +55,7 @@ internal extension NSAttributedString {
     /// - Parameter color: The shadow of the text.
     /// - Parameter range: The range of characters to which this attribute applies.
     /// If `nil` is specified, this attribute is applied to the full string.
+    @inlinable @inline(__always)
     func applying(shadow: NSShadow, inRange range: NSRange? = nil) -> NSAttributedString {
         return applying([.shadow: shadow], inRange: range)
     }
@@ -66,6 +72,7 @@ internal extension NSAttributedString {
     ///
     ///     let mutableString = attributedString.toNSMutableAttributedString
     ///
+    @inlinable @inline(__always)
     var toNSMutableAttributedString: NSMutableAttributedString {
         return NSMutableAttributedString(attributedString: self)
     }
@@ -76,6 +83,7 @@ internal extension NSAttributedString {
     /// For information about the system-supplied attribute keys, see the Constants section in `NSAttributedString`.
     /// - Parameter range: The range of characters to which the specified attributes apply.
     /// If `nil` is specified, the given attributes are applied to the full string.
+    @inlinable @inline(__always)
     func applying(_ attributes: [Key: Any], inRange: NSRange? = nil) -> NSAttributedString {
         guard !string.isEmpty else { return self }
         let range: NSRange

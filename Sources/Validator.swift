@@ -11,9 +11,9 @@ import Foundation
 ///         /// The singleton validator instance.
 ///         static let shared: Validator = {
 ///             var configuration = LMConfiguration()
-///             configuration.letterCaseAction = .make(.capitalized)
 ///             configuration.requiredQuantityOfCorrectChars = .high
 ///             configuration.acceptableQuantityOfWrongChars = .one
+///             configuration.letterCaseAction = .capitalize
 ///             return Validator(configuration: configuration)
 ///         }()
 ///
@@ -58,7 +58,7 @@ open class LMValidator {
     /// So if you need to establish conditions or to lead a text to a certain version, then set your own configuration as in the following example:
     ///
     ///     let configuration = LMConfiguration()
-    ///     configuration.letterCaseAction = .make(.capitalized)
+    ///     configuration.letterCaseAction = .capitalize
     ///     validator.configuration = configuration
     ///
     public var configuration: LMConfiguration

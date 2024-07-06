@@ -1,48 +1,52 @@
+//
 // Implementation notes
 // ====================
 //
 //  (source texts) –> (math basis) –> (formed text) -> [edited text] -> (displayed text)
 //                                                      –––––––––––
 //
-// +––––––––––––––––+
-// | Types denoting |
-// +----------------+
-// | "+" – correct  |
-// | "?" - missing  |
-// | "^" – swapped  |
-// | "m" – misspell |
-// | "!" – extra    |
-// +––––––––––––––––+
+// ┌────────────────┐
+// │ Types denoting │
+// ├────────────────┤
+// │ "+" – correct  │
+// │ "?" - missing  │
+// │ "^" – swapped  │
+// │ 'm' – misspell │
+// │ "!" – extra    │
+// └────────────────┘
 //
 //
 // Step 0: adjusting source text
+// –––––––––––––––––––––––––––––
 //
 //     Initial values           After forming         After adjusting        After editing
-// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––––+    +–––––––+–––––––+
-// | accurateText | day |    | text  | d a y y |    | text  | d a y y |    | text  | d y y |
-// +--------------+-----+ –> +-------+---------+ –> +-------+---------+ –> +-------+-------+
-// | comparedText | dyy |    | types | + ? + ! |    | types | + ? ! + |    | types | + a + |
-// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––––+    +–––––––+–––––––+
+// ┌──────────────┬─────┐    ┌───────┬─────────┐    ┌───────┬─────────┐    ┌───────┬───────┐
+// │ accurateText │ day │    │ chars │ d a y y │    │ chars │ d a y y │    │ chars │ d y y │
+// ├──────────────┼─────┤ ─> ├───────┼─────────┤ ─> ├───────┼─────────┤ ─> ├───────┼───────┤
+// │ comparedText │ dyy │    │ types │ + ? + ! │    │ types │ + ? ! + │    │ types │ + a + │
+// └──────────────┴─────┘    └───────┴─────────┘    └───────┴─────────┘    └───────┴───────┘
 //
 //
 // Step 1: adding misspell chars
+// –––––––––––––––––––––––––––––
 //
 //     Initial values           After forming         After editing
-// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––+
-// | accurateText | day |    | text  | d a e y |    | text  | d e y |
-// +--------------+-----+ –> +-------+---------+ –> +-------+-------+
-// | comparedText | dey |    | types | + ? ! + |    | types | + a + |
-// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––+
+// ┌──────────────┬─────┐    ┌───────┬─────────┐    ┌───────┬───────┐
+// │ accurateText │ day │    │ chars │ d a e y │    │ chars │ d e y │
+// ├──────────────┼─────┤ ─> ├───────┼─────────┤ ─> ├───────┼───────┤
+// │ comparedText │ dey │    │ types │ + ? ! + │    │ types │ + a + │
+// └──────────────┴─────┘    └───────┴─────────┘    └───────┴───────┘
 //
 //
 // Step 2: adding swapped chars
+// ––––––––––––––––––––––––––––
 //
 //     Initial values           After forming         After editing
-// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––+
-// | accurateText | day |    | text  | d y a y |    | text  | d y a |
-// +--------------+-----+ –> +-------+---------+ –> +-------+-------+
-// | comparedText | dya |    | types | + ! + ? |    | types | + ^ ^ |
-// +––––––––––––––+–––––+    +–––––––+–––––––––+    +–––––––+–––––––+
+// ┌──────────────┬─────┐    ┌───────┬─────────┐    ┌───────┬───────┐
+// │ accurateText │ day │    │ chars │ d y a y │    │ chars │ d y a │
+// ├──────────────┼─────┤ ─> ├───────┼─────────┤ ─> ├───────┼───────┤
+// │ comparedText │ dya │    │ types │ + ! + ? │    │ types │ + ^ ^ │
+// └──────────────┴─────┘    └───────┴─────────┘    └───────┴───────┘
 //
 
 /// A text editor that consists of methods to make a formed text user-friendly.
@@ -101,7 +105,7 @@ internal final class LMTextEditor {
     ///     let formedText = LMTextFormer.formText(
     ///         from: comparedText,
     ///         relyingOn: accurateText,
-    ///         with: THConfiguration()
+    ///         with: LMConfiguration()
     ///     )
     ///     /*[LMCharacter("d", type: .correct),
     ///        LMCharacter("a", type: .missing),
@@ -109,13 +113,14 @@ internal final class LMTextEditor {
     ///        LMCharacter("y", type: .correct)]*/
     ///
     ///     let editedText = addindMisspellChars(to: formedText, with)
-    ///     /*[LMCharacter("d", type: .correct       ),
-    ///        LMCharacter("e", type: .misspell("a") ),
-    ///        LMCharacter("y", type: .correct       )]*/
+    ///     /*[LMCharacter("d", type: .correct      ),
+    ///        LMCharacter("e", type: .misspell("a")),
+    ///        LMCharacter("y", type: .correct      )]*/
     ///
     /// - Returns: An edited text that has misspell chars.
     @inlinable @inline(__always)
     internal static func addindMisspellChars(to text: LMText) -> LMText {
+        guard text.count > 1 else { return text }
         
         var indexesOfMissingChars = [Int]()
         var indexesOfExtraChars   = [Int]()
@@ -186,6 +191,7 @@ internal final class LMTextEditor {
     /// - Returns: An edited text that has swapped chars.
     @inlinable @inline(__always)
     internal static func addingSwappedChars(to text: LMText) -> LMText {
+        guard text.count > 1 else { return text }
         
         var text = text
         
@@ -233,6 +239,7 @@ internal final class LMTextEditor {
     ///
     @inlinable @inline(__always)
     internal static func adjusting(_ formedText: LMText) -> LMText {
+        guard formedText.count > 1 else { return formedText }
         
         var countOfEqualCorrectChars = Int()
         var countOfMissingChars = Int()

@@ -7,6 +7,7 @@ internal extension String {
     ///     let str = "A"
     ///     str.toCharacter! // Character("A")
     ///
+    @inlinable @inline(__always)
     var toCharacter: Character? { Character(self) }
     
     // MARK: Properties
@@ -15,6 +16,7 @@ internal extension String {
     ///
     ///     let attributedString = "text".toNSAttributedString
     ///
+    @inlinable @inline(__always)
     var toNSAttributedString: NSAttributedString {
         return NSAttributedString(string: self)
     }
@@ -26,6 +28,7 @@ internal extension String {
     ///     let str2 = "abde"
     ///     str1.commonSuffix(with: str2) // "de"
     ///
+    @inlinable @inline(__always)
     func commonSuffix(with str: String) -> String {
         var suffix = String()
         let min = min(count, str.count)
@@ -43,6 +46,7 @@ internal extension String {
     ///     let str = "abcde"
     ///     str.first(3) // "abc"
     ///
+    @inlinable @inline(__always)
     func first(_ k: Int) -> String {
         let k = k > count ? count : k
         var first = String()
@@ -57,6 +61,7 @@ internal extension String {
     ///     let str = "abcde"
     ///     str.last(3) // "cde"
     ///
+    @inlinable @inline(__always)
     func last(_ k: Int) -> String {
         let k = k > count ? count : k
         var last = String()
@@ -71,6 +76,7 @@ internal extension String {
     ///     var str = "woRd"
     ///     str.capitalize() // "Word"
     ///
+    @inlinable @inline(__always)
     mutating func capitalize() -> Void {
         self = capitalized
     }
@@ -80,6 +86,7 @@ internal extension String {
     ///     var str = "WorD"
     ///     str.uppercase() // "WORD"
     ///
+    @inlinable @inline(__always)
     mutating func uppercase() -> Void {
         self = uppercased()
     }
@@ -89,6 +96,7 @@ internal extension String {
     ///     var str = "WorD"
     ///     str.lowercase() // "word"
     ///
+    @inlinable @inline(__always)
     mutating func lowercase() -> Void {
         self = lowercased()
     }
@@ -96,14 +104,17 @@ internal extension String {
     
     // MARK: Operators
     
+    @inlinable @inline(__always)
     static func += (lhs: inout String, rhs: Character) -> Void {
         lhs = lhs + String(rhs)
     }
     
+    @inlinable @inline(__always)
     static func + (lhs: String, rhs: Character) -> String {
         return lhs + String(rhs)
     }
     
+    @inlinable @inline(__always)
     static func + (lhs: Character, rhs: String) -> String {
         return String(lhs) + rhs
     }
@@ -111,38 +122,45 @@ internal extension String {
     
     // MARK: Subscripts
     
+    @inlinable @inline(__always)
     subscript(bounds: ClosedRange<Int>) -> String {
         let lowerBound = index(startIndex, offsetBy: bounds.lowerBound)
         let upperBound = index(startIndex, offsetBy: bounds.upperBound)
         return String(self[lowerBound...upperBound])
     }
 
+    @inlinable @inline(__always)
     subscript(bounds: Range<Int>) -> String {
         let lowerBound = index(startIndex, offsetBy: bounds.lowerBound)
         let upperBound = index(startIndex, offsetBy: bounds.upperBound)
         return String(self[lowerBound..<upperBound])
     }
 
+    @inlinable @inline(__always)
     subscript(bounds: PartialRangeFrom<Int>) -> String {
         let lowerBound = index(startIndex, offsetBy: bounds.lowerBound)
         return String(self[lowerBound...])
     }
 
+    @inlinable @inline(__always)
     subscript(bounds: PartialRangeUpTo<Int>) -> String {
         let upperBound = index(startIndex, offsetBy: bounds.upperBound)
         return String(self[..<upperBound])
     }
 
+    @inlinable @inline(__always)
     subscript(bounds: PartialRangeThrough<Int>) -> String {
         let upperBound = index(startIndex, offsetBy: bounds.upperBound)
         return String(self[...upperBound])
     }
     
+    @inlinable @inline(__always)
     subscript(offset: Int) -> Character {
         let index = index(startIndex, offsetBy: offset)
         return self[index]
     }
     
+    @inlinable @inline(__always)
     subscript(safe offset: Int) -> Character? {
         guard (0..<count).contains(offset) else { return nil }
         return self[offset]

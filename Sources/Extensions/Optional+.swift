@@ -7,6 +7,7 @@ internal extension Optional {
     ///     var age: Int?
     ///     age.isNil // true
     ///
+    @inlinable @inline(__always)
     var isNil: Bool { self == nil }
     
     /// A Boolean value that indicates whether this optional object is not `nil`.
@@ -14,6 +15,7 @@ internal extension Optional {
     ///     var name: String? = "gosha"
     ///     name.hasValue // true
     ///
+    @inlinable @inline(__always)
     var hasValue: Bool { self != nil }
     
 }
@@ -32,6 +34,7 @@ internal extension Optional where Wrapped: Collection {
     ///     var dict: [Int: String]? = [12: "34"]
     ///     dict.isNilOrEmpty // false
     ///
+    @inlinable @inline(__always)
     var isNilOrEmpty: Bool {
         return self?.isEmpty ?? true
     }

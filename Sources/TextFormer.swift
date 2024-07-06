@@ -1,3 +1,4 @@
+//
 // Implementation notes
 // ====================
 //
@@ -5,24 +6,24 @@
 //                                     –––––––––––
 //
 // Example of forming a text
-// –––––––––––––––––––––––––––––––––
+// –––––––––––––––––––––––––
 //
 //  accurateText = "hello"
 //  comparedText = "hola"
 //
-//  +–––––––––––––––––+–––––––––––––––+  +––––––––––––––––+
-//  | accurateText    | h e   l l o   |  | Types denoting |
-//  | comparedText    | h   o l     a |  +----------------+
-//  +-----------------+---------------+  | "+" – correct  |
-//  | sourceSequence  | 0 1   2 3 4   |  | "?" - missing  |
-//  | sequence        | 0   4 2    nil|  | "!" – extra    |
-//  | subsequence     | 0     2       |  +––––––––––––––––+
-//  | missingElements |   1     3 4   |
-//  +-----------------+---------------+
-//  | formedText      | h e o l l o a |
-//  +-----------------+---------------+
-//  | formedTypes     | + ? ! + ? ? ! |
-//  +–––––––––––––––––+–––––––––––––––+
+//  ┌─────────────────┬───────────────┐  ┌────────────────┐
+//  │ accurateText    │ h e   l l o   │  │ Types denoting │
+//  │ comparedText    │ h   o l     a │  ├────────────────┤
+//  ├─────────────────┼───────────────┤  │ "+" – correct  │
+//  │ sourceSequence  │ 0 1   2 3 4   │  │ "?" - missing  │
+//  │ sequence        │ 0   4 2    nil│  │ "!" – extra    │
+//  │ subsequence     │ 0     2       │  └────────────────┘
+//  │ missingElements │   1     3 4   │
+//  ├─────────────────┼───────────────┤
+//  │ formedText      │ h e o l l o a │
+//  ├─────────────────┼───────────────┤
+//  │ formedTypes     │ + ? ! + ? ? ! │
+//  └─────────────────┴───────────────┘
 //
 //
 // Other notes
@@ -43,7 +44,7 @@ internal final class LMTextFormer {
     ///     let comparedText = "hola"
     ///
     ///     let configuration = LMConfiguration()
-    ///     configuration.letterCaseAction = .make(.capitalized)
+    ///     configuration.letterCaseAction = .capitalize
     ///
     ///     let text = LMTextFormer.formText(
     ///         from: comparedText,
@@ -203,12 +204,12 @@ internal final class LMTextFormer {
         
         let accurateLength = basis.sourceSequence.count
         
-        if let requiredCount = configuration.requiredQuantityOfCorrectChars?.count(for: accurateLength, clamped: true) {
+        if let requiredCount = configuration.requiredQuantityOfCorrectChars.count(for: accurateLength, clamped: true) {
             let countOfMatchingChars = basis.subsequence.count
             guard requiredCount <= countOfMatchingChars else { return false }
         }
         
-        if let acceptableCount = configuration.acceptableQuantityOfWrongChars?.count(for: accurateLength) {
+        if let acceptableCount = configuration.acceptableQuantityOfWrongChars.count(for: accurateLength) {
             let countOfMissingChars = basis.missingElements.count
             let countOfWrongChars = basis.sequence.count - basis.subsequence.count + basis.missingElements.count
             let maxCount = max(countOfWrongChars, countOfMissingChars) // because wrong and missing chars may be combined into misspell ones
@@ -241,11 +242,11 @@ internal final class LMTextFormer {
         
         let accurateLength = accurateText.count
         
-        if let requiredCount = configuration.requiredQuantityOfCorrectChars?.count(for: accurateLength, clamped: true) {
+        if let requiredCount = configuration.requiredQuantityOfCorrectChars.count(for: accurateLength, clamped: true) {
             guard requiredCount <= countOfCommonChars else { return false }
         }
         
-        if let acceptableCount = configuration.acceptableQuantityOfWrongChars?.count(for: accurateLength) {
+        if let acceptableCount = configuration.acceptableQuantityOfWrongChars.count(for: accurateLength) {
             let countOfMissingChars = accurateText.count - countOfCommonChars
             let countOfWrongChars = comparedText.count - countOfCommonChars
             let maxCount = max(countOfWrongChars, countOfMissingChars) // because wrong and missing chars may be combined into misspell ones
@@ -288,11 +289,13 @@ internal final class LMTextFormer {
     /// Returns a text with applied configuration.
     @inlinable @inline(__always)
     internal static func applying(_ configuration: LMConfiguration, to text: LMText) -> LMText {
-        var text = text
-        if case .make(let version) = configuration.letterCaseAction {
-            text.changeVersion(to: version)
+        return switch configuration.letterCaseAction {
+        case .capitalize: text.capitalized
+        case .uppercase:  text.uppercased
+        case .lowercase:  text.lowercased
+        case .compare: text
+        case .none: text
         }
-        return text
     }
     
     

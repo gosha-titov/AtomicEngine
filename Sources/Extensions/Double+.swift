@@ -5,6 +5,7 @@ internal extension Double {
     ///     let number = 34.56
     ///     number.toInt // 34
     ///
+    @inlinable @inline(__always)
     var toInt: Int { Int(self) }
     
 }

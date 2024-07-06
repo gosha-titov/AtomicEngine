@@ -6,6 +6,7 @@ internal extension Dictionary {
     ///     dict.hasKey(2) // true
     ///     dict.hasKey(3) // false
     ///
+    @inlinable @inline(__always)
     func hasKey(_ key: Key) -> Bool { self[key].hasValue }
     
 }

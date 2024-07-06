@@ -6,6 +6,7 @@ internal extension Character {
     ///
     ///     let attributedString = Character("a").toNSAttributedString
     ///
+    @inlinable @inline(__always)
     var toNSAttributedString: NSAttributedString {
         return NSAttributedString(string: String(self))
     }

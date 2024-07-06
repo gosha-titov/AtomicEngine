@@ -1,5 +1,6 @@
 import Foundation
 
+//
 // Implementation notes
 // ====================
 //
@@ -11,7 +12,7 @@ import Foundation
 //
 //
 // First Examle
-// ------------
+// ––––––––––––
 //
 //  Let's take the accurate and compared texts that equal to "aaa":
 //  To figure out the correct orders of chars, we need to make the following table for the length = `3`,
@@ -19,35 +20,36 @@ import Foundation
 //
 //      Examples of tables with non-decreasing sequences of the specific length:
 //
-//      +-----+ +-------+ +---------+ +-----------+ +-------------+
-//      | 0 0 | | 0 0 0 | | 0 0 0 0 | | 0 0 0 0 1 | | 0 0 0 0 0 1 |
-//      | 0 1 | | 0 0 1 | | 0 0 0 1 | | 0 0 0 0 2 | | 0 0 0 0 0 2 |
-//      | 1 1 | | 0 0 2 | |         | |           | |             |
-//      +-----+ | 0 1 1 | |   ...   | |    ...    | |     ...     |
-//         3    | 0 1 2 | |         | |           | |             |
-//              | 0 2 2 | | 1 2 2 2 | | 3 4 4 4 4 | | 4 5 5 5 5 5 |
-//              | 1 1 1 | | 3 3 3 3 | | 4 4 4 4 4 | | 5 5 5 5 5 5 |
-//              | 1 1 2 | +---------+ +-----------+ +-------------+
-//              | 1 2 2 |      35          126            462
-//              | 2 2 2 |
-//              +-------+
+//      ┌─────┐ ┌───────┐ ┌─────────┐ ┌───────────┐ ┌─────────────┐
+//      │ 0 0 │ │ 0 0 0 │ │ 0 0 0 0 │ │ 0 0 0 0 1 │ │ 0 0 0 0 0 1 │
+//      │ 0 1 │ │ 0 0 1 │ │ 0 0 0 1 │ │ 0 0 0 0 2 │ │ 0 0 0 0 0 2 │
+//      │ 1 1 │ │ 0 0 2 │ │         │ │           │ │             │
+//      └─────┘ │ 0 1 1 │ │   ...   │ │    ...    │ │     ...     │
+//         3    │ 0 1 2 │ │         │ │           │ │             │
+//              │ 0 2 2 │ │ 1 2 2 2 │ │ 3 4 4 4 4 │ │ 4 5 5 5 5 5 │
+//              │ 1 1 1 │ │ 3 3 3 3 │ │ 4 4 4 4 4 │ │ 5 5 5 5 5 5 │
+//              │ 1 1 2 │ └─────────┘ └───────────┘ └─────────────┘
+//              │ 1 2 2 │      35          126            462
+//              │ 2 2 2 │
+//              └───────┘
 //                  10
 //
 //      The dependency table of the count of operations for the specific length:
-//      +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+––––––––+––––––––+
-//      | length | 1 | 2 | 3  | 4  |  5  |  6  |  7   |  8   |   9    |   10   |
-//      +--------+---+---+----+----+-----+-----+------+------+--------+--------+
-//      | count  | 1 | 3 | 10 | 35 | 126 | 462 | 1716 | 6435 | 24_310 | 92_378 |
-//      +––––––––+–––+–––+––––+––––+–––––+–––––+––––––+––––––+––––––––+––––––––+
+//      ┌────────┬───┬───┬────┬────┬─────┬─────┬──────┬──────┬───────┬───────┐
+//      │ length │ 1 │ 2 │ 3  │ 4  │  5  │  6  │  7   │  8   │   9   │  10   │
+//      ├────────┼───┼───┼────┼────┼─────┼─────┼──────┼──────┼───────┼───────┤
+//      │ count  │ 1 │ 3 │ 10 │ 35 │ 126 │ 462 │ 1716 │ 6435 │ 24310 │ 92378 │
+//      └────────┴───┴───┴────┴────┴─────┴─────┴──────┴──────┴───────┴───────┘
 //
 //      This numbers show how much the complexity of calculations increases
 //      with an increase in the number of identical chars.
 //
 //  That is, for the "aaa" text there are performed 10 operations.
+//  (There are several optimizations that in most cases reduce the number of operations to a minimum)
 //
 //
 // Second example
-// --------------
+// ––––––––––––––
 //
 //  Let's take the accurate text = "abab" and the compared text = "baba":
 //
@@ -55,31 +57,31 @@ import Foundation
 //  Then we make a following table based on this sequence and the accurate text:
 //
 //   Sequences  Subsequences
-//  +–––––––––+ +–––––––––+
-//  | 1 0 1 0 | |   0 1   |
-//  |[1 0 1 2]| |[  0 1 2]| <- Best pair
-//  | 1 0 3 0 | |   0 3   |
-//  | 1 0 3 2 | |   0   2 |
-//  | 1 2 1 2 | | 1 2     |
-//  | 1 2 3 2 | | 1 2 3   |
-//  | 3 0 3 0 | |   0 3   |
-//  | 3 0 3 2 | |   0   2 |
-//  | 3 2 3 2 | |   2 3   |
-//  +–––––––––+ +–––––––––+
+//  ┌─────────┐ ┌─────────┐
+//  │ 1 0 1 0 │ │   0 1   │
+//  │[1 0 1 2]│ │[  0 1 2]│ <- Best pair
+//  │ 1 0 3 0 │ │   0 3   │
+//  │ 1 0 3 2 │ │   0   2 │
+//  │ 1 2 1 2 │ │ 1 2     │
+//  │ 1 2 3 2 │ │ 1 2 3   │
+//  │ 3 0 3 0 │ │   0 3   │
+//  │ 3 0 3 2 │ │   0   2 │
+//  │ 3 2 3 2 │ │   2 3   │
+//  └─────────┘ └─────────┘
 //
 //  Now we have to choose the best pair among these: it's [1, 0, 1, 2] and [0, 1, 2].
 //  This means that by comparing the sequence and its subsequence with each other
-//  we're able to understand which characters are wrong or missing:
+//  we are able to understand which characters are wrong or missing:
 //
-//  +––––––––––––––––––+––––––––––––+
-//  | Source sequence  |    0 1 2 3 |
-//  +------------------+------------+
-//  | Sequence         |  1 0 1 2   |
-//  +------------------+------------+
-//  | Subsequence      |    0 1 2   |
-//  +------------------+------------+
-//  | Missing Elements |          3 |
-//  +––––––––––––––––––+––––––––––––+
+//  ┌──────────────────┬────────────┐
+//  │ Source sequence  │    0 1 2 3 │
+//  ├──────────────────┼────────────┤
+//  │ Sequence         │  1 0 1 2   │
+//  ├──────────────────┼────────────┤
+//  │ Subsequence      │    0 1 2   │
+//  ├──────────────────┼────────────┤
+//  │ Missing Elements │          3 │
+//  └──────────────────┴────────────┘
 //
 //  Based on this math model (basis), we can make the following conclusion:
 //  The first char is extra, then the next three are correct and the last one is missing.
@@ -87,17 +89,20 @@ import Foundation
 //  Note, that final count of operations equals to multiplying the count for each length of identical characters.
 //  That is, 3*3=9 operations are performed for this example.
 //  For "aaaaabbb" and "bbbaaaaa", 126*10=1260 operations are performed.
+//  But this is without optimizations, because when using them, the final count is only ONE.
 //
 //  But at the same time for a text consisting of 300 chars where there are only 3 identical chars (100 kinds of a char),
 //  100*10=1000 operations are performed.
 //
 //
 // Other notes
-// -----------
+// –––––––––––
 //
-// In theory, this algorithm works for text of any length,
-// but in practice we have to divide the text into sentences and sentences into words.
+// In theory, this algorithm works for a text of any length,
+// but in practice we have to divide a text into sentences and sentences into words.
 // Otherwise, the execution time tends to infinity, since the count of operations inevitably increases.
+// Actually, if it is assumed that the user enters meaningful text similar to the correct one,
+// then there is no need to divide a sentence into words since optimizations works well.
 //
 
 /// A math core that consists of static methods for working with numbers, sequences, subsequences and so on.
@@ -258,11 +263,11 @@ internal final class LMMathCore {
         // dict is ["a": [0, 2], "c": [1], b: [3]]
         //
         // (c)   (a)   (b)   (a)
-        //  1 ––> 0 ––> 3 ––> 0
-        //   |           |
-        //   |           +––> 2
-        //   |
-        //   +––> 2 -–> 3 -–> 2
+        //  1 ──> 0 ──> 3 ──> 0
+        //   │           │
+        //   │           └──> 2
+        //   │
+        //   └──> 2 ──> 3 ──> 2
         //
         // rawSequences are [ [1, 0, 3, 0], [1, 0, 3, 2], [1, 2, 3, 2] ]
         //
@@ -275,9 +280,9 @@ internal final class LMMathCore {
         // dict is ["b": [0], "a": [1, 2, 3, 4], "c": [5]]
         //
         // (c)   (a)   (a)   (a)   (b)   (a)
-        //  5 ––> 1 ––> 2 ––> 3 ––> 0 ––> 3
-        //                           |
-        //                           +––> 4
+        //  5 ──> 1 ──> 2 ──> 3 ──> 0 ──> 3
+        //                           │
+        //                           └──> 4
         //
         // rawSequences are [ [5, 1, 2, 3, 0, 3], [5, 1, 2, 3, 0, 4] ]
         //
@@ -373,7 +378,7 @@ internal final class LMMathCore {
     /// - Note: Letter case does not affect anything, because the text is changed to a lowercase version.
     /// - Complexity: O(*n*), where *n* is the length of the text.
     /// - Returns: A dictionary where each char contains its own indexes.
-    @inlinable
+    @inlinable 
     internal static func charPositions(of text: String) -> [Character: [Int]] {
         
         var dict = [Character: [Int]]()
@@ -457,9 +462,9 @@ internal final class LMMathCore {
 
 
 
+// MARK: - Math Types
+
 extension LMMathCore {
-    
-    // MARK: - Math Types
     
     /// A sequence that consists of char indexes.
     internal typealias Sequence = [Int]
@@ -543,16 +548,19 @@ internal extension LMMathCore.Basis {
     
     /// Creates a math basis instance with visible arguments.
     /// - Note: It's mainly used for testing.
+    @inlinable @inline(__always)
     init(sourceSequence: LMMathCore.Sequence, sequence: LMMathCore.OptionalSequence, subsequence: LMMathCore.Subsequence) {
         self.init(sourceSequence, sequence, subsequence)
     }
     
     /// Creates an empty math basis instance.
     /// - Note: It's mainly used for testing.
+    @inlinable @inline(__always)
     init() {
         self.init(LMMathCore.Sequence(), LMMathCore.OptionalSequence(), LMMathCore.Subsequence())
     }
     
+    @inlinable @inline(__always)
     static func == (lhs: LMMathCore.Basis, rhs: LMMathCore.Basis) -> Bool {
         if lhs.sourceSequence == rhs.sourceSequence,
            lhs.subsequence == rhs.subsequence,
@@ -569,21 +577,25 @@ internal extension LMMathCore.Basis {
 internal extension LMMathCore.Pair {
     
     /// A tuple value converted from this pair.
+    @inlinable @inline(__always)
     var toTuple: (sequence: LMMathCore.OptionalSequence, subsequence: LMMathCore.Subsequence) {
         return (sequence, subsequence)
     }
     
     /// Creates a math pair instance with visible arguments.
     /// - Note: It's mainly used for testing.
+    @inlinable @inline(__always)
     init(sequence: LMMathCore.OptionalSequence, subsequence: LMMathCore.Subsequence) {
         self.init(sequence, subsequence)
     }
     
     /// Creates an empty math pair instance.
+    @inlinable @inline(__always)
     init() {
         self.init(LMMathCore.OptionalSequence(), LMMathCore.Subsequence())
     }
     
+    @inlinable  @inline(__always)
     static func == (lhs: LMMathCore.Pair, rhs: LMMathCore.Pair) -> Bool {
         if lhs.subsequence == rhs.subsequence,
            lhs.sequence == rhs.sequence {

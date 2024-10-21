@@ -14,15 +14,15 @@ final class THMathCoreTests: XCTestCase {
         // Used to measure execition time
         // Just to see the difference between any updates more clearly
         
-//        var comparedText = String()
-//        var accurateText = String()
-//
-//        accurateText = "abababababab"
-//        comparedText = "babababababa"
-//
-//        ExecutionTime.measure {
-//            let _ = LMMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
-//        }
+        var comparedText = String()
+        var accurateText = String()
+
+        accurateText = "abababababab"
+        comparedText = "babababababa"
+
+        ExecutionTime.measure {
+            let _ = LMMathCore.calculateBasis(for: comparedText, relyingOn: accurateText)
+        }
         
     }
     

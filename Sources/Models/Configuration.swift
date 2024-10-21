@@ -41,7 +41,6 @@ public struct LMConfiguration {
     /// - **capitalize**: The writing of a word with its first letter in uppercase and the remaining letters in lowercase.
     /// - **uppercase**: The writing of a word in capital letters.
     /// - **lowercase**: The writing of a word in small letters.
-    ///
     public var letterCaseAction = LetterCaseAction()
     
     
@@ -58,6 +57,9 @@ extension LMConfiguration {
     
     /// A quantity that can be a certain number or coefficient.
     public enum CharQuantity: Equatable {
+        
+        /// The default quantity associated with zero chars.
+        case zero
         
         /// The case indicating that there is no quantity.
         case none
@@ -83,16 +85,13 @@ extension LMConfiguration {
         
         // MARK: Numbers
         
-        /// The quantity associated with a zero number of chars.
-        case zero
-        
-        /// The quantity associated with a 1 char.
+        /// The default quantity associated with 1 char.
         case one
         
-        /// The quantity associated with 2 chars.
+        /// The default quantity associated with 2 chars.
         case two
         
-        /// The quantity associated with 3 chars.
+        /// The default quantity associated with 3 chars.
         case three
         
         /// The quantity associated with a certain number of chars.
@@ -186,7 +185,7 @@ extension LMConfiguration {
         ///
         case uppercase
         
-        /// The actiondetermining that letter cases will be converted to the uppercase version.
+        /// The action determining that letter cases will be converted to the uppercase version.
         /// That is, there is no mistake if letter cases do not match.
         ///
         ///     "lowercase"

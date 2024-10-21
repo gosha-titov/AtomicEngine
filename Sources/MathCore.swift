@@ -21,12 +21,12 @@ import Foundation
 //      Examples of tables with non-decreasing sequences of the specific length:
 //
 //      ┌─────┐ ┌───────┐ ┌─────────┐ ┌───────────┐ ┌─────────────┐
-//      │ 0 0 │ │ 0 0 0 │ │ 0 0 0 0 │ │ 0 0 0 0 1 │ │ 0 0 0 0 0 1 │
-//      │ 0 1 │ │ 0 0 1 │ │ 0 0 0 1 │ │ 0 0 0 0 2 │ │ 0 0 0 0 0 2 │
+//      │ 0 0 │ │ 0 0 0 │ │ 0 0 0 0 │ │ 0 0 0 0 0 │ │ 0 0 0 0 0 0 │
+//      │ 0 1 │ │ 0 0 1 │ │ 0 0 0 1 │ │ 0 0 0 0 1 │ │ 0 0 0 0 0 1 │
 //      │ 1 1 │ │ 0 0 2 │ │         │ │           │ │             │
 //      └─────┘ │ 0 1 1 │ │   ...   │ │    ...    │ │     ...     │
 //         3    │ 0 1 2 │ │         │ │           │ │             │
-//              │ 0 2 2 │ │ 1 2 2 2 │ │ 3 4 4 4 4 │ │ 4 5 5 5 5 5 │
+//              │ 0 2 2 │ │ 2 3 3 3 │ │ 3 4 4 4 4 │ │ 4 5 5 5 5 5 │
 //              │ 1 1 1 │ │ 3 3 3 3 │ │ 4 4 4 4 4 │ │ 5 5 5 5 5 5 │
 //              │ 1 1 2 │ └─────────┘ └───────────┘ └─────────────┘
 //              │ 1 2 2 │      35          126            462
@@ -41,8 +41,8 @@ import Foundation
 //      │ count  │ 1 │ 3 │ 10 │ 35 │ 126 │ 462 │ 1716 │ 6435 │ 24310 │ 92378 │
 //      └────────┴───┴───┴────┴────┴─────┴─────┴──────┴──────┴───────┴───────┘
 //
-//      This numbers show how much the complexity of calculations increases
-//      with an increase in the number of identical chars.
+//      These numbers show how much the complexity of calculations increases
+//      with an increase the number of identical chars.
 //
 //  That is, for the "aaa" text there are performed 10 operations.
 //  (There are several optimizations that in most cases reduce the number of operations to a minimum)
@@ -91,8 +91,29 @@ import Foundation
 //  For "aaaaabbb" and "bbbaaaaa", 126*10=1260 operations are performed.
 //  But this is without optimizations, because when using them, the final count is only ONE.
 //
-//  But at the same time for a text consisting of 300 chars where there are only 3 identical chars (100 kinds of a char),
+//  But at the same time for a text consisting of 300 chars where there are only 3 identical chars (100 kinds of char),
 //  100*10=1000 operations are performed.
+//
+//
+// General Optimization
+// ––––––––––––––––––––
+//
+// accurateText: "123a456bc789"
+// comparedText: "123bc456a789"
+//
+// First of all, we can find common prefix and suffix between these two texts:
+//
+// accurateText: "123" [ "a456bc" ] "789"
+// comparedText: "123" [ "bc456c" ] "789"
+//
+// We get partial texts in which we can try to find the common part longer than a half:
+//
+// accurateText: "123" [ "a"  ] "456" [ "bc" ] "789"
+// comparedText: "123" [ "bc" ] "456" [ "c"  ] "789"
+//                       ^^^^           ^^^^
+//
+// After all the actions, we only have to compare small parts of these texts.
+// And then we just put it all together.
 //
 //
 // Other notes
@@ -101,7 +122,7 @@ import Foundation
 // In theory, this algorithm works for a text of any length,
 // but in practice we have to divide a text into sentences and sentences into words.
 // Otherwise, the execution time tends to infinity, since the count of operations inevitably increases.
-// Actually, if it is assumed that the user enters meaningful text similar to the correct one,
+// Actually, if it is assumed that the user enters a meaningful text similar to the correct one,
 // then there is no need to divide a sentence into words since optimizations works well.
 //
 
@@ -136,13 +157,13 @@ internal final class LMMathCore {
         let accurateSequence: Sequence = Array(0..<accurateText.count)
         
         // Find a common beginning(prefix) and ending(suffix) of the texts:
-        let prefix = comparedText.commonPrefix(with: accurateText).count
-        var partialAccurateText = accurateText.dropFirst(prefix).toString
-        var partialComparedText = comparedText.dropFirst(prefix).toString
+        let prefixCount = comparedText.commonPrefix(with: accurateText).count
+        var partialAccurateText = accurateText.dropFirst(prefixCount).toString
+        var partialComparedText = comparedText.dropFirst(prefixCount).toString
         
-        let suffix = partialComparedText.commonSuffix(with: partialAccurateText).count
-        partialAccurateText = partialAccurateText.dropLast(suffix).toString
-        partialComparedText = partialComparedText.dropLast(suffix).toString
+        let suffixCount = partialComparedText.commonSuffix(with: partialAccurateText).count
+        partialAccurateText = partialAccurateText.dropLast(suffixCount).toString
+        partialComparedText = partialComparedText.dropLast(suffixCount).toString
         
         // Perform the work of the algorithm:
         let rawSequences = generateRawSequences(for: partialComparedText, relyingOn: partialAccurateText)
@@ -150,12 +171,12 @@ internal final class LMMathCore {
         let (partialSequence, partialSubsequence) = pickBestPair(among: rawPairs).toTuple
         
         // Restore the missing common parts:
-        let accurateSequencePrefix = accurateSequence.first(prefix)
-        let accurateSequenceSuffix = accurateSequence.last(suffix)
+        let accurateSequencePrefix = accurateSequence.first(prefixCount)
+        let accurateSequenceSuffix = accurateSequence.last(suffixCount)
         
         // Put everything together:
-        let shiftedPartialSequence    = partialSequence   .map { $0.hasValue ? $0! + prefix : nil }
-        let shiftedPartialSubsequence = partialSubsequence.map {               $0  + prefix       }
+        let shiftedPartialSequence    = partialSequence   .map { $0.hasValue ? $0! + prefixCount : nil }
+        let shiftedPartialSubsequence = partialSubsequence.map {               $0  + prefixCount       }
         let sequence    = accurateSequencePrefix + shiftedPartialSequence    + accurateSequenceSuffix
         let subsequence = accurateSequencePrefix + shiftedPartialSubsequence + accurateSequenceSuffix
         
@@ -352,17 +373,14 @@ internal final class LMMathCore {
     /// - Returns: An integer value that indicates how many common chars between given texts.
     @inlinable
     internal static func countCommonChars(between text1: String, and text2: String) -> Int {
-        
         let dict1 = charPositions(of: text1)
         let dict2 = charPositions(of: text2)
-        var count = Int()
-        
+        var count = 0
         for (char1, positions1) in dict1 {
             if let positions2 = dict2[char1] {
                 count += min(positions1.count, positions2.count)
             }
         }
-        
         return count
     }
     
@@ -380,9 +398,7 @@ internal final class LMMathCore {
     /// - Returns: A dictionary where each char contains its own indexes.
     @inlinable 
     internal static func charPositions(of text: String) -> [Character: [Int]] {
-        
         var dict = [Character: [Int]]()
-        
         for (index, char) in text.lowercased().enumerated() {
             if dict.hasKey(char) {
                 dict[char]!.append(index)
@@ -390,9 +406,51 @@ internal final class LMMathCore {
                 dict[char] = [index]
             }
         }
-        
         return dict
     }
+    
+    
+    // MARK: - Find Common Part
+    
+    /// Finds a continuous sequence of characters that is longer than a half of the smallest text.
+    ///
+    ///     let text1 = "ab123"
+    ///     let text2 = "a123"
+    ///     let commonPart = findCommonPart(between: text1, and: text2)!
+    ///     // (index1: 2, index2: 1, length: 3)
+    ///
+    /// - Note: It's a part of the general optimization.
+    /// This works perfectly if we believe that the user enters a meaningful text similar to the accurate one, but with some mistakes.
+    /// - Returns: Indexes of start of a common part, and its length; otherwise, `nil`.
+    @inlinable
+    internal static func findCommonPart(between text1: String, and text2: String) -> (index1: Int, index2: Int, length: Int)? {
+        func roundedHalf(of text: String) -> Int { return Int(round(Double(text.count)) / 2) }
+        func rawHalf(of text: String) -> Int { return text.count / 2 }
+        let half = min(roundedHalf(of: text1), roundedHalf(of: text2))
+        let rawHalf = min(rawHalf(of: text1), rawHalf(of: text2))
+        for index1 in 0..<(text1.count - rawHalf) {
+            for index2 in 0..<(text2.count - rawHalf) {
+                let char1 = text1[index1]
+                let char2 = text2[index2]
+                if char1 == char2 {
+                    let maxOffset1 = text1.count - index1
+                    let maxOffset2 = text2.count - index2
+                    var count = 1
+                    for offset in 1..<min(maxOffset1, maxOffset2) {
+                        let char1 = text1[index1 + offset]
+                        let char2 = text2[index2 + offset]
+                        guard char1 == char2 else { break }
+                        count += 1
+                    }
+                    if count >= half {
+                        return (index1, index2, count)
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
     
     
     // MARK: - Find LIS

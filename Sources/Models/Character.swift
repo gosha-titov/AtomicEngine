@@ -4,7 +4,7 @@
 ///     character.rawValue // Character("a")
 ///     character.type // .missing
 ///
-public struct LMCharacter: Equatable {
+public struct LMCharacter: Sendable, Equatable {
     
     /// The corresponding value of this character.
     ///
@@ -139,7 +139,7 @@ extension LMCharacter {
     /// A type that describes a character relative to the original one.
     ///
     /// There are only five types of character: `correct`, `missing`, `swapped`, `misspell` and `extra`.
-    public enum CharacterType: Equatable {
+    public enum CharacterType: Sendable, Equatable {
         
         /// The type indicating whether a character is correct.
         /// This means that this character is the same as the original one.
@@ -177,7 +177,7 @@ extension LMCharacter.CharacterType {
     /// A type that specifies a character position relative to the correct one.
     ///
     /// This is used when two characters are correct but swapped.
-    public enum SwappedPosition: String, Codable, Equatable {
+    public enum SwappedPosition: String, Sendable, Codable, Equatable {
         
         /// A position of a character that is to the left of the correct position.
         case left
